@@ -1,5 +1,29 @@
 import { createHash } from 'crypto';
-import { pool } from '@/lib/db.js';
+import { getPool } from '@/lib/db.js';
+
+function isPostgres() {
+  return process.env.DB_TYPE === 'postgres' || process.env.DB_TYPE === 'pg';
+}
+
+function adaptPlaceholders(query, params) {
+  if (!isPostgres()) {
+    return [query, params];
+  }
+
+  let idx = 0;
+  return [query.replace(/\?/g, () => `$${++idx}`), params];
+}
+
+async function queryRows(pool, query, params = []) {
+  const [adaptedQuery, adaptedParams] = adaptPlaceholders(query, params);
+  const result = await pool.query(adaptedQuery, adaptedParams);
+  return isPostgres() ? result.rows : result[0];
+}
+
+async function execute(pool, query, params = []) {
+  const [adaptedQuery, adaptedParams] = adaptPlaceholders(query, params);
+  return pool.query(adaptedQuery, adaptedParams);
+}
 
 // Simple SHA-256 hash function
 function hashPassword(password) {
@@ -8,6 +32,7 @@ function hashPassword(password) {
 
 export async function POST(request) {
   try {
+    const pool = await getPool();
     const body = await request.json();
     const { email, newPassword } = body;
 
@@ -27,7 +52,7 @@ export async function POST(request) {
     }
 
     // Check user exists
-    const [users] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+    const users = await queryRows(pool, 'SELECT id FROM users WHERE email = ?', [email]);
     if (users.length === 0) {
       return Response.json(
         { error: 'User not found' },
@@ -37,7 +62,7 @@ export async function POST(request) {
 
     // Hash and update password
     const passwordHash = hashPassword(newPassword);
-    await pool.query('UPDATE users SET password_hash = ? WHERE email = ?', [passwordHash, email]);
+    await execute(pool, 'UPDATE users SET password_hash = ? WHERE email = ?', [passwordHash, email]);
 
     return Response.json({
       success: true,
