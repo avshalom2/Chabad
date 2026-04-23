@@ -1,0 +1,133 @@
+/* TemplateRenderer responsive grid fixes - based on working HTML layout */
+
+.container {
+  width: 100%;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+.container * {
+  box-sizing: border-box;
+}
+
+/* Add spacing between sibling divs */
+.container :global(div[data-type]) {
+  margin-bottom: 1.5rem;
+}
+
+.container :global(div[class*="card"]) {
+  margin-bottom: 1.5rem;
+}
+
+/* Fix grid layouts to display side-by-side on mobile */
+.container :global(.bottom-row),
+.container :global([class*="row"]),
+.container :global([class*="grid"]) {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Bottom-row specific styling - use flex instead of grid */
+.container :global(.bottom-row) {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+}
+
+.container :global(.bottom-row) > * {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+/* Prevent content inside grid items from breaking the layout */
+.container :global(.bottom-row) .card,
+.container :global(.bottom-row) [class*="card"],
+.container :global(.bottom-row) > div {
+  min-width: 0;
+  word-break: break-word;
+  width: 100%;
+  max-width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive font sizing */
+@media (max-width: 768px) {
+  .container :global(.bottom-row) {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .container :global(.bottom-row) > * {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .container :global(.bottom-row) .card,
+  .container :global(.bottom-row) [class*="card"],
+  .container :global(.bottom-row) > div {
+    min-width: 0;
+    font-size: 12px;
+    width: 100%;
+    max-width: 100%;
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .container :global(.bottom-row) {
+    flex-direction: row;
+    gap: 5px;
+  }
+
+  .container :global(.bottom-row) > * {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .container :global(.bottom-row) .card,
+  .container :global(.bottom-row) [class*="card"],
+  .container :global(.bottom-row) > div {
+    min-width: 0;
+    font-size: 11px;
+    padding: 5px !important;
+    width: 100%;
+    max-width: 100%;
+    flex: 1;
+  }
+}
+
+/* Ensure EventsBox and ShabbatBox display properly */
+.container :global(eventsbox),
+.container :global(shabbatbox) {
+  min-width: 0;
+  display: block;
+  width: 100%;
+}
+
+/* Sidebar-right styling - center the divs inside */
+.container :global(.sidebar-right) {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.container :global(.sidebar-right) > * {
+  width: 100%;
+  max-width: 100%;
+}
+
+.container :global(.sidebar-right) .card,
+.container :global(.sidebar-right) [class*="card"] {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}

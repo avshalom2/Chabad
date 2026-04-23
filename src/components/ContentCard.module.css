@@ -1,0 +1,28 @@
+.contentCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+}
+
+.contentCardHeader h2 {
+  font-weight: bold;
+  font-size: 2rem;
+  color: #40001a;
+}
+
+.contentCardInfo {
+  font-size: 1.1rem;
+  color: #223;
+}
+
+.contentCardBody {
+  margin-top: 1rem;
+}
+
+.contentCardActions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}

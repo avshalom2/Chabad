@@ -1,0 +1,193 @@
+.editor {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  max-width: 500px;
+}
+
+.editor h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.3rem;
+  color: #1a1a1a;
+}
+
+.loading {
+  text-align: center;
+  color: #999;
+  padding: 1rem;
+  font-size: 0.95rem;
+}
+
+.slotSelector {
+  margin-bottom: 2rem;
+}
+
+.slotSelector label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: white;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.slotInfo {
+  background-color: #f9f9f9;
+  border-left: 4px solid #4caf50;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.slotInfo h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+}
+
+.infoPair {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.label {
+  font-weight: 600;
+  color: #666;
+  min-width: 100px;
+}
+
+.infoPair span:last-child {
+  color: #333;
+  text-align: right;
+}
+
+.codeOutput {
+  margin-bottom: 1.5rem;
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.codeOutput label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.codeBlock {
+  position: relative;
+  background-color: #1a1a1a;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  overflow-x: auto;
+}
+
+.codeBlock code {
+  color: #a8ff60;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.copyBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.copyBtn:hover {
+  background-color: #0b7dda;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  font-style: italic;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.saveBtn,
+.cancelBtn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.saveBtn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.saveBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cancelBtn {
+  background-color: #999;
+  color: white;
+}
+
+.cancelBtn:hover {
+  background-color: #777;
+}
+
+@media (max-width: 600px) {
+  .editor {
+    padding: 1rem;
+  }
+
+  .infoPair {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,204 @@
+.container {
+  width: 100%;
+  height: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== AUTO-SLIDE DESIGN: Simple fadeout rotation ===== */
+.bannerWrapperAutoSlide {
+  position: relative;
+  width: 100%;
+    height: 100%;
+  overflow: hidden;
+  border-radius: 0;
+  box-shadow: none;
+  background-color: transparent;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.bannerImageAutoSlide {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none;
+  animation: fadeIn 0.5s ease-in;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0.8;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== CAROUSEL DESIGN: Push/slide transition ===== */
+
+/* Main container - creates the "window" */
+.bannerContainer {
+  position: relative;
+  direction: ltr; /* Force LTR so flex slides flow left-to-right regardless of page RTL */
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f5f5f5;
+}
+
+/* Track holds all slides in a row */
+.bannerTrack {
+  display: flex;
+  width: 100%;
+  height: 300px;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Each slide takes full width */
+.slide {
+  min-width: 100%;
+  width: 100%;
+  flex-shrink: 0;
+  height: 300px;
+  overflow: hidden;
+}
+
+.slideImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Navigation buttons */
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+  line-height: 1;
+  padding: 0;
+}
+
+.navBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.prevBtn {
+  left: 15px;
+}
+
+.nextBtn {
+  right: 15px;
+}
+
+/* ===== SHARED STYLES ===== */
+
+/* Navigation dots */
+.dots {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 15px;
+  border-radius: 20px;
+  pointer-events: auto;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.dot.active {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 1);
+}
+
+@media (max-width: 768px) {
+  .bannerWrapperAutoSlide,
+  .bannerContainer {
+    height: 200px;
+  }
+
+  .bannerTrack {
+    height: 200px;
+  }
+
+  .slide,
+  .slideImage {
+    height: 200px;
+  }
+
+  .navBtn {
+    padding: 12px 14px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .prevBtn {
+    left: 10px;
+  }
+
+  .nextBtn {
+    right: 10px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .dots {
+    bottom: 10px;
+    padding: 6px 12px;
+    gap: 6px;
+  }
+}
+
+/* Content placeholder child divs - inherit parent dimensions */
+:global(.content-placeholder) > div {
+  width: 100%;
+  height: 100%;
+}

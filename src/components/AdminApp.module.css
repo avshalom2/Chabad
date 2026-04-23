@@ -1,0 +1,9 @@
+.adminApp {
+  padding: 2rem;
+}
+
+.adminApp h2 {
+  font-size: 1.8rem;
+  color: #40001a;
+  margin-bottom: 1.5rem;
+}

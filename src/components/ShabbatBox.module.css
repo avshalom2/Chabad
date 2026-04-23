@@ -1,0 +1,120 @@
+.box {
+  direction: rtl;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+  max-width: 500px;
+  width: 100%;
+  height: fit-content;
+  
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 12px rgba(107, 16, 32, 0.18);
+  
+  min-width: 291px;
+}
+
+/* Parashah row */
+.parashaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.6rem;
+  background: #f8f2f3;
+  border-bottom: 1px solid #f0e4e6;
+  font-size: 0.8rem;
+}
+
+.parashaLabel {
+  color: #999;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.parashaName {
+  color: #6b1020;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Dark maroon header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: #6b1020;
+  padding: 0.45rem 0.9rem;
+}
+
+.menorah {
+  font-size: 1rem;
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 0.8rem;
+}
+
+.table thead tr {
+  background: #6b1020;
+  color: #fff;
+}
+
+.table thead th {
+  padding: 0.35rem 0.6rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: right;
+  border: none;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #f5f0f2;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table tbody td {
+  padding: 0.4rem 0.6rem;
+  color: #333;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.timeCell {
+  font-weight: 700;
+  color: #6b1020;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Location bar */
+.locationBar {
+  background: #f8f2f3;
+  text-align: center;
+  font-size: 0.65rem;
+  color: #aaa;
+  padding: 0.25rem 0.6rem;
+  border-top: 1px solid #f0e4e6;
+}
+
+.loading {
+  text-align: center;
+  color: #aaa;
+  font-size: 0.85rem;
+  padding: 1rem;
+  background: #fff;
+}
+

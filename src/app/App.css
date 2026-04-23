@@ -1,0 +1,37 @@
+/* Ported from old project */
+.cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.content-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+}
+.content-card-header h2 {
+  font-weight: bold;
+  font-size: 2rem;
+  color: #40001a;
+}
+.content-card-info {
+  font-size: 1.1rem;
+  color: #223;
+}
+.content-card-body {
+  margin-top: 1rem;
+}
+.header {
+  padding: 1rem;
+  background: #a00;
+  color: #fff;
+  text-align: center;
+}
+.footer {
+  padding: 1rem;
+  background: #222;
+  color: #fff;
+  text-align: center;
+}

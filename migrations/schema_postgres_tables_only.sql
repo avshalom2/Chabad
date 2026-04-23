@@ -1,0 +1,20 @@
+
+DROP TABLE IF EXISTS access_levels CASCADE;
+CREATE TABLE access_levels (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL UNIQUE,
+  can_create BOOLEAN NOT NULL DEFAULT FALSE,
+  can_update BOOLEAN NOT NULL DEFAULT FALSE,
+  can_delete BOOLEAN NOT NULL DEFAULT FALSE,
+  can_publish BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- Table: qna_sets
+
+
+
+-- Table: site_settings
+
+

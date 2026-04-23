@@ -1,0 +1,31 @@
+/* Wrapper for all PageBuilder-generated content */
+.renderer {
+  direction: rtl;
+  text-align: right;
+  width: 100%;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Make GrapesJS flex rows responsive on small screens */
+.renderer :global([style*="display: flex"]),
+.renderer :global([style*="display:flex"]) {
+  flex-wrap: wrap;
+}
+
+/* Override fixed pixel widths on flex children at small screens */
+@media (max-width: 768px) {
+  .renderer {
+    padding: 1rem;
+  }
+  
+  .renderer :global([style*="width: 33%"]),
+  .renderer :global([style*="width: 25%"]),
+  .renderer :global([style*="width: 50%"]),
+  .renderer :global([style*="width: 67%"]),
+  .renderer :global([style*="width: 75%"]) {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+}

@@ -1,0 +1,296 @@
+.container {
+  direction: rtl;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+  width: 100%;
+  padding: 2rem;
+  background: transparent;
+}
+
+.container h1 {
+  margin: 0 0 2rem 0;
+  font-size: 2rem;
+  color: #333;
+  text-align: right;
+}
+
+.message {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-size: 1rem;
+}
+
+/* Templates Panel - Full width */
+.templatesPanel {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  gap: 1rem;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.addBtn {
+  background: #6b1020;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+  white-space: nowrap;
+}
+
+.addBtn:hover {
+  background: #9a1830;
+}
+
+/* New Template Form */
+.newTemplateForm {
+  padding: 1.5rem;
+  background: #f9f5f0;
+  border-bottom: 1px solid #f0e4e6;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: Arial, sans-serif;
+  font-size: 0.85rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+  direction: ltr;
+  text-align: left;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cancelBtn,
+.createBtn {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+  font-size: 0.85rem;
+}
+
+.cancelBtn {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.cancelBtn:hover {
+  background: #e0e0e0;
+}
+
+.createBtn {
+  background: #6b1020;
+  color: #fff;
+}
+
+.createBtn:hover {
+  background: #9a1830;
+}
+
+/* Templates List */
+.templatesList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #fafafa;
+}
+
+.empty {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.templateItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.templateItem:hover {
+  background: #f9f9f9;
+  border-color: #6b1020;
+}
+
+.templateItem.active {
+  background: #f0f0f0;
+  border-color: #6b1020;
+  border-width: 2px;
+}
+
+.templateItem.isActive {
+  border-top: 3px solid #4caf50;
+}
+
+.templateInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.templateName {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.templateDate {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.activeLabel {
+  background: #4caf50;
+  color: #fff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.templateActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.selectBtn,
+.activateBtn,
+.deleteBtn {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+  transition: all 0.2s;
+}
+
+.selectBtn {
+  background: #e8e8e8;
+  color: #333;
+}
+
+.selectBtn:hover {
+  background: #d0d0d0;
+}
+
+.activateBtn {
+  background: #ffc107;
+  color: #000;
+}
+
+.activateBtn:hover {
+  background: #ffb300;
+}
+
+.deleteBtn {
+  background: #f44336;
+  color: #fff;
+}
+
+.deleteBtn:hover {
+  background: #d32f2f;
+}
+
+/* Editor Panel - Full width */
+.editorPanel {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .panelHeader {
+    flex-direction: column;
+  }
+
+  .templatesList {
+    grid-template-columns: 1fr;
+  }
+}

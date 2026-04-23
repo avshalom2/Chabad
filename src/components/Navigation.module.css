@@ -1,0 +1,243 @@
+.nav {
+  background: #7a1428;
+  border-top: 1px solid #9a2040;
+  border-bottom: 1px solid #4a0810;
+  position: relative;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: visible;
+  width: 100%;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+/* Desktop Menu */
+.desktopMenu {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  flex-wrap: nowrap;
+  padding: 0;
+  /* Pipe separators via CSS */
+  gap: 0;
+}
+
+.menuItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Pipe separator between items */
+.menuItem + .menuItem::before {
+  content: '|';
+  color: #c06070;
+  font-size: 0.85rem;
+  padding: 0 0.1rem;
+  pointer-events: none;
+}
+
+.parentButton {
+  background: none;
+  border: none;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+}
+
+.parentButton:hover {
+  color: #f0d080;
+}
+
+.chevron {
+  font-size: 0.65rem;
+  transition: transform 0.3s ease;
+  color: #d09090;
+}
+
+/* Dropdown submenu */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: 3px solid #6b1020;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all 0.25s ease;
+  z-index: 1000;
+}
+
+.menuItem:hover .dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.subLink {
+  display: block;
+  padding: 0.65rem 1.1rem;
+  color: #444;
+  text-decoration: none;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.15s ease;
+  font-size: 0.88rem;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+}
+
+.subLink:hover {
+  background: #fdf0f2;
+  color: #6b1020;
+  padding-right: 1.4rem;
+}
+
+.subLink:last-child {
+  border-bottom: none;
+}
+
+/* Mobile Hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.hamburger span {
+  width: 26px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Mobile Overlay & Sidebar */
+.mobileOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.mobileSidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 80%;
+  max-width: 320px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.closeButton {
+  align-self: flex-end;
+  padding: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.mobileMenu {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.mobileParent {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobileParentButton {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: right;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s ease;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+}
+
+.mobileParentButton:hover {
+  background: #fdf0f2;
+  color: #6b1020;
+}
+
+.mobileParentButton .chevron {
+  transition: transform 0.3s ease;
+}
+
+.mobileParentButton .chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.mobileSubmenu {
+  background: #fafafa;
+  border-right: 3px solid #6b1020;
+  padding: 0.3rem 0;
+}
+
+.mobileSubLink {
+  display: block;
+  padding: 0.65rem 1.5rem;
+  color: #555;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.mobileSubLink:hover {
+  background: #f0f5ff;
+  color: #c41e3a;
+  padding-right: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .desktopMenu {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .nav {
+    padding: 0.5rem;
+    justify-content: flex-start;
+  }
+}

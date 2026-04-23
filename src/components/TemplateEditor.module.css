@@ -1,0 +1,206 @@
+.container {
+  direction: rtl;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.toolbar {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-bottom: 2px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  justify-content: flex-end;
+}
+
+.modeBtn,
+.saveBtn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+}
+
+.modeBtn {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.modeBtn:hover {
+  background: #e0e0e0;
+}
+
+.saveBtn {
+  background: #6b1020;
+  color: #fff;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #9a1830;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.editorArea {
+  position: relative;
+  padding: 2rem;
+  background: #fff;
+  margin: 1.5rem auto;
+  max-width: 1200px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 600px;
+}
+
+.webviewMode {
+  outline: 2px solid #6b1020;
+  outline-offset: 2px;
+}
+
+.editOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointerEvents: none;
+  z-index: 10;
+}
+
+.editButton {
+  position: absolute !important;
+  background: rgba(107, 16, 32, 0.1) !important;
+  border: 2px dashed #6b1020 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  padding: 4px !important;
+  font-size: 1.2rem !important;
+  cursor: pointer !important;
+  pointerEvents: all !important;
+  opacity: 0.7;
+  transition: all 0.2s;
+}
+
+.editButton:hover {
+  background: rgba(107, 16, 32, 0.2) !important;
+  opacity: 1 !important;
+}
+
+.preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Ensure content-placeholder divs have spacing */
+.preview :global([class*="content-placeholder"]) {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.editorModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.editorContent {
+  background: #fff;
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.editorHeader h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.2s;
+}
+
+.closeBtn:hover {
+  color: #333;
+}
+
+/* Banner Slot Preview Styling */
+:global(.template-banner-slot-preview) {
+  transition: all 0.2s ease !important;
+}
+
+:global(.template-banner-slot-preview:hover) {
+  border-color: #6b1020 !important;
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%) !important;
+  box-shadow: 0 4px 12px rgba(107, 16, 32, 0.2) !important;
+  transform: translateY(-2px);
+}
+
+/* Style banner_slot tags in preview */
+:global(banner-slot) {
+  display: block !important;
+  border: 2px dashed #8B5A8E;
+  border-radius: 4px;
+  padding: 16px;
+  margin: 12px 0;
+  background: linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%);
+  min-height: 80px;
+  text-align: center;
+  color: #6b1020;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+:global(banner-slot):hover {
+  border-color: #6b1020;
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+  box-shadow: 0 4px 12px rgba(107, 16, 32, 0.2);
+  transform: translateY(-2px);
+}
+
+:global(banner-slot) > div {
+  pointer-events: none;
+}
