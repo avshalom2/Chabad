@@ -193,6 +193,66 @@ export async function createBanner(data, userId) {
 }
 
 /**
+ * Update a banner
+ */
+export async function updateBanner(id, data) {
+  try {
+    const pool = await getPool();
+    const {
+      title,
+      image_url,
+      link_url,
+      alt_text,
+      description,
+      is_active,
+      sort_order,
+    } = data;
+
+    const query = `
+      UPDATE banners SET
+        title = $1,
+        image_url = $2,
+        link_url = $3,
+        alt_text = $4,
+        description = $5,
+        is_active = $6,
+        sort_order = $7
+      WHERE id = $8
+    `;
+
+    await pool.query(query, [
+      title || null,
+      image_url,
+      link_url || null,
+      alt_text || null,
+      description || null,
+      is_active !== undefined ? is_active : true,
+      sort_order ?? 0,
+      id,
+    ]);
+
+    return { id, ...data };
+  } catch (error) {
+    console.error('Error updating banner:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a banner
+ */
+export async function deleteBanner(id) {
+  try {
+    const pool = await getPool();
+    await pool.query('DELETE FROM banners WHERE id = $1', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting banner:', error);
+    throw error;
+  }
+}
+
+/**
  * Record a banner click
  */
 export async function recordBannerClick(bannerId) {
