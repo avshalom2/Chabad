@@ -64,6 +64,10 @@
   display: none;
 }
 
+.mobileScroll .sliderTrack {
+  touch-action: auto;
+}
+
 .sliderWrapper:active {
   cursor: grabbing;
 }
