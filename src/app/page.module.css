@@ -3,6 +3,14 @@
   font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
 }
 
+.main :global(.card)::before,
+.main :global(div[class*="card"])::before {
+  content: none !important;
+  display: none !important;
+}
+
+
+
 /* ── BANNER ── */
 .banner {
   position: relative;
