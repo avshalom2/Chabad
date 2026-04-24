@@ -14,11 +14,13 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
   const [scrollX, setScrollX] = useState(0);       // single persistent offset
   const [loading, setLoading] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const pointerStartX = useRef(null);
   const startScrollX = useRef(0);                   // scrollX at drag start
   const hasDragged = useRef(false);
   const trackRef = useRef(null);
+  const wrapperRef = useRef(null);
 
   useEffect(() => {
     if (!categoryId && !categorySlug) return;
@@ -37,9 +39,29 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
     fetchArticles();
   }, [categoryId, categorySlug]);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+
+    updateIsMobile();
+    mediaQuery.addEventListener('change', updateIsMobile);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateIsMobile);
+    };
+  }, []);
+
   const getMaxScroll = (count) => Math.max(0, (count - 1) * ITEM_STEP);
 
   const moveSlide = (direction) => {
+    if (isMobile) {
+      wrapperRef.current?.scrollBy({
+        left: -direction * ITEM_STEP,
+        behavior: 'smooth',
+      });
+      return;
+    }
+
     setScrollX(prev => {
       const next = prev + direction * ITEM_STEP;
       return Math.max(0, Math.min(next, getMaxScroll(articles.length)));
@@ -47,6 +69,7 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
   };
 
   const onPointerDown = (e) => {
+    if (isMobile) return;
     if (e.button !== undefined && e.button !== 0) return;
     pointerStartX.current = e.clientX;
     startScrollX.current = scrollX;
@@ -56,6 +79,7 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
   };
 
   const onPointerMove = (e) => {
+    if (isMobile) return;
     if (pointerStartX.current === null) return;
     const delta = e.clientX - pointerStartX.current;
     if (Math.abs(delta) > DRAG_THRESHOLD) {
@@ -67,6 +91,7 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
   };
 
   const onPointerUp = (e) => {
+    if (isMobile) return;
     if (pointerStartX.current === null) return;
     // Clamp to valid range on release
     setScrollX(prev => Math.max(0, Math.min(prev, getMaxScroll(articles.length))));
@@ -75,6 +100,7 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
   };
 
   const onClickCapture = (e) => {
+    if (isMobile) return;
     if (hasDragged.current) {
       e.preventDefault();
       e.stopPropagation();
@@ -118,15 +144,18 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
       </div>
 
       {/* Slider */}
-      <div className={styles.sliderWrapper}>
+      <div
+        ref={wrapperRef}
+        className={`${styles.sliderWrapper} ${isMobile ? styles.mobileScroll : ''}`}
+      >
         {/* Draggable track */}
         <div
           ref={trackRef}
           className={styles.sliderTrack}
           style={{
-            transform: `translateX(${scrollX}px)`,
-            transition: isDragging ? 'none' : 'transform 0.25s ease-out',
-            cursor: isDragging ? 'grabbing' : 'grab',
+            transform: isMobile ? 'none' : `translateX(${scrollX}px)`,
+            transition: isMobile ? 'none' : isDragging ? 'none' : 'transform 0.25s ease-out',
+            cursor: isMobile ? 'auto' : isDragging ? 'grabbing' : 'grab',
           }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -162,7 +191,7 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
         </div>
 
         {/* Navigation Arrows */}
-        {articles.length > 1 && (
+        {articles.length > 1 && !isMobile && (
           <>
             <button
               className={`${styles.navBtn} ${styles.prevBtn}`}

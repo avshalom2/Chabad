@@ -51,6 +51,19 @@
   min-height: 200px;
 }
 
+.mobileScroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  justify-content: flex-start;
+}
+
+.mobileScroll::-webkit-scrollbar {
+  display: none;
+}
+
 .sliderWrapper:active {
   cursor: grabbing;
 }
@@ -224,11 +237,13 @@
   }
 
   .sliderTrack {
+    width: max-content;
     gap: 0.75rem;
   }
 
   .slide {
     width: 130px;
+    scroll-snap-align: start;
   }
 
   .articleImageWrapper {
@@ -272,11 +287,13 @@
   }
 
   .sliderTrack {
+    width: max-content;
     gap: 0.5rem;
   }
 
   .slide {
     width: 110px;
+    scroll-snap-align: start;
   }
 
   .articleImageWrapper {
