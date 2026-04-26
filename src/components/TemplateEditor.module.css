@@ -53,6 +53,13 @@
   cursor: not-allowed;
 }
 
+.unsavedIndicator {
+  align-self: center;
+  color: #9a1830;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .editorArea {
   position: relative;
   padding: 2rem;

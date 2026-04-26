@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './TemplateEditor.module.css';
 import ImageDataEditor from './editors/ImageDataEditor';
 import HtmlDataEditor from './editors/HtmlDataEditor';
@@ -10,7 +11,9 @@ import BannerSlotControlEditor from './editors/BannerSlotControlEditor';
 import ArticlesSliderEditor from './editors/ArticlesSliderEditor';
 
 export default function TemplateEditor({ templateId, initialHtml }) {
+  const router = useRouter();
   const [html, setHtml] = useState(initialHtml);
+  const [lastSavedHtml, setLastSavedHtml] = useState(initialHtml);
   const [webviewMode, setWebviewMode] = useState(false);
   const [editingElementHtml, setEditingElementHtml] = useState(null); // Store the HTML string, not the element
   const [editingElementIndex, setEditingElementIndex] = useState(null); // Store which content-placeholder was edited
@@ -49,6 +52,7 @@ export default function TemplateEditor({ templateId, initialHtml }) {
   useEffect(() => {
     if (initialHtml) {
       setHtml(initialHtml);
+      setLastSavedHtml(initialHtml);
     }
   }, [initialHtml]);
 
@@ -449,6 +453,8 @@ export default function TemplateEditor({ templateId, initialHtml }) {
       const data = await response.json();
 
       if (response.ok) {
+        setLastSavedHtml(html);
+        router.refresh();
         alert('Template saved successfully!');
       } else {
         console.error('Save error:', data);
@@ -509,6 +515,9 @@ export default function TemplateEditor({ templateId, initialHtml }) {
         >
           {isSaving ? 'Saving...' : '💾 Save Changes'}
         </button>
+        {html !== lastSavedHtml && (
+          <span className={styles.unsavedIndicator}>Unsaved changes</span>
+        )}
       </div>
 
       {/* Template preview/edit area */}

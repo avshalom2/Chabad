@@ -1,11 +1,13 @@
 ﻿import styles from './page.module.css';
-import ShabbatBox from '@/components/ShabbatBox';
+import ShabbatCompactBox from '@/components/ShabbatCompactBox';
 import EventsBox from '@/components/EventsBox';
 import BannerSlotRenderer from '@/components/BannerSlotRenderer';
 import TemplateRenderer from '@/components/TemplateRenderer';
 import DynamicPageRenderer from '@/components/DynamicPageRenderer';
 import { getSettings } from '@/lib/settings';
 import { getActiveTemplateForDisplay } from '@/lib/hp-templates';
+
+export const dynamic = 'force-dynamic';
 
 export default async function MainPage() {
   let homepageContent = '';
@@ -56,7 +58,7 @@ export default async function MainPage() {
             <section className={styles.contentRow}>
               <div className={styles.boxesGrid}>
                 <EventsBox />
-                <ShabbatBox />
+                <ShabbatCompactBox />
               </div>
             </section>
           </>

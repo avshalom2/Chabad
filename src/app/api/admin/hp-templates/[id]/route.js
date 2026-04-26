@@ -1,5 +1,7 @@
 import { getTemplateById, updateTemplateHtml, updateTemplate, deleteTemplate, setActiveTemplate } from '@/lib/hp-templates.js';
 
+export const dynamic = 'force-dynamic';
+
 // GET - Fetch single template
 export async function GET(request, { params }) {
   try {

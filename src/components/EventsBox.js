@@ -5,22 +5,21 @@ import styles from './EventsBox.module.css';
 import { formatHebrewDate } from '@/lib/hebrew-calendar';
 
 const EVENT_TYPE_ICONS = {
-  prayer: '🕎',
+  prayer: '🕍',
   lecture: '📖',
   class: '🎓',
   service: '🏛️',
-  other: '📅'
+  other: '📅',
 };
 
 export default function EventsBox() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState('today'); // 'today', 'tomorrow', 'calendar'
+  const [mode, setMode] = useState('today');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [datesWithEvents, setDatesWithEvents] = useState(new Set());
 
-  // Fetch events for a specific date
   const fetchEventsForDate = async (date) => {
     setLoading(true);
     try {
@@ -36,14 +35,13 @@ export default function EventsBox() {
     }
   };
 
-  // Fetch events for the month (for calendar markers)
   const fetchEventsForMonth = async (date) => {
     try {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const response = await fetch(`/api/events/month?year=${year}&month=${month}`);
       const data = await response.json();
-      
+
       const dates = new Set();
       data.forEach(event => {
         const d = new Date(event.event_date).getDate();
@@ -57,14 +55,14 @@ export default function EventsBox() {
 
   useEffect(() => {
     const today = new Date();
-    
+
     if (mode === 'today') {
       fetchEventsForDate(today);
     } else if (mode === 'tomorrow') {
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
       fetchEventsForDate(tomorrow);
-    } else if (mode === 'calendar') {
+    } else {
       fetchEventsForDate(selectedDate);
       fetchEventsForMonth(currentMonth);
     }
@@ -78,7 +76,6 @@ export default function EventsBox() {
     const newDate = new Date(currentMonth);
     newDate.setDate(day);
     setSelectedDate(newDate);
-    fetchEventsForDate(newDate);
   };
 
   const handlePrevMonth = () => {
@@ -93,25 +90,28 @@ export default function EventsBox() {
     setCurrentMonth(next);
   };
 
+  const getDisplayDate = () => {
+    const today = new Date();
+    if (mode === 'today') return today;
+    if (mode === 'tomorrow') {
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return tomorrow;
+    }
+    return selectedDate;
+  };
+
   const renderCalendar = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay(); // 0 = Sunday
+    const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    
-    // Empty cells for days before month starts
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
-    }
-    
-    // Days of month
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(day);
-    }
+    for (let i = 0; i < startingDayOfWeek; i++) days.push(null);
+    for (let day = 1; day <= daysInMonth; day++) days.push(day);
 
     const weeks = [];
     for (let i = 0; i < days.length; i += 7) {
@@ -138,12 +138,13 @@ export default function EventsBox() {
           {weeks.map((week, weekIdx) => (
             <div key={weekIdx} className={styles.week}>
               {week.map((day, dayIdx) => (
-                <div
+                <button
                   key={dayIdx}
+                  type="button"
                   className={`${styles.dayCell} ${
                     day === null ? styles.emptyDay : ''
                   } ${
-                    day === selectedDate.getDate() && 
+                    day === selectedDate.getDate() &&
                     selectedDate.getMonth() === currentMonth.getMonth() &&
                     selectedDate.getFullYear() === currentMonth.getFullYear()
                       ? styles.selectedDay
@@ -152,9 +153,10 @@ export default function EventsBox() {
                     datesWithEvents.has(day) ? styles.hasEvents : ''
                   }`}
                   onClick={() => day !== null && handleDateSelect(day)}
+                  disabled={day === null}
                 >
                   {day}
-                </div>
+                </button>
               ))}
             </div>
           ))}
@@ -163,124 +165,76 @@ export default function EventsBox() {
     );
   };
 
-  const getDisplayDate = () => {
-    const today = new Date();
-    if (mode === 'today') return today;
-    if (mode === 'tomorrow') {
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      return tomorrow;
+  const renderEventsList = () => {
+    if (loading) {
+      return <div className={styles.loading}>טוען אירועים...</div>;
     }
-    return selectedDate;
+
+    if (events.length === 0) {
+      return <div className={styles.noEvents}>אין אירועים ביום זה</div>;
+    }
+
+    return (
+      <div className={styles.eventsList}>
+        {events.map((event, idx) => (
+          <div key={idx} className={styles.eventItem}>
+            <div className={styles.eventTime}>{event.event_time.slice(0, 5)}</div>
+            <div className={styles.eventDetails}>
+              <div className={styles.eventIcon}>
+                {EVENT_TYPE_ICONS[event.event_type] || EVENT_TYPE_ICONS.other}
+              </div>
+              <div className={styles.eventInfo}>
+                <div className={styles.eventTitle}>{event.title}</div>
+                {event.description && (
+                  <div className={styles.eventDesc}>{event.description}</div>
+                )}
+                {event.location && (
+                  <div className={styles.eventLocation}>{event.location}</div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const displayDate = getDisplayDate();
-  const dateStr = displayDate.toLocaleDateString('he-IL', { weekday: 'long', month: 'long', day: 'numeric' });
+  const dateTitle = mode === 'today' ? 'אירועי היום' : mode === 'tomorrow' ? 'אירועי מחר' : 'אירועים ביום בחירה';
 
   return (
     <div className={styles.box}>
-      {/* Header with mode buttons */}
       <div className={styles.header}>
-        <button
-          className={`${styles.modeBtn} ${mode === 'today' ? styles.active : ''}`}
-          onClick={() => handleModeChange('today')}
-        >
-          היום
-        </button>
-        <button
-          className={`${styles.modeBtn} ${mode === 'tomorrow' ? styles.active : ''}`}
-          onClick={() => handleModeChange('tomorrow')}
-        >
-          מחר
-        </button>
-        <button
-          className={`${styles.modeBtn} ${mode === 'calendar' ? styles.active : ''}`}
-          onClick={() => handleModeChange('calendar')}
-        >
-          <span className={styles.calendarIcon}>📅</span>
-          בחר תאריך
-        </button>
+        <div className={styles.dateDisplay}>
+          <div className={styles.dateLabel}>{dateTitle}</div>
+          <div className={styles.hebrewDate}>{formatHebrewDate(displayDate)}</div>
+        </div>
+
+        <div className={styles.modeTabs}>
+          <button
+            className={`${styles.modeBtn} ${mode === 'today' ? styles.active : ''}`}
+            onClick={() => handleModeChange('today')}
+          >
+            היום
+          </button>
+          <button
+            className={`${styles.modeBtn} ${mode === 'tomorrow' ? styles.active : ''}`}
+            onClick={() => handleModeChange('tomorrow')}
+          >
+            מחר
+          </button>
+          <button
+            className={`${styles.modeBtn} ${mode === 'calendar' ? styles.active : ''}`}
+            onClick={() => handleModeChange('calendar')}
+          >
+            בחר תאריך
+            <span className={styles.calendarIcon}>📅</span>
+          </button>
+        </div>
       </div>
 
-      {/* Show calendar or events list */}
-      {mode === 'calendar' ? (
-        <>
-          {renderCalendar()}
-          
-          {/* Show events for selected date in calendar mode */}
-          <div className={styles.dateDisplay}>
-            <div className={styles.dateLabel}>
-              אירועים ביום בחירה
-            </div>
-            <div className={styles.hebrewDate}>{formatHebrewDate(selectedDate)}</div>
-          </div>
-          
-          {loading ? (
-            <div className={styles.loading}>טוען אירועים...</div>
-          ) : events.length === 0 ? (
-            <div className={styles.noEvents}>אין אירועים ביום זה</div>
-          ) : (
-            <div className={styles.eventsList}>
-              {events.map((event, idx) => (
-                <div key={idx} className={styles.eventItem}>
-                  <div className={styles.eventTime}>{event.event_time.slice(0, 5)}</div>
-                  <div className={styles.eventDetails}>
-                    <div className={styles.eventIcon}>
-                      {EVENT_TYPE_ICONS[event.event_type] || '📅'}
-                    </div>
-                    <div className={styles.eventInfo}>
-                      <div className={styles.eventTitle}>{event.title}</div>
-                      {event.description && (
-                        <div className={styles.eventDesc}>{event.description}</div>
-                      )}
-                      {event.location && (
-                        <div className={styles.eventLocation}>{event.location}</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <div className={styles.dateDisplay}>
-            <div className={styles.dateLabel}>
-              {mode === 'today' ? 'אירועי היום' : 'אירועי מחר'}
-            </div>
-            <div className={styles.hebrewDate}>{formatHebrewDate(displayDate)}</div>
-          </div>
-          
-          {loading ? (
-            <div className={styles.loading}>טוען אירועים...</div>
-          ) : events.length === 0 ? (
-            <div className={styles.noEvents}>אין אירועים ביום זה</div>
-          ) : (
-            <div className={styles.eventsList}>
-              {events.map((event, idx) => (
-                <div key={idx} className={styles.eventItem}>
-                  <div className={styles.eventTime}>{event.event_time.slice(0, 5)}</div>
-                  <div className={styles.eventDetails}>
-                    <div className={styles.eventIcon}>
-                      {EVENT_TYPE_ICONS[event.event_type] || '📅'}
-                    </div>
-                    <div className={styles.eventInfo}>
-                      <div className={styles.eventTitle}>{event.title}</div>
-                      {event.description && (
-                        <div className={styles.eventDesc}>{event.description}</div>
-                      )}
-                      {event.location && (
-                        <div className={styles.eventLocation}>{event.location}</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
+      {mode === 'calendar' && renderCalendar()}
+      {renderEventsList()}
     </div>
   );
 }

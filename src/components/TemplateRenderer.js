@@ -1,7 +1,7 @@
 'use client';
 
 import EventsBox from '@/components/EventsBox';
-import ShabbatBox from '@/components/ShabbatBox';
+import ShabbatCompactBox from '@/components/ShabbatCompactBox';
 import NewsBox from '@/components/NewsBox';
 import ArticlesSlider from '@/components/ArticlesSlider';
 import BannerSlotRenderer from '@/components/BannerSlotRenderer';
@@ -83,6 +83,7 @@ export default function TemplateRenderer({ html }) {
       // Store which component should go in this wrapper
       newPortalsMap[componentId] = {
         type: componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'newsbox' ? 'news' : 'articles-slider',
+        target: wrapper,
         categoryId: tag.getAttribute('category-id'),
         categorySlug: tag.getAttribute('category-slug'),
         categoryName: tag.getAttribute('category-name'),
@@ -98,19 +99,23 @@ export default function TemplateRenderer({ html }) {
       if (placeholderElement) {
         newPortalsMap[placeholderId] = {
           type: 'banner',
+          target: placeholderElement,
           slotId: slot.id
         };
         console.log('Banner slot', slot.id, '-> banner-slot-' + slot.id);
       }
     });
 
-    setPortalsMap(newPortalsMap);
+    const portalUpdate = window.setTimeout(() => {
+      setPortalsMap(newPortalsMap);
+    }, 0);
+
+    return () => window.clearTimeout(portalUpdate);
   }, [html]);
 
   // Render React components into their placeholder divs using createPortal
   const portals = Object.entries(portalsMap).map(([portalId, config]) => {
-    // Find the placeholder div
-    const placeholderElement = containerRef.current?.querySelector(`#${portalId}`);
+    const placeholderElement = config.target;
     if (!placeholderElement) return null;
 
     // Handle banner slots
@@ -145,7 +150,7 @@ export default function TemplateRenderer({ html }) {
       );
     }
 
-    const Component = config.type === 'events' ? EventsBox : config.type === 'shabbat' ? ShabbatBox : null;
+    const Component = config.type === 'events' ? EventsBox : config.type === 'shabbat' ? ShabbatCompactBox : null;
     if (!Component) return null;
     return createPortal(
       <Component key={portalId} />,

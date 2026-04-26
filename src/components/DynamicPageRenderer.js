@@ -2,13 +2,13 @@
 import { useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import EventsBox from '@/components/EventsBox';
-import ShabbatBox from '@/components/ShabbatBox';
+import ShabbatCompactBox from '@/components/ShabbatCompactBox';
 import ArticlesSlider from '@/components/ArticlesSlider';
 import styles from './DynamicPageRenderer.module.css';
 
 const COMPONENT_MAP = {
   'events-box': EventsBox,
-  'shabbat-box': ShabbatBox,
+  'shabbat-box': ShabbatCompactBox,
   'articles-slider': ArticlesSlider,
 };
 

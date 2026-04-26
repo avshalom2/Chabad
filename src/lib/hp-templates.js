@@ -1,8 +1,20 @@
 import { getPool } from './db.js';
 
+function isPostgres() {
+  return process.env.DB_TYPE === 'postgres' || process.env.DB_TYPE === 'pg';
+}
+
+function rowsFromResult(result) {
+  return Array.isArray(result) ? result[0] : result.rows;
+}
+
+function writeResultFromResult(result) {
+  return Array.isArray(result) ? result[0] : result;
+}
+
 // Helper to rewrite ? placeholders to $1, $2, ... for PostgreSQL
 function adaptPlaceholders(query, params) {
-  if (process.env.DB_TYPE === 'postgres' || process.env.DB_TYPE === 'pg') {
+  if (isPostgres()) {
     let idx = 0;
     return [
       query.replace(/\?/g, () => `$${++idx}`),
@@ -17,10 +29,10 @@ function adaptPlaceholders(query, params) {
  */
 export async function getAllTemplates() {
   const pool = await getPool();
-  const [rows] = await pool.query(
+  const result = await pool.query(
     'SELECT id, template_name, template_html, homepage_html, is_active, created_at, updated_at FROM hp_templates ORDER BY created_at DESC'
   );
-  return rows;
+  return rowsFromResult(result);
 }
 
 /**
@@ -29,7 +41,7 @@ export async function getAllTemplates() {
 export async function getTemplateById(id) {
   const pool = await getPool();
   const [query, params] = adaptPlaceholders('SELECT * FROM hp_templates WHERE id = ?', [id]);
-  const [rows] = await pool.query(query, params);
+  const rows = rowsFromResult(await pool.query(query, params));
   return rows[0] || null;
 }
 
@@ -38,9 +50,9 @@ export async function getTemplateById(id) {
  */
 export async function getActiveTemplate() {
   const pool = await getPool();
-  const [rows] = await pool.query(
+  const rows = rowsFromResult(await pool.query(
     'SELECT * FROM hp_templates WHERE is_active = TRUE LIMIT 1'
-  );
+  ));
   return rows[0] || null;
 }
 
@@ -90,12 +102,12 @@ export async function createTemplate(templateData) {
   const { template_name, template_html, created_by } = templateData;
   const [query, params] = adaptPlaceholders(
     `INSERT INTO hp_templates (template_name, template_html, created_by)
-     VALUES (?, ?, ?)`,
+     VALUES (?, ?, ?)${isPostgres() ? ' RETURNING id' : ''}`,
     [template_name, template_html, created_by]
   );
-  const [result] = await pool.query(query, params);
-  console.log('Template created with ID:', result.insertId);
-  return result.insertId;
+  const result = writeResultFromResult(await pool.query(query, params));
+  console.log('Template created with ID:', result.insertId || result.rows?.[0]?.id);
+  return result.insertId || result.rows?.[0]?.id;
 }
 
 /**
@@ -108,9 +120,10 @@ export async function updateTemplateHtml(id, homepageHtml) {
     `UPDATE hp_templates SET homepage_html = ?, updated_at = NOW() WHERE id = ?`,
     [homepageHtml, id]
   );
-  const [result] = await pool.query(query, params);
-  console.log('Update result - affectedRows:', result.affectedRows);
-  return result.affectedRows > 0;
+  const result = writeResultFromResult(await pool.query(query, params));
+  const affectedRows = result.affectedRows ?? result.rowCount ?? 0;
+  console.log('Update result - affectedRows:', affectedRows);
+  return affectedRows > 0;
 }
 
 /**
@@ -123,8 +136,8 @@ export async function updateTemplate(id, templateData) {
     `UPDATE hp_templates SET template_name = ?, template_html = ?, updated_at = NOW() WHERE id = ?`,
     [template_name, template_html, id]
   );
-  const [result] = await pool.query(query, params);
-  return result.affectedRows > 0;
+  const result = writeResultFromResult(await pool.query(query, params));
+  return (result.affectedRows ?? result.rowCount ?? 0) > 0;
 }
 
 /**
@@ -137,8 +150,8 @@ export async function setActiveTemplate(id) {
     'UPDATE hp_templates SET is_active = TRUE WHERE id = ?',
     [id]
   );
-  const [result] = await pool.query(query, params);
-  return result.affectedRows > 0;
+  const result = writeResultFromResult(await pool.query(query, params));
+  return (result.affectedRows ?? result.rowCount ?? 0) > 0;
 }
 
 /**
@@ -147,6 +160,6 @@ export async function setActiveTemplate(id) {
 export async function deleteTemplate(id) {
   const pool = await getPool();
   const [query, params] = adaptPlaceholders('DELETE FROM hp_templates WHERE id = ?', [id]);
-  const [result] = await pool.query(query, params);
-  return result.affectedRows > 0;
+  const result = writeResultFromResult(await pool.query(query, params));
+  return (result.affectedRows ?? result.rowCount ?? 0) > 0;
 }

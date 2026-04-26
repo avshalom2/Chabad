@@ -1,74 +1,104 @@
 import { getPool } from './db.js';
 
+function isPostgres() {
+  return process.env.DB_TYPE === 'postgres' || process.env.DB_TYPE === 'pg';
+}
+
+function adaptPlaceholders(query, params = []) {
+  if (!isPostgres()) return [query, params];
+
+  let idx = 0;
+  return [
+    query.replace(/\?/g, () => `$${++idx}`),
+    params,
+  ];
+}
+
+function rowsFromResult(result) {
+  return Array.isArray(result) ? result[0] : result.rows;
+}
+
+function writeResultFromResult(result) {
+  return Array.isArray(result) ? result[0] : result;
+}
+
+function affectedRows(result) {
+  return result.affectedRows ?? result.rowCount ?? 0;
+}
+
+async function queryRows(query, params = []) {
+  const pool = await getPool();
+  const [sql, values] = adaptPlaceholders(query, params);
+  return rowsFromResult(await pool.query(sql, values));
+}
+
+async function queryWrite(query, params = []) {
+  const pool = await getPool();
+  const [sql, values] = adaptPlaceholders(query, params);
+  return writeResultFromResult(await pool.query(sql, values));
+}
+
+function normalizeDaysOfWeek(days) {
+  if (Array.isArray(days)) return days;
+  if (typeof days === 'string') {
+    try {
+      const parsed = JSON.parse(days);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 /**
  * Get all events for a specific date
  */
 export async function getEventsByDate(date) {
-  const pool = await getPool();
-  const [rows] = await pool.query(
+  return queryRows(
     'SELECT * FROM events WHERE event_date = ? ORDER BY event_time ASC',
     [date]
   );
-  return rows;
 }
 
 /**
  * Get events for a date range
  */
 export async function getEventsByDateRange(startDate, endDate) {
-  const pool = await getPool();
-  const [rows] = await pool.query(
+  return queryRows(
     'SELECT * FROM events WHERE event_date BETWEEN ? AND ? ORDER BY event_date, event_time ASC',
     [startDate, endDate]
   );
-  return rows;
 }
 
 /**
  * Get all active recurring events
  */
 export async function getActiveRecurringEvents() {
-  const pool = await getPool();
-  const [rows] = await pool.query(
-    'SELECT * FROM recurring_events WHERE is_active = 1 ORDER BY event_time ASC'
+  return queryRows(
+    `SELECT * FROM recurring_events WHERE is_active = ${isPostgres() ? 'TRUE' : '1'} ORDER BY event_time ASC`
   );
-  return rows;
 }
 
 /**
  * Get recurring events for a specific day of week (0=Sunday, 6=Saturday)
  */
 export async function getRecurringEventsByDayOfWeek(dayOfWeek) {
-  const pool = await getPool();
-  const [rows] = await pool.query(
-    'SELECT * FROM recurring_events WHERE is_active = 1'
+  const rows = await queryRows(
+    `SELECT * FROM recurring_events WHERE is_active = ${isPostgres() ? 'TRUE' : '1'}`
   );
-  // Filter by day of week in JavaScript
-  return rows.filter(event => {
-    try {
-      const days = Array.isArray(event.days_of_week) 
-        ? event.days_of_week 
-        : JSON.parse(event.days_of_week);
-      return days.includes(dayOfWeek);
-    } catch (e) {
-      console.error('Error parsing days_of_week:', event.days_of_week, e);
-      return false;
-    }
-  });
+
+  return rows.filter(event => normalizeDaysOfWeek(event.days_of_week).includes(dayOfWeek));
 }
 
 /**
  * Combine events and recurring events for a specific date
  */
 export async function getCombinedEventsForDate(date) {
-  // Get one-time events
   const events = await getEventsByDate(date);
-  
-  // Get recurring events for this day of week
   const dayOfWeek = new Date(date).getDay();
   const recurring = await getRecurringEventsByDayOfWeek(dayOfWeek);
-  
-  // Convert recurring events to event format for this date
+
   const recurringForDate = recurring.map(r => ({
     id: `recurring_${r.id}`,
     title: r.title,
@@ -78,15 +108,12 @@ export async function getCombinedEventsForDate(date) {
     event_time: r.event_time,
     location: r.location,
     is_recurring: true,
-    recurring_id: r.id
+    recurring_id: r.id,
   }));
-  
-  // Combine and sort by time
-  const combined = [...events, ...recurringForDate].sort((a, b) => {
-    return a.event_time.localeCompare(b.event_time);
+
+  return [...events, ...recurringForDate].sort((a, b) => {
+    return String(a.event_time).localeCompare(String(b.event_time));
   });
-  
-  return combined;
 }
 
 /**
@@ -94,14 +121,14 @@ export async function getCombinedEventsForDate(date) {
  */
 export async function createEvent(eventData) {
   const { title, description, event_type, event_date, event_time, location, created_by } = eventData;
-  
-  const [result] = await pool.query(
+
+  const result = await queryWrite(
     `INSERT INTO events (title, description, event_type, event_date, event_time, location, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?)${isPostgres() ? ' RETURNING id' : ''}`,
     [title, description, event_type, event_date, event_time, location, created_by]
   );
-  
-  return result.insertId;
+
+  return result.insertId || result.rows?.[0]?.id;
 }
 
 /**
@@ -109,14 +136,16 @@ export async function createEvent(eventData) {
  */
 export async function createRecurringEvent(eventData) {
   const { title, description, event_type, event_time, location, days_of_week, is_active, created_by } = eventData;
-  
-  const [result] = await pool.query(
+  const daysJson = JSON.stringify(normalizeDaysOfWeek(days_of_week));
+  const daysColumnValue = isPostgres() ? '?::jsonb' : '?';
+
+  const result = await queryWrite(
     `INSERT INTO recurring_events (title, description, event_type, event_time, location, days_of_week, created_by, is_active)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [title, description, event_type, event_time, location, JSON.stringify(days_of_week), created_by, is_active ? 1 : 0]
+     VALUES (?, ?, ?, ?, ?, ${daysColumnValue}, ?, ?)${isPostgres() ? ' RETURNING id' : ''}`,
+    [title, description, event_type, event_time, location, daysJson, created_by, is_active !== false]
   );
-  
-  return result.insertId;
+
+  return result.insertId || result.rows?.[0]?.id;
 }
 
 /**
@@ -124,14 +153,14 @@ export async function createRecurringEvent(eventData) {
  */
 export async function updateEvent(eventId, eventData) {
   const { title, description, event_type, event_date, event_time, location } = eventData;
-  
-  const [result] = await pool.query(
+
+  const result = await queryWrite(
     `UPDATE events SET title = ?, description = ?, event_type = ?, event_date = ?, event_time = ?, location = ?, updated_at = NOW()
      WHERE id = ?`,
     [title, description, event_type, event_date, event_time, location, eventId]
   );
-  
-  return result.affectedRows > 0;
+
+  return affectedRows(result) > 0;
 }
 
 /**
@@ -139,59 +168,57 @@ export async function updateEvent(eventId, eventData) {
  */
 export async function updateRecurringEvent(recurringId, eventData) {
   const { title, description, event_type, event_time, location, days_of_week, is_active } = eventData;
-  
-  const daysJson = JSON.stringify(days_of_week);
-  
-  const [result] = await pool.query(
-    `UPDATE recurring_events SET title = ?, description = ?, event_type = ?, event_time = ?, location = ?, days_of_week = ?, is_active = ?, updated_at = NOW()
+  const daysJson = JSON.stringify(normalizeDaysOfWeek(days_of_week));
+  const daysColumnValue = isPostgres() ? '?::jsonb' : '?';
+
+  const result = await queryWrite(
+    `UPDATE recurring_events SET title = ?, description = ?, event_type = ?, event_time = ?, location = ?, days_of_week = ${daysColumnValue}, is_active = ?, updated_at = NOW()
      WHERE id = ?`,
-    [title, description, event_type, event_time, location, daysJson, is_active ? 1 : 0, recurringId]
+    [title, description, event_type, event_time, location, daysJson, is_active !== false, recurringId]
   );
-  
-  return result.affectedRows > 0;
+
+  return affectedRows(result) > 0;
 }
 
 /**
  * Delete an event
  */
 export async function deleteEvent(eventId) {
-  const [result] = await pool.query('DELETE FROM events WHERE id = ?', [eventId]);
-  return result.affectedRows > 0;
+  const result = await queryWrite('DELETE FROM events WHERE id = ?', [eventId]);
+  return affectedRows(result) > 0;
 }
 
 /**
  * Delete a recurring event
  */
 export async function deleteRecurringEvent(recurringId) {
-  const [result] = await pool.query('DELETE FROM recurring_events WHERE id = ?', [recurringId]);
-  return result.affectedRows > 0;
+  const result = await queryWrite('DELETE FROM recurring_events WHERE id = ?', [recurringId]);
+  return affectedRows(result) > 0;
 }
 
 /**
  * Toggle recurring event active status
  */
 export async function toggleRecurringEventStatus(recurringId) {
-  const [result] = await pool.query(
+  const result = await queryWrite(
     'UPDATE recurring_events SET is_active = NOT is_active, updated_at = NOW() WHERE id = ?',
     [recurringId]
   );
-  return result.affectedRows > 0;
+  return affectedRows(result) > 0;
 }
 
 /**
  * Get all events (for admin listing)
  */
 export async function getAllEvents() {
-  const [rows] = await pool.query('SELECT * FROM events ORDER BY event_date DESC, event_time DESC');
-  return rows;
+  return queryRows('SELECT * FROM events ORDER BY event_date DESC, event_time DESC');
 }
 
 /**
  * Get all recurring events (for admin listing)
  */
 export async function getAllRecurringEvents() {
-  const [rows] = await pool.query('SELECT * FROM recurring_events ORDER BY event_time ASC');
-  return rows;
+  return queryRows('SELECT * FROM recurring_events ORDER BY event_time ASC');
 }
 
 /**
@@ -200,11 +227,9 @@ export async function getAllRecurringEvents() {
 export async function getCombinedEventsForMonth(year, month) {
   const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
   const endDate = new Date(year, month, 0).toISOString().split('T')[0];
-  
-  const [events] = await pool.query(
+
+  return queryRows(
     'SELECT DISTINCT DATE(event_date) as event_date FROM events WHERE event_date BETWEEN ? AND ?',
     [startDate, endDate]
   );
-  
-  return events;
 }

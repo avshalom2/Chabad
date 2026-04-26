@@ -9,9 +9,9 @@ export default function ControlDataEditor({ onSave, onClose }) {
   const controls = [
     {
       id: 'shabbat',
-      name: 'ShabbatBox',
-      description: 'Display Shabbat & holiday times',
-      component: '<ShabbatBox />'
+      name: 'ShabbatCompactBox',
+      description: 'Display the new compact Shabbat & holiday times control',
+      component: '<ShabbatCompactBox />'
     },
     {
       id: 'events',
