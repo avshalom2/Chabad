@@ -6,6 +6,7 @@ import styles from './BannerSlotRenderer.module.css';
 export default function BannerSlotRenderer({ slotSlug, slotId, className = '' }) {
   const [slot, setSlot] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [autoSlideTransition, setAutoSlideTransition] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +23,8 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
       if (response.ok) {
         const data = await response.json();
         setSlot(data);
+        setCurrentIndex(0);
+        setAutoSlideTransition(true);
       }
     } catch (err) {
       console.error('Error fetching slot:', err);
@@ -35,11 +38,22 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
     if (!slot?.banners?.length || slot.design_type !== 'auto-slide') return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % slot.banners.length);
+      setAutoSlideTransition(true);
+      setCurrentIndex((prev) => prev + 1);
     }, slot.rotation_delay || 5000);
 
     return () => clearInterval(interval);
   }, [slot]);
+
+  const handleAutoSlideTransitionEnd = () => {
+    if (!slot?.banners?.length || currentIndex !== slot.banners.length) return;
+
+    setAutoSlideTransition(false);
+    setCurrentIndex(0);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setAutoSlideTransition(true));
+    });
+  };
 
   const moveSlide = (direction) => {
     if (!slot?.banners?.length) return;
@@ -61,7 +75,10 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
 
   // ===== AUTO-SLIDE: Simple animated rotation =====
   if (isAutoSlide) {
-    const banner = slot.banners[currentIndex];
+    const autoSlides = slot.banners.length > 1
+      ? [...slot.banners, slot.banners[0]]
+      : slot.banners;
+    const activeDotIndex = currentIndex % slot.banners.length;
 
     return (
       <div
@@ -71,12 +88,24 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
         }}
       >
         <div className={styles.bannerWrapperAutoSlide}>
-          <img
-            key={`banner-${currentIndex}`}
-            src={banner.image_url}
-            alt={banner.alt_text || 'Banner'}
-            className={styles.bannerImageAutoSlide}
-          />
+          <div
+            className={styles.bannerTrackAutoSlide}
+            style={{
+              transform: `translateX(${-currentIndex * 100}%)`,
+              transition: autoSlideTransition ? undefined : 'none',
+            }}
+            onTransitionEnd={handleAutoSlideTransitionEnd}
+          >
+            {autoSlides.map((banner, idx) => (
+              <div key={`${banner.id || banner.image_url}-${idx}`} className={styles.slideAutoSlide}>
+                <img
+                  src={banner.image_url}
+                  alt={banner.alt_text || `Banner ${idx + 1}`}
+                  className={styles.bannerImageAutoSlide}
+                />
+              </div>
+            ))}
+          </div>
 
           {/* Dots for navigation */}
           {slot.banners.length > 1 && (
@@ -84,8 +113,11 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
               {slot.banners.map((_, idx) => (
                 <button
                   key={idx}
-                  className={`${styles.dot} ${idx === currentIndex ? styles.active : ''}`}
-                  onClick={() => setCurrentIndex(idx)}
+                  className={`${styles.dot} ${idx === activeDotIndex ? styles.active : ''}`}
+                  onClick={() => {
+                    setAutoSlideTransition(true);
+                    setCurrentIndex(idx);
+                  }}
                 />
               ))}
             </div>

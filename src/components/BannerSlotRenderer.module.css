@@ -6,11 +6,12 @@
   padding: 0;
 }
 
-/* ===== AUTO-SLIDE DESIGN: Simple fadeout rotation ===== */
+/* ===== AUTO-SLIDE DESIGN: Connected strip slide ===== */
 .bannerWrapperAutoSlide {
   position: relative;
+  direction: ltr;
   width: 100%;
-    height: 100%;
+  height: 100%;
   overflow: hidden;
   border-radius: 0;
   box-shadow: none;
@@ -18,6 +19,22 @@
   display: block;
   margin: 0;
   padding: 0;
+}
+
+.bannerTrackAutoSlide {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.95s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+.slideAutoSlide {
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  flex: 0 0 100%;
+  overflow: hidden;
 }
 
 .bannerImageAutoSlide {
@@ -29,18 +46,8 @@
   margin: 0 !important;
   padding: 0 !important;
   border: none;
-  animation: fadeIn 0.5s ease-in;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0.8;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 /* ===== CAROUSEL DESIGN: Push/slide transition ===== */
@@ -156,10 +163,7 @@
 }
 
 @media (max-width: 768px) {
-  .bannerWrapperAutoSlide,
-  .bannerContainer {
-    height: 200px;
-  }
+  
 
   .bannerTrack {
     height: 200px;
