@@ -471,7 +471,7 @@ export default function TemplateEditor({ templateId, initialHtml }) {
   // Render the appropriate editor popup
   const renderEditor = () => {
     if (editorType === 'IMAGE_DATA') {
-      return <ImageDataEditor onSave={updateContent} onClose={() => setShowEditor(false)} />;
+      return <ImageDataEditor elementHtml={editingElementHtml} onSave={updateContent} onClose={() => setShowEditor(false)} />;
     } else if (editorType === 'HTML_DATA') {
       return <HtmlDataEditor onSave={updateContent} onClose={() => setShowEditor(false)} />;
     } else if (editorType === 'CONTROL_DATA') {

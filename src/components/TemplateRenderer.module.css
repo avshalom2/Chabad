@@ -12,11 +12,11 @@
 
 /* Add spacing between sibling divs */
 .container :global(div[data-type]) {
-  margin-bottom: 1.5rem;
+  
 }
 
 .container :global(div[class*="card"]) {
-  margin-bottom: 1.5rem;
+  
 }
 
 /* Fix grid layouts to display side-by-side on mobile */

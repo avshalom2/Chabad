@@ -204,5 +204,5 @@
 /* Content placeholder child divs - inherit parent dimensions */
 :global(.content-placeholder) > div {
   width: 100%;
-  height: 100%;
+  
 }

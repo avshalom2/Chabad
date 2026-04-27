@@ -1,12 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+/* eslint-disable @next/next/no-img-element */
+
+import { useEffect, useMemo, useState } from 'react';
 import styles from './editors.module.css';
 
-export default function ImageDataEditor({ onSave, onClose }) {
+const escapeHtmlAttr = (value) => (
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+);
+
+export default function ImageDataEditor({ elementHtml, onSave, onClose }) {
   const [uploading, setUploading] = useState(false);
+  const [loadingImages, setLoadingImages] = useState(true);
+  const [uploadImages, setUploadImages] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [altText, setAltText] = useState('');
+
+  const fetchUploadImages = async () => {
+    setLoadingImages(true);
+    try {
+      const response = await fetch('/api/admin/uploads');
+      if (response.ok) {
+        const data = await response.json();
+        setUploadImages(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Error loading uploaded images:', error);
+    } finally {
+      setLoadingImages(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUploadImages();
+  }, []);
+
+  useEffect(() => {
+    if (!elementHtml) return;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(elementHtml, 'text/html');
+    const image = doc.querySelector('img');
+
+    if (image) {
+      setImageUrl(image.getAttribute('src') || '');
+      setAltText(image.getAttribute('alt') || '');
+    }
+  }, [elementHtml]);
+
+  const filteredImages = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return uploadImages;
+
+    return uploadImages.filter((image) => (
+      image.name?.toLowerCase().includes(term) ||
+      image.src?.toLowerCase().includes(term)
+    ));
+  }, [searchTerm, uploadImages]);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -25,6 +80,7 @@ export default function ImageDataEditor({ onSave, onClose }) {
       if (response.ok) {
         const data = await response.json();
         setImageUrl(data.url);
+        await fetchUploadImages();
       } else {
         alert('Error uploading image');
       }
@@ -42,9 +98,13 @@ export default function ImageDataEditor({ onSave, onClose }) {
       return;
     }
 
-    const htmlContent = `<img src="${imageUrl}" alt="${altText}" style="max-width: 100%; height: auto;" />`;
+    const htmlContent = `<img src="${escapeHtmlAttr(imageUrl)}" alt="${escapeHtmlAttr(altText)}" style="max-width: 100%; height: auto;" />`;
 
     onSave(htmlContent);
+  };
+
+  const handleSelectImage = (src) => {
+    setImageUrl(src);
   };
 
   const handleClear = () => {
@@ -54,6 +114,40 @@ export default function ImageDataEditor({ onSave, onClose }) {
 
   return (
     <div className={styles.editor}>
+      <div className={styles.formGroup}>
+        <label>Select From Uploads</label>
+        <input
+          type="search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search uploaded images"
+          className={styles.input}
+        />
+
+        {loadingImages ? (
+          <p className={styles.loading}>Loading images...</p>
+        ) : filteredImages.length > 0 ? (
+          <div className={styles.imagePicker}>
+            {filteredImages.map((image) => (
+              <button
+                key={image.src}
+                type="button"
+                className={`${styles.imageOption} ${imageUrl === image.src ? styles.selectedImageOption : ''}`}
+                onClick={() => handleSelectImage(image.src)}
+                title={image.name}
+              >
+                <img src={image.src} alt="" loading="lazy" />
+                <span>{image.name}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className={styles.hint}>
+            {searchTerm ? 'No matching images found. You can upload a new one below.' : 'No uploaded images found yet.'}
+          </p>
+        )}
+      </div>
+
       <div className={styles.formGroup}>
         <label>Upload Image</label>
         <input
