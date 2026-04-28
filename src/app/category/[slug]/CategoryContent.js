@@ -103,20 +103,22 @@ export default function CategoryContent({ category, mainArticle, articles, total
           ) : (
             // Standard template as featured (still one per row)
             <div className={styles.standardFeatured}>
+              {mainArticle.short_description_image_url && (
+                <Link href={`/articles/${mainArticle.slug}`} className={styles.standardFeaturedImageLink}>
+                  <img
+                    src={mainArticle.short_description_image_url}
+                    alt={mainArticle.title}
+                    className={styles.standardFeaturedImage}
+                  />
+                </Link>
+              )}
               <div className={styles.articleBody}>
                 <h2 className={styles.articleTitle}>
                   <Link href={`/articles/${mainArticle.slug}`}>{mainArticle.title}</Link>
                 </h2>
-                <div className={styles.descriptionRow}>
-                  {mainArticle.short_description_image_url && (
-                    <Link href={`/articles/${mainArticle.slug}`} className={styles.imageLink}>
-                      <img src={mainArticle.short_description_image_url} alt={mainArticle.title} className={styles.articleImage} />
-                    </Link>
-                  )}
-                  {mainArticle.short_description && (
-                    <p className={styles.articleDesc}>{mainArticle.short_description}</p>
-                  )}
-                </div>
+                {mainArticle.short_description && (
+                  <p className={styles.articleDesc}>{mainArticle.short_description}</p>
+                )}
               </div>
               <div className={styles.articleFooter}>
                 <Link href={`/articles/${mainArticle.slug}`} className={styles.readMore}>לכתבה</Link>
