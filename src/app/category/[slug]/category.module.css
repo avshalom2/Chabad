@@ -645,18 +645,26 @@
 /* Responsive */
 @media (max-width: 600px) {
   .siblingScroller {
-    gap: 0.4rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+    align-items: stretch;
   }
 
   .siblingPill {
+    width: 100%;
     min-height: 34px;
-    padding: 0.4rem 0.66rem;
-    font-size: 0.8rem;
+    padding: 0.42rem 0.5rem;
+    font-size: 0.74rem;
+    white-space: normal;
+    line-height: 1.15;
+    text-align: center;
   }
 
   .siblingIcon {
-    width: 0.78rem;
-    height: 0.78rem;
+    width: 0.68rem;
+    height: 0.68rem;
+    border-width: 1.5px;
   }
 
   .descriptionRow {
