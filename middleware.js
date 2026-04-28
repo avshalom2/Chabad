@@ -9,10 +9,6 @@ export async function middleware(request) {
   requestHeaders.set('x-admin-pathname', pathname);
 
   if (pathname === '/admin/login') {
-    if (hasSessionCookie) {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-
     return NextResponse.next({
       request: {
         headers: requestHeaders,

@@ -1,17 +1,11 @@
 import Link from 'next/link';
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getCurrentUserSession } from '@/lib/auth-session.js';
 import AdminSidebarFooter from '@/components/AdminSidebarFooter.js';
 import styles from './admin-layout.module.css';
 
 export default async function AdminLayout({ children }) {
-  const pathname = (await headers()).get('x-admin-pathname') || '';
   const user = await getCurrentUserSession();
-
-  if (pathname === '/admin/login') {
-    return children;
-  }
 
   if (!user) {
     redirect('/admin/login');

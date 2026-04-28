@@ -30,8 +30,9 @@ export default function LoginPage() {
         return;
       }
 
-      // Login successful — redirect to admin dashboard
-      router.push('/admin');
+      // Login successful. Refresh so server components see the new session cookie.
+      router.replace('/admin');
+      router.refresh();
     } catch (err) {
       setError('An error occurred. Please try again.');
       setLoading(false);
@@ -65,7 +66,7 @@ export default function LoginPage() {
             <input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

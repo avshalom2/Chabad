@@ -109,6 +109,37 @@
   color: #d1d5db;
 }
 
+.menuToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+}
+
+.menuToggle input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #10b981;
+  cursor: pointer;
+}
+
+.menuToggle input:disabled {
+  cursor: wait;
+}
+
+.gridError {
+  margin-bottom: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.9rem;
+}
+
 .actions {
   display: flex;
   gap: 0.5rem;

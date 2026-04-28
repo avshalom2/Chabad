@@ -57,3 +57,39 @@ export async function PUT(request, { params }) {
     return Response.json({ error: 'Failed to update category' }, { status: 500 });
   }
 }
+
+export async function PATCH(request, { params }) {
+  try {
+    const user = await getCurrentUserSession();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const updates = {};
+
+    if (Object.prototype.hasOwnProperty.call(body, 'is_menu')) {
+      updates.is_menu = body.is_menu ? 1 : 0;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, 'is_active')) {
+      updates.is_active = body.is_active ? 1 : 0;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, 'sort_order')) {
+      updates.sort_order = parseInt(body.sort_order) || 0;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return Response.json({ error: 'No valid fields to update' }, { status: 400 });
+    }
+
+    await updateCategory(parseInt(id), updates);
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error('Patch category error:', error);
+    return Response.json({ error: 'Failed to update category' }, { status: 500 });
+  }
+}
