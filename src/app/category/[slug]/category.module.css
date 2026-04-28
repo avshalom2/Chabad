@@ -644,6 +644,34 @@
 
 /* Responsive */
 @media (max-width: 600px) {
+  .page {
+    padding-top: 0.85rem;
+  }
+
+  .breadcrumb {
+    margin-bottom: 0.75rem;
+  }
+
+  .categoryHeader {
+    padding-bottom: 0.7rem;
+    margin-bottom: 1rem;
+    gap: 0.55rem;
+  }
+
+  .categoryHeader h1 {
+    font-size: 1.55rem;
+  }
+
+  .siblingNav {
+    margin: -0.05rem 0 1.15rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .siblingScroller {
+    padding-top: 0.15rem;
+    padding-bottom: 0.45rem;
+  }
+
   .siblingScroller {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
