@@ -62,7 +62,7 @@ export default function Footer() {
         </div>
 
         <div className={styles.footerCopy}>
-          <p>© 2026 כל הזכויות שמורות לבית חב"ד | מופעל באהבה לכל יהודי</p>
+          <p>© בית חב"ד | כל הזכויות שמורות לא.ש אינטראקטיב</p>
         </div>
       </div>
     </footer>

@@ -38,7 +38,11 @@ export default function TemplateEditor({ templateId, initialHtml }) {
           const slots = Array.isArray(data) ? data : (data.slots || []);
           const slotMap = {};
           slots.forEach(slot => {
-            slotMap[slot.id] = { name: slot.name, location: slot.location, banners_count: slot.banners?.length || 0 };
+            slotMap[slot.id] = {
+              name: slot.name,
+              location: slot.location,
+              banners: slot.banners || [],
+            };
           });
           setBannerSlots(slotMap);
         }
@@ -183,7 +187,7 @@ export default function TemplateEditor({ templateId, initialHtml }) {
       const slot = bannerSlots[slotId];
       const slotName = slot ? slot.name : `Banner Slot #${slotId}`;
       const location = slot ? slot.location : 'Unknown';
-      const bannerCount = slot ? slot.banners?.length || 0 : 0;
+      const bannerCount = slot ? slot.banners.length : 0;
       
       return `<div class="template-banner-slot-preview" data-slot-id="${slotId}" style="
         border: 2px dashed #8B5A8E;

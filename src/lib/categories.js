@@ -86,6 +86,32 @@ export async function getCategoryBySlug(slug) {
   return rows[0] || null;
 }
 
+export async function getSiblingCategories(parentId) {
+  if (!parentId) return [];
+
+  const pool = await getPool();
+
+  if (isPostgres()) {
+    const result = await pool.query(
+      `SELECT c.id, c.name, c.slug, c.description, c.sort_order
+       FROM categories c
+       WHERE c.parent_id = $1 AND c.is_active = TRUE
+       ORDER BY c.sort_order ASC, c.name ASC`,
+      [parentId]
+    );
+    return result.rows;
+  }
+
+  const [rows] = await pool.query(
+    `SELECT c.id, c.name, c.slug, c.description, c.sort_order
+     FROM categories c
+     WHERE c.parent_id = ? AND c.is_active = 1
+     ORDER BY c.sort_order ASC, c.name ASC`,
+    [parentId]
+  );
+  return rows;
+}
+
 export async function createCategory({
   name,
   slug,
