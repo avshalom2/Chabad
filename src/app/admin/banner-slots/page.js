@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './banner-slots.module.css';
 
 /**
@@ -20,6 +20,9 @@ function BannerManager({ slot, onClose }) {
     sort_order: 0,
   });
   const [uploading, setUploading] = useState(false);
+  const [uploadImages, setUploadImages] = useState([]);
+  const [loadingUploadImages, setLoadingUploadImages] = useState(false);
+  const [uploadSearchTerm, setUploadSearchTerm] = useState('');
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
 
@@ -31,7 +34,19 @@ function BannerManager({ slot, onClose }) {
 
   useEffect(() => {
     fetchBanners();
+    fetchUploadImages();
   }, [slot.id]);
+
+  const filteredUploadImages = useMemo(() => {
+    const term = uploadSearchTerm.trim().toLowerCase();
+    if (!term) return uploadImages;
+
+    return uploadImages.filter((image) => {
+      const name = image.name?.toLowerCase() || '';
+      const src = image.src?.toLowerCase() || '';
+      return name.includes(term) || src.includes(term);
+    });
+  }, [uploadImages, uploadSearchTerm]);
 
   const fetchBanners = async () => {
     try {
@@ -43,6 +58,20 @@ function BannerManager({ slot, onClose }) {
       setBanners(Array.isArray(data) ? data : []);
     } catch (error) {
       showToast(`Error fetching banners: ${error.message}`, 'error');
+    }
+  };
+
+  const fetchUploadImages = async () => {
+    try {
+      setLoadingUploadImages(true);
+      const response = await fetch('/api/admin/uploads');
+      if (!response.ok) throw new Error('Failed to fetch uploaded images');
+      const data = await response.json();
+      setUploadImages(Array.isArray(data) ? data : []);
+    } catch (error) {
+      showToast(`Error fetching uploaded images: ${error.message}`, 'error');
+    } finally {
+      setLoadingUploadImages(false);
     }
   };
 
@@ -63,12 +92,18 @@ function BannerManager({ slot, onClose }) {
       if (!res.ok) throw new Error('Upload failed');
       const { url } = await res.json();
       setFormData((prev) => ({ ...prev, image_url: url }));
+      fetchUploadImages();
       showToast('Image uploaded successfully');
     } catch (error) {
       showToast(`Upload failed: ${error.message}`, 'error');
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleSelectUploadedImage = (src) => {
+    setFormData((prev) => ({ ...prev, image_url: src }));
+    showToast('Image selected');
   };
 
   const handleInputChange = (e) => {
@@ -268,6 +303,49 @@ function BannerManager({ slot, onClose }) {
                   {uploading ? 'Uploading...' : 'Choose Image'}
                 </span>
               </label>
+
+              <div className={styles.uploadPicker}>
+                <div className={styles.uploadPickerHeader}>
+                  <span>Select from upload folder</span>
+                  <button type="button" onClick={fetchUploadImages}>
+                    Refresh
+                  </button>
+                </div>
+                <input
+                  type="search"
+                  value={uploadSearchTerm}
+                  onChange={(e) => setUploadSearchTerm(e.target.value)}
+                  placeholder="Search uploaded images"
+                  className={styles.uploadSearch}
+                />
+
+                {loadingUploadImages ? (
+                  <p className={styles.uploadPickerMessage}>Loading images...</p>
+                ) : filteredUploadImages.length > 0 ? (
+                  <div className={styles.uploadGrid}>
+                    {filteredUploadImages.map((image) => (
+                      <button
+                        type="button"
+                        key={image.src}
+                        className={`${styles.uploadOption} ${
+                          formData.image_url === image.src
+                            ? styles.selectedUploadOption
+                            : ''
+                        }`}
+                        onClick={() => handleSelectUploadedImage(image.src)}
+                        title={image.name}
+                      >
+                        <img src={image.src} alt="" loading="lazy" />
+                        <span>{image.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={styles.uploadPickerMessage}>
+                    No uploaded images found.
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className={styles.formGroup}>
@@ -562,6 +640,7 @@ export default function AdminBannerSlotsPage() {
                 Design Type
                 <select name="design_type" value={formData.design_type} onChange={handleInputChange}>
                   <option value="auto-slide">Auto-Slide (continuous rotation)</option>
+                  <option value="manual-slider">Manual Slider (touch / drag only)</option>
                   <option value="carousel-dots">Carousel with Dots (click to navigate)</option>
                   <option value="carousel-arrows">Carousel with Arrows (side navigation)</option>
                 </select>

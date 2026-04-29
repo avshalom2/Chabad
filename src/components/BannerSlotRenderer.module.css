@@ -19,6 +19,14 @@
   display: block;
   margin: 0;
   padding: 0;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.bannerWrapperAutoSlide.dragging,
+.bannerContainer.dragging {
+  cursor: grabbing;
 }
 
 .bannerTrackAutoSlide {
@@ -48,6 +56,7 @@
   border: none;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+  pointer-events: none;
 }
 
 /* ===== CAROUSEL DESIGN: Push/slide transition ===== */
@@ -62,6 +71,9 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   background-color: #f5f5f5;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
 }
 
 /* Track holds all slides in a row */
@@ -86,6 +98,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  pointer-events: none;
 }
 
 /* Navigation buttons */

@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './BannerSlotRenderer.module.css';
 
 export default function BannerSlotRenderer({ slotSlug, slotId, className = '' }) {
   const [slot, setSlot] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoSlideTransition, setAutoSlideTransition] = useState(true);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(true);
+  const dragStartX = useRef(0);
 
   useEffect(() => {
     fetchSlot();
@@ -35,7 +38,7 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
 
   // Auto-rotate for auto-slide design only
   useEffect(() => {
-    if (!slot?.banners?.length || slot.design_type !== 'auto-slide') return;
+    if (!slot?.banners?.length || slot.design_type !== 'auto-slide' || isDragging) return;
 
     const interval = setInterval(() => {
       setAutoSlideTransition(true);
@@ -43,7 +46,7 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
     }, slot.rotation_delay || 5000);
 
     return () => clearInterval(interval);
-  }, [slot]);
+  }, [slot, isDragging]);
 
   const handleAutoSlideTransitionEnd = () => {
     if (!slot?.banners?.length || currentIndex !== slot.banners.length) return;
@@ -57,6 +60,7 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
 
   const moveSlide = (direction) => {
     if (!slot?.banners?.length) return;
+    setAutoSlideTransition(true);
     setCurrentIndex((prev) => {
       let newIndex = prev + direction;
       if (newIndex >= slot.banners.length) newIndex = 0;
@@ -65,16 +69,57 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
     });
   };
 
+  const handlePointerDown = (e) => {
+    if (!slot?.banners || slot.banners.length < 2) return;
+
+    dragStartX.current = e.clientX;
+    setIsDragging(true);
+    setDragOffset(0);
+    setAutoSlideTransition(false);
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging) return;
+
+    const nextOffset = e.clientX - dragStartX.current;
+    setDragOffset(nextOffset);
+  };
+
+  const handlePointerEnd = (e) => {
+    if (!isDragging) return;
+
+    const finalOffset = e.clientX - dragStartX.current;
+    const threshold = 45;
+
+    setIsDragging(false);
+    setDragOffset(0);
+    setAutoSlideTransition(true);
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+
+    if (Math.abs(finalOffset) < threshold) return;
+    moveSlide(finalOffset < 0 ? 1 : -1);
+  };
+
+  const handlePointerCancel = (e) => {
+    if (!isDragging) return;
+
+    setIsDragging(false);
+    setDragOffset(0);
+    setAutoSlideTransition(true);
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+  };
+
   if (loading || !slot?.banners?.length) return null;
 
   const isAutoSlide = slot.design_type === 'auto-slide';
+  const isManualSlider = slot.design_type === 'manual-slider';
   const isCarousel = slot.design_type === 'carousel-dots' || slot.design_type === 'carousel-arrows';
   const offset = -currentIndex * 100;
+  const dragTransform = dragOffset ? ` translateX(${dragOffset}px)` : '';
 
-
-
-  // ===== AUTO-SLIDE: Simple animated rotation =====
-  if (isAutoSlide) {
+  // ===== AUTO-SLIDE / MANUAL SLIDER: Same strip, optional automatic rotation =====
+  if (isAutoSlide || isManualSlider) {
     const autoSlides = slot.banners.length > 1
       ? [...slot.banners, slot.banners[0]]
       : slot.banners;
@@ -87,12 +132,18 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
           maxWidth: slot.max_width ? `${slot.max_width}px` : undefined,
         }}
       >
-        <div className={styles.bannerWrapperAutoSlide}>
+        <div
+          className={`${styles.bannerWrapperAutoSlide} ${isDragging ? styles.dragging : ''}`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerEnd}
+          onPointerCancel={handlePointerCancel}
+        >
           <div
             className={styles.bannerTrackAutoSlide}
             style={{
-              transform: `translateX(${-currentIndex * 100}%)`,
-              transition: autoSlideTransition ? undefined : 'none',
+              transform: `translateX(${-currentIndex * 100}%)${dragTransform}`,
+              transition: autoSlideTransition && !isDragging ? undefined : 'none',
             }}
             onTransitionEnd={handleAutoSlideTransitionEnd}
           >
@@ -136,12 +187,19 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
           maxWidth: slot.max_width ? `${slot.max_width}px` : undefined,
         }}
       >
-        <div className={styles.bannerContainer}>
+        <div
+          className={`${styles.bannerContainer} ${isDragging ? styles.dragging : ''}`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerEnd}
+          onPointerCancel={handlePointerCancel}
+        >
           {/* Track holds all slides in a row */}
           <div
             className={styles.bannerTrack}
             style={{
-              transform: `translateX(${offset}%)`,
+              transform: `translateX(${offset}%)${dragTransform}`,
+              transition: isDragging ? 'none' : undefined,
             }}
           >
             {slot.banners.map((banner, idx) => (
