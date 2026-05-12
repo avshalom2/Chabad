@@ -117,10 +117,6 @@
 }
 
 @media (max-width: 460px) {
-  .grid {
-    grid-template-columns: 1fr !important;
-  }
-
   .card {
     min-height: 0;
     padding: 22px 20px 18px;
