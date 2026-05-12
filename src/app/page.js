@@ -40,7 +40,6 @@ export default async function MainPage() {
 
   return (
     <main className={styles.main}>
-
       {/* ACTIVE TEMPLATE (from hp_templates) */}
       {activeTemplate && activeTemplate.html ? (
         <TemplateRenderer html={activeTemplate.html} />

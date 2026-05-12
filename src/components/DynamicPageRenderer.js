@@ -4,12 +4,16 @@ import { createRoot } from 'react-dom/client';
 import EventsBox from '@/components/EventsBox';
 import ShabbatCompactBox from '@/components/ShabbatCompactBox';
 import ArticlesSlider from '@/components/ArticlesSlider';
+import WeeklyPrayerBox from '@/components/WeeklyPrayerBox';
+import ArticlesCube from '@/components/ArticlesCube';
 import styles from './DynamicPageRenderer.module.css';
 
 const COMPONENT_MAP = {
   'events-box': EventsBox,
   'shabbat-box': ShabbatCompactBox,
+  'weekly-prayers-box': WeeklyPrayerBox,
   'articles-slider': ArticlesSlider,
+  'articles-cube': ArticlesCube,
 };
 
 export default function DynamicPageRenderer({ html }) {
@@ -62,7 +66,14 @@ export default function DynamicPageRenderer({ html }) {
 
       placeholder.innerHTML = '';
       const root = createRoot(placeholder);
-      root.render(<Component />);
+      root.render(
+        <Component
+          categoryId={placeholder.getAttribute('category-id')}
+          categorySlug={placeholder.getAttribute('category-slug')}
+          categoryName={placeholder.getAttribute('category-name')}
+          categoryDefaultColumns={placeholder.getAttribute('category-columns')}
+        />
+      );
       rootsRef.current.push(root);
     });
 

@@ -30,6 +30,9 @@ export default async function AdminLayout({ children }) {
           <Link href="/admin/events" className={styles.navLink}>
             אירועים
           </Link>
+          <Link href="/admin/weekly-prayers" className={styles.navLink}>
+            זמני תפילה
+          </Link>
           <Link href="/admin/banner-slots" className={styles.navLink}>
             חריצות בנרים
           </Link>

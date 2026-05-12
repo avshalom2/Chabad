@@ -2,8 +2,10 @@
 
 import EventsBox from '@/components/EventsBox';
 import ShabbatCompactBox from '@/components/ShabbatCompactBox';
+import WeeklyPrayerBox from '@/components/WeeklyPrayerBox';
 import NewsBox from '@/components/NewsBox';
 import ArticlesSlider from '@/components/ArticlesSlider';
+import ArticlesCube from '@/components/ArticlesCube';
 import BannerSlotRenderer from '@/components/BannerSlotRenderer';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -52,7 +54,7 @@ export default function TemplateRenderer({ html }) {
     console.log('TemplateRenderer: Total elements in container:', allDivs.length);
 
     // Find all component tags - try multiple variations
-    const componentElements = containerRef.current.querySelectorAll('eventsbox, shabbatbox, newsbox, articlesslider');
+    const componentElements = containerRef.current.querySelectorAll('eventsbox, shabbatbox, weeklyprayersbox, newsbox, articlesslider, articlescube');
     console.log('Found component tags:', componentElements.length);
 
     // Log each one
@@ -82,11 +84,12 @@ export default function TemplateRenderer({ html }) {
 
       // Store which component should go in this wrapper
       newPortalsMap[componentId] = {
-        type: componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'newsbox' ? 'news' : 'articles-slider',
+        type: componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'weeklyprayersbox' ? 'weekly-prayers' : componentName === 'newsbox' ? 'news' : componentName === 'articlesslider' ? 'articles-slider' : 'articles-cube',
         target: wrapper,
         categoryId: tag.getAttribute('category-id'),
         categorySlug: tag.getAttribute('category-slug'),
         categoryName: tag.getAttribute('category-name'),
+        categoryDefaultColumns: tag.getAttribute('category-columns'),
       };
       
       console.log('Component', idx, ':', componentName, '-> portal-' + idx);
@@ -138,6 +141,19 @@ export default function TemplateRenderer({ html }) {
       );
     }
 
+    if (config.type === 'articles-cube') {
+      return createPortal(
+        <ArticlesCube
+          key={portalId}
+          categoryId={config.categoryId}
+          categorySlug={config.categorySlug}
+          categoryName={config.categoryName}
+          categoryDefaultColumns={config.categoryDefaultColumns}
+        />,
+        placeholderElement
+      );
+    }
+
     if (config.type === 'news') {
       return createPortal(
         <NewsBox
@@ -150,7 +166,7 @@ export default function TemplateRenderer({ html }) {
       );
     }
 
-    const Component = config.type === 'events' ? EventsBox : config.type === 'shabbat' ? ShabbatCompactBox : null;
+    const Component = config.type === 'events' ? EventsBox : config.type === 'shabbat' ? ShabbatCompactBox : config.type === 'weekly-prayers' ? WeeklyPrayerBox : null;
     if (!Component) return null;
     return createPortal(
       <Component key={portalId} />,

@@ -77,7 +77,8 @@ CREATE TABLE category_types (
 INSERT INTO category_types (name, slug) VALUES
   ('articles', 'articles'),
   ('products', 'products'),
-  ('news', 'news');
+  ('news', 'news'),
+  ('Articles Cube', 'articles-cube');
 
 -- ============================================================
 -- 4. CATEGORIES

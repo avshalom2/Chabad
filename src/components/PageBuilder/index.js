@@ -370,6 +370,41 @@ const PageBuilder = forwardRef(function PageBuilder({ initialHtml = '' }, ref) {
     });
 
     // ── Grid / Layout blocks ──────────────────────────────────────
+    // Register Weekly Prayers block
+    editor.BlockManager.add('weekly-prayers-block', {
+      label: 'Prayer Times',
+      category: 'Custom',
+      content: {
+        type: 'weekly-prayers-component',
+        attributes: { 'data-chabadcomponent': 'weekly-prayers-box', class: 'weekly-prayers-block' },
+        style: { padding: '20px', border: '2px dashed #c8a04a', borderRadius: '8px', minHeight: '120px', backgroundColor: '#fffbeb' },
+        content: `<div style="text-align:center;color:#9a6a00;padding:16px;">
+          <div style="font-size:2rem;margin-bottom:8px;">🕐</div>
+          <strong style="font-size:1rem;">Weekly Prayer Times</strong>
+          <p style="margin:6px 0 0;font-size:0.85rem;color:#92400e;">Parasha, Shacharit, Mincha and Maariv times will render here</p>
+        </div>`,
+      },
+    });
+
+    editor.DomComponents.addType('weekly-prayers-component', {
+      model: {
+        defaults: {
+          displayName: 'Prayer Times',
+          tagName: 'div',
+          draggable: true,
+          droppable: false,
+          editable: false,
+          attributes: { 'data-chabadcomponent': 'weekly-prayers-box', class: 'weekly-prayers-block' },
+          style: { padding: '20px', border: '2px dashed #c8a04a', borderRadius: '8px', minHeight: '120px', backgroundColor: '#fffbeb' },
+          content: `<div style="text-align:center;color:#9a6a00;padding:16px;">
+            <div style="font-size:2rem;margin-bottom:8px;">🕐</div>
+            <strong style="font-size:1rem;">Weekly Prayer Times</strong>
+            <p style="margin:6px 0 0;font-size:0.85rem;color:#92400e;">Parasha, Shacharit, Mincha and Maariv times will render here</p>
+          </div>`,
+        },
+      },
+    });
+
     // Register layout-column as a droppable component type
     editor.DomComponents.addType('layout-column', {
       model: {

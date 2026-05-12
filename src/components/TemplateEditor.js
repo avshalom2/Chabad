@@ -9,6 +9,17 @@ import ControlDataEditor from './editors/ControlDataEditor';
 import NewsControlEditor from './editors/NewsControlEditor';
 import BannerSlotControlEditor from './editors/BannerSlotControlEditor';
 import ArticlesSliderEditor from './editors/ArticlesSliderEditor';
+import ArticlesCubeEditor from './editors/ArticlesCubeEditor';
+
+const editorTypeOptions = [
+  { value: 'HTML_DATA', label: 'HTML content' },
+  { value: 'IMAGE_DATA', label: 'Image' },
+  { value: 'CONTROL_DATA', label: 'Control: Shabbat / Events / Prayer Times' },
+  { value: 'CONTROL_BANNER', label: 'Banner slot' },
+  { value: 'NEWS_CONTROL', label: 'News control' },
+  { value: 'ARTICLES_SLIDER', label: 'Articles slider' },
+  { value: 'ARTICLES_CUBE', label: 'Articles Cube' },
+];
 
 export default function TemplateEditor({ templateId, initialHtml }) {
   const router = useRouter();
@@ -17,6 +28,7 @@ export default function TemplateEditor({ templateId, initialHtml }) {
   const [webviewMode, setWebviewMode] = useState(false);
   const [editingElementHtml, setEditingElementHtml] = useState(null); // Store the HTML string, not the element
   const [editingElementIndex, setEditingElementIndex] = useState(null); // Store which content-placeholder was edited
+  const [editingDataTypeIndex, setEditingDataTypeIndex] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
   const [editorType, setEditorType] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -220,9 +232,12 @@ export default function TemplateEditor({ templateId, initialHtml }) {
     // Try to find data-type attribute first (old format)
     let element = e.target.closest('[data-type]');
     let dataTypeAttr = null;
+    setEditingDataTypeIndex(null);
     
     if (element) {
       dataTypeAttr = element.getAttribute('data-type');
+      const dataTypeElements = containerRef.current?.querySelectorAll('[data-type]') || [];
+      setEditingDataTypeIndex(Array.from(dataTypeElements).indexOf(element));
       console.log('Found data-type element:', dataTypeAttr);
       
       // Check if this data-type element contains a content-placeholder
@@ -261,8 +276,10 @@ export default function TemplateEditor({ templateId, initialHtml }) {
         
         if (innerHtml.includes('newsbox')) {
           dataType = 'NEWS_CONTROL';
-        } else if (innerHtml.includes('eventsbox') || innerHtml.includes('shabbatbox')) {
+        } else if (innerHtml.includes('eventsbox') || innerHtml.includes('shabbatbox') || innerHtml.includes('weeklyprayersbox')) {
           dataType = 'CONTROL_DATA';
+        } else if (innerHtml.includes('articlescube')) {
+          dataType = 'ARTICLES_CUBE';
         } else if (innerHtml.includes('articlesslider')) {
           dataType = 'ARTICLES_SLIDER';
         } else if (innerHtml.includes('<img')) {
@@ -275,6 +292,9 @@ export default function TemplateEditor({ templateId, initialHtml }) {
       console.log('Final selected type:', dataType, 'at index:', elementIndex);
       setEditingElementHtml(element.outerHTML); // Store HTML string
       setEditingElementIndex(elementIndex); // Store which placeholder this is
+      if (!dataTypeAttr) {
+        setEditingDataTypeIndex(null);
+      }
       setEditorType(dataType);
       setShowEditor(true);
     } else {
@@ -283,6 +303,34 @@ export default function TemplateEditor({ templateId, initialHtml }) {
   };
 
   // Update content in the HTML
+  const applyContentAndTypeWithDom = (newContent, nextType) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const placeholders = doc.querySelectorAll('.content-placeholder');
+    const placeholder = placeholders[editingElementIndex];
+
+    if (!placeholder) return null;
+
+    placeholder.innerHTML = newContent;
+
+    const dataTypeElements = doc.querySelectorAll('[data-type]');
+    const dataTypeElement = editingDataTypeIndex !== null
+      ? dataTypeElements[editingDataTypeIndex]
+      : placeholder.closest('[data-type]');
+
+    if (dataTypeElement) {
+      dataTypeElement.setAttribute('data-type', nextType);
+    } else {
+      placeholder.setAttribute('data-type', nextType);
+    }
+
+    const headStyles = Array.from(doc.head.querySelectorAll('style'))
+      .map((styleEl) => styleEl.outerHTML)
+      .join('');
+
+    return `${headStyles}${doc.body.innerHTML}`;
+  };
+
   const updateContent = (newContent) => {
     if (editingElementIndex === null) {
       console.error('No editing element set');
@@ -291,6 +339,16 @@ export default function TemplateEditor({ templateId, initialHtml }) {
 
     console.log('Updating element at index:', editingElementIndex);
     console.log('New content:', newContent.substring(0, 100));
+
+    const domUpdatedHtml = applyContentAndTypeWithDom(newContent, editorType);
+    if (domUpdatedHtml) {
+      setHtml(domUpdatedHtml);
+      setShowEditor(false);
+      setEditingElementHtml(null);
+      setEditingElementIndex(null);
+      setEditingDataTypeIndex(null);
+      return;
+    }
 
     // Find Nth .content-placeholder div by properly counting nested divs
     let divCount = -1;
@@ -369,6 +427,7 @@ export default function TemplateEditor({ templateId, initialHtml }) {
     setShowEditor(false);
     setEditingElementHtml(null);
     setEditingElementIndex(null);
+    setEditingDataTypeIndex(null);
   };
 
   // Delete content from the HTML
@@ -441,6 +500,7 @@ export default function TemplateEditor({ templateId, initialHtml }) {
     setShowEditor(false);
     setEditingElementHtml(null);
     setEditingElementIndex(null);
+    setEditingDataTypeIndex(null);
   };
 
   // Save HTML to database
@@ -484,6 +544,8 @@ export default function TemplateEditor({ templateId, initialHtml }) {
       return <NewsControlEditor onSave={updateContent} onClose={() => setShowEditor(false)} />;
     } else if (editorType === 'ARTICLES_SLIDER') {
       return <ArticlesSliderEditor onSave={updateContent} onClose={() => setShowEditor(false)} />;
+    } else if (editorType === 'ARTICLES_CUBE') {
+      return <ArticlesCubeEditor onSave={updateContent} onClose={() => setShowEditor(false)} />;
     } else if (editorType === 'CONTROL_BANNER') {
       return (
         <BannerSlotControlEditor
@@ -601,7 +663,25 @@ export default function TemplateEditor({ templateId, initialHtml }) {
         <div className={styles.editorModal}>
           <div className={styles.editorContent}>
             <div className={styles.editorHeader}>
-              <h3>Edit {editorType}</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <h3 style={{ margin: 0 }}>Edit</h3>
+                <select
+                  value={editorType || ''}
+                  onChange={(e) => setEditorType(e.target.value)}
+                  style={{
+                    minWidth: '260px',
+                    padding: '0.45rem 0.65rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '0.9rem',
+                    background: '#fff',
+                  }}
+                >
+                  {editorTypeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button
                   className={styles.deleteBtn}

@@ -30,8 +30,8 @@ export async function GET(request) {
          ORDER BY c.sort_order ASC, c.name ASC`
       );
       categories = rows;
-    } else if (typeSlug === 'articles-slider') {
-      // Filter for articles-slider categories
+    } else if (typeSlug === 'articles-slider' || typeSlug === 'articles-cube') {
+      // Filter for specialized article display categories
       const activeCondition = isPostgres() ? 'TRUE' : '1';
       const typePlaceholder = isPostgres() ? '$1' : '?';
       const rows = await queryRows(
@@ -42,7 +42,7 @@ export async function GET(request) {
          LEFT JOIN categories pc ON pc.id = c.parent_id
          WHERE ct.slug = ${typePlaceholder} AND c.is_active = ${activeCondition}
          ORDER BY c.sort_order ASC, c.name ASC`,
-        ['articles-slider']
+        [typeSlug]
       );
       categories = rows;
     } else {

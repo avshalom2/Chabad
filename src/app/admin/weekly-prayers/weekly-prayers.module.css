@@ -1,0 +1,287 @@
+.container {
+  direction: rtl;
+  color: #111827;
+  font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+}
+
+.loading {
+  direction: rtl;
+  padding: 2rem;
+  color: #667085;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: #9a7b2f;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.header h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 2rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.addTimeBtn,
+.deleteTimeBtn {
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: inherit;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.primaryBtn {
+  background: #6b1020;
+  color: #fff;
+  padding: 0.8rem 1.35rem;
+}
+
+.primaryBtn:hover {
+  background: #8d1830;
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.secondaryBtn {
+  background: #fff;
+  color: #6b1020;
+  padding: 0.75rem 1.15rem;
+  border: 1px solid #e4e7ec;
+}
+
+.secondaryBtn:hover {
+  border-color: #6b1020;
+}
+
+.toast {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.success {
+  color: #14532d;
+  background: #dcfce7;
+}
+
+.error {
+  color: #7f1d1d;
+  background: #fee2e2;
+}
+
+.weekPanel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.fieldGroup label {
+  color: #667085;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.fieldGroup input,
+.fieldGroup select,
+.timeRow input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 7px;
+  background: #f9fafb;
+  color: #111827;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+}
+
+.fieldGroup input:focus,
+.fieldGroup select:focus,
+.timeRow input:focus {
+  outline: none;
+  border-color: #c8a04a;
+  box-shadow: 0 0 0 3px rgba(200, 160, 74, 0.15);
+  background: #fff;
+}
+
+.prayerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.prayerCard {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.07);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.cardHeader span {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #111827;
+}
+
+.shacharit {
+  background: #fff7df;
+  color: #9a6a00;
+}
+
+.mincha {
+  background: #e6f4ff;
+  color: #0f6fa7;
+}
+
+.maariv {
+  background: #f0e7ff;
+  color: #6430a3;
+}
+
+.cardBody {
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.dayGroup {
+  margin-bottom: 1.25rem;
+}
+
+.dayGroup:last-child {
+  margin-bottom: 0;
+}
+
+.dayLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #667085;
+  font-size: 0.86rem;
+  font-weight: 800;
+  margin-bottom: 0.7rem;
+}
+
+.dayLabel::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #edf0f3;
+}
+
+.timeRows {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.timeRow {
+  display: grid;
+  grid-template-columns: minmax(88px, 1fr) minmax(80px, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.deleteTimeBtn {
+  align-self: stretch;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0 0.75rem;
+  border: 1px solid #fecaca;
+}
+
+.deleteTimeBtn:hover {
+  background: #fecaca;
+}
+
+.addTimeBtn {
+  justify-self: start;
+  background: #fff;
+  color: #98a2b3;
+  border: 1.5px dashed #cbd5e1;
+  padding: 0.55rem 0.9rem;
+}
+
+.addTimeBtn:hover {
+  color: #9a7b2f;
+  border-color: #c8a04a;
+  background: #fffaf0;
+}
+
+@media (max-width: 1200px) {
+  .weekPanel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .prayerGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .weekPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .timeRow {
+    grid-template-columns: 1fr;
+  }
+
+  .deleteTimeBtn {
+    padding: 0.55rem 0.75rem;
+  }
+}

@@ -106,7 +106,10 @@
 
 /* Ensure EventsBox and ShabbatBox display properly */
 .container :global(eventsbox),
-.container :global(shabbatbox) {
+.container :global(shabbatbox),
+.container :global(weeklyprayersbox),
+.container :global(articlesslider),
+.container :global(articlescube) {
   min-width: 0;
   display: block;
   width: 100%;
