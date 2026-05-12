@@ -14,6 +14,7 @@
 
 .grid {
   display: grid !important;
+  grid-template-columns: repeat(var(--cube-columns, 3), minmax(0, 1fr)) !important;
   gap: 18px !important;
   width: 100%;
 }
@@ -109,7 +110,13 @@
   font-weight: 700;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: repeat(min(2, var(--cube-columns, 3)), minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 460px) {
   .grid {
     grid-template-columns: 1fr !important;
   }

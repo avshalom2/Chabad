@@ -73,7 +73,7 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
       {categoryName && <h2 className={styles.heading}>{categoryName}</h2>}
       <div
         className={styles.grid}
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+        style={{ '--cube-columns': columns }}
       >
         {articles.map((article, index) => {
           const imageUrl = article.short_description_image_url || article.featured_image;
