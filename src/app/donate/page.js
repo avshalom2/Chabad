@@ -9,15 +9,6 @@ export const metadata = {
 export default function DonatePage() {
   return (
     <main className={styles.page} dir="rtl">
-      <section className={styles.header}>
-        <div className={styles.kicker}>תרומה לזכות רבי שמעון בר יוחאי</div>
-        <h1>תורמים לפעילות חב״ד הרצליה</h1>
-        <p>לכבוד ל״ג בעומר, ניתן להשתתף בתרומה מאובטחת דרך מערכת התשלומים.</p>
-        <a className={styles.openLink} href={DONATION_URL} target="_blank" rel="noopener noreferrer">
-          פתיחת התשלום בחלון חדש
-        </a>
-      </section>
-
       <section className={styles.frameWrap} aria-label="טופס תרומה מאובטח">
         <iframe
           className={styles.frame}
