@@ -9,6 +9,9 @@ export const metadata = {
 export default function DonatePage() {
   return (
     <main className={styles.page} dir="rtl">
+      <section className={styles.header}>
+        <h1 className={styles.title}>תורמים לפעילות בית חב&quot;ד הרצליה</h1>
+      </section>
       <section className={styles.frameWrap} aria-label="טופס תרומה מאובטח">
         <iframe
           className={styles.frame}
