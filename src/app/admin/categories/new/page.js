@@ -3,6 +3,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './new-category.module.css';
 
+function generateSlug(value) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 export default function NewCategoryPage() {
   const router = useRouter();
   const [categoryTypes, setCategoryTypes] = useState([]);
@@ -43,11 +53,7 @@ export default function NewCategoryPage() {
   // Auto-generate slug from name
   function handleNameChange(e) {
     const name = e.target.value;
-    const slug = name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-');
+    const slug = generateSlug(name);
     setForm((prev) => ({ ...prev, name, slug }));
   }
 

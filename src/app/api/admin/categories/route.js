@@ -1,6 +1,18 @@
 import { createCategory, getCategories } from '@/lib/categories.js';
 import { getCurrentUserSession } from '@/lib/auth-session.js';
 
+function categoryErrorResponse(error, fallbackMessage) {
+  if (error.code === 'ER_DUP_ENTRY' || error.code === '23505') {
+    return Response.json({ error: 'A category with that slug already exists' }, { status: 409 });
+  }
+
+  if (error.code === '23503' || error.code === 'ER_NO_REFERENCED_ROW_2') {
+    return Response.json({ error: 'Selected category type, parent category, or user does not exist' }, { status: 400 });
+  }
+
+  return Response.json({ error: fallbackMessage }, { status: 500 });
+}
+
 export async function GET() {
   try {
     const user = await getCurrentUserSession();
@@ -57,8 +69,10 @@ export async function POST(request) {
 
     const body = await request.json();
     const { name, slug, description, category_type_id, parent_id, is_menu, sort_order, default_columns } = body;
+    const cleanName = typeof name === 'string' ? name.trim() : '';
+    const cleanSlug = typeof slug === 'string' ? slug.trim() : '';
 
-    if (!name || !slug || !category_type_id) {
+    if (!cleanName || !cleanSlug || !category_type_id) {
       return Response.json(
         { error: 'Name, slug and category type are required' },
         { status: 400 }
@@ -66,8 +80,8 @@ export async function POST(request) {
     }
 
     const id = await createCategory({
-      name,
-      slug,
+      name: cleanName,
+      slug: cleanSlug,
       description: description || null,
       category_type_id: parseInt(category_type_id),
       parent_id: parent_id ? parseInt(parent_id) : null,
@@ -80,9 +94,6 @@ export async function POST(request) {
     return Response.json({ success: true, id }, { status: 201 });
   } catch (error) {
     console.error('Create category error:', error);
-    if (error.code === 'ER_DUP_ENTRY') {
-      return Response.json({ error: 'A category with that slug already exists' }, { status: 409 });
-    }
-    return Response.json({ error: 'Failed to create category' }, { status: 500 });
+    return categoryErrorResponse(error, 'Failed to create category');
   }
 }

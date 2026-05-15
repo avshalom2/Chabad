@@ -1,6 +1,18 @@
 import { getCategoryById, updateCategory } from '@/lib/categories.js';
 import { getCurrentUserSession } from '@/lib/auth-session.js';
 
+function categoryErrorResponse(error, fallbackMessage) {
+  if (error.code === 'ER_DUP_ENTRY' || error.code === '23505') {
+    return Response.json({ error: 'A category with that slug already exists' }, { status: 409 });
+  }
+
+  if (error.code === '23503' || error.code === 'ER_NO_REFERENCED_ROW_2') {
+    return Response.json({ error: 'Selected category type, parent category, or user does not exist' }, { status: 400 });
+  }
+
+  return Response.json({ error: fallbackMessage }, { status: 500 });
+}
+
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
@@ -27,8 +39,10 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
     const { name, slug, description, category_type_id, parent_id, is_menu, sort_order, is_active, default_columns } = body;
+    const cleanName = typeof name === 'string' ? name.trim() : '';
+    const cleanSlug = typeof slug === 'string' ? slug.trim() : '';
 
-    if (!name || !slug) {
+    if (!cleanName || !cleanSlug) {
       return Response.json(
         { error: 'Name and slug are required' },
         { status: 400 }
@@ -37,8 +51,8 @@ export async function PUT(request, { params }) {
 
     // Update the category
     await updateCategory(parseInt(id), {
-      name,
-      slug,
+      name: cleanName,
+      slug: cleanSlug,
       description: description || null,
       category_type_id: category_type_id ? parseInt(category_type_id) : undefined,
       parent_id: parent_id ? parseInt(parent_id) : null,
@@ -51,10 +65,7 @@ export async function PUT(request, { params }) {
     return Response.json({ success: true });
   } catch (error) {
     console.error('Update category error:', error);
-    if (error.code === 'ER_DUP_ENTRY') {
-      return Response.json({ error: 'A category with that slug already exists' }, { status: 409 });
-    }
-    return Response.json({ error: 'Failed to update category' }, { status: 500 });
+    return categoryErrorResponse(error, 'Failed to update category');
   }
 }
 
