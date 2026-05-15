@@ -172,6 +172,24 @@
 }
 
 @media (max-width: 600px) {
+  .container {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .article {
+    padding: 1rem;
+  }
+
+  .breadcrumb {
+    font-size: 0.8rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .categoryBadge {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+  }
+
   .title {
     font-size: 1.5rem;
   }
