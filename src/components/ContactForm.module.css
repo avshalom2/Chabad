@@ -139,6 +139,13 @@
     grid-template-columns: 1fr;
   }
 
+  .form label,
+  .form input,
+  .form textarea {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
   .footer {
     align-items: stretch;
     flex-direction: column;
