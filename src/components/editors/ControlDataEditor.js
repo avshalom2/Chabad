@@ -25,6 +25,13 @@ const controls = [
     componentTag: '<weeklyprayersbox></weeklyprayersbox>',
     icon: '🕐',
   },
+  {
+    id: 'contact-form',
+    name: 'ContactForm',
+    description: 'Display a contact form that sends email from the website',
+    componentTag: '<contactform></contactform>',
+    icon: '✉️',
+  },
 ];
 
 export default function ControlDataEditor({ onSave, onClose }) {

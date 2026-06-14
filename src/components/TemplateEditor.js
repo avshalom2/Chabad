@@ -14,7 +14,7 @@ import ArticlesCubeEditor from './editors/ArticlesCubeEditor';
 const editorTypeOptions = [
   { value: 'HTML_DATA', label: 'HTML content' },
   { value: 'IMAGE_DATA', label: 'Image' },
-  { value: 'CONTROL_DATA', label: 'Control: Shabbat / Events / Prayer Times' },
+  { value: 'CONTROL_DATA', label: 'Control: Shabbat / Events / Prayer Times / Contact' },
   { value: 'CONTROL_BANNER', label: 'Banner slot' },
   { value: 'NEWS_CONTROL', label: 'News control' },
   { value: 'ARTICLES_SLIDER', label: 'Articles slider' },

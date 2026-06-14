@@ -3,6 +3,7 @@
 import EventsBox from '@/components/EventsBox';
 import ShabbatCompactBox from '@/components/ShabbatCompactBox';
 import WeeklyPrayerBox from '@/components/WeeklyPrayerBox';
+import ContactForm from '@/components/ContactForm';
 import NewsBox from '@/components/NewsBox';
 import ArticlesSlider from '@/components/ArticlesSlider';
 import ArticlesCube from '@/components/ArticlesCube';
@@ -54,7 +55,7 @@ export default function TemplateRenderer({ html }) {
     console.log('TemplateRenderer: Total elements in container:', allDivs.length);
 
     // Find all component tags - try multiple variations
-    const componentElements = containerRef.current.querySelectorAll('eventsbox, shabbatbox, weeklyprayersbox, newsbox, articlesslider, articlescube');
+    const componentElements = containerRef.current.querySelectorAll('eventsbox, shabbatbox, weeklyprayersbox, contactform, newsbox, articlesslider, articlescube');
     console.log('Found component tags:', componentElements.length);
 
     // Log each one
@@ -84,7 +85,7 @@ export default function TemplateRenderer({ html }) {
 
       // Store which component should go in this wrapper
       newPortalsMap[componentId] = {
-        type: componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'weeklyprayersbox' ? 'weekly-prayers' : componentName === 'newsbox' ? 'news' : componentName === 'articlesslider' ? 'articles-slider' : 'articles-cube',
+        type: componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'weeklyprayersbox' ? 'weekly-prayers' : componentName === 'contactform' ? 'contact-form' : componentName === 'newsbox' ? 'news' : componentName === 'articlesslider' ? 'articles-slider' : 'articles-cube',
         target: wrapper,
         categoryId: tag.getAttribute('category-id'),
         categorySlug: tag.getAttribute('category-slug'),
@@ -166,7 +167,7 @@ export default function TemplateRenderer({ html }) {
       );
     }
 
-    const Component = config.type === 'events' ? EventsBox : config.type === 'shabbat' ? ShabbatCompactBox : config.type === 'weekly-prayers' ? WeeklyPrayerBox : null;
+    const Component = config.type === 'events' ? EventsBox : config.type === 'shabbat' ? ShabbatCompactBox : config.type === 'weekly-prayers' ? WeeklyPrayerBox : config.type === 'contact-form' ? ContactForm : null;
     if (!Component) return null;
     return createPortal(
       <Component key={portalId} />,

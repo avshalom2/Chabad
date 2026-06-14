@@ -405,6 +405,40 @@ const PageBuilder = forwardRef(function PageBuilder({ initialHtml = '' }, ref) {
       },
     });
 
+    editor.BlockManager.add('contact-form-block', {
+      label: 'Contact Form',
+      category: 'Custom',
+      content: {
+        type: 'contact-form-component',
+        attributes: { 'data-chabadcomponent': 'contact-form', class: 'contact-form-block' },
+        style: { padding: '20px', border: '2px dashed #7a1020', borderRadius: '8px', minHeight: '120px', backgroundColor: '#fff5f6' },
+        content: `<div style="text-align:center;color:#7a1020;padding:16px;">
+          <div style="font-size:2rem;margin-bottom:8px;">✉️</div>
+          <strong style="font-size:1rem;">Contact Form</strong>
+          <p style="margin:6px 0 0;font-size:0.85rem;color:#7a1020;">Name, email, phone, subject and message fields will render here</p>
+        </div>`,
+      },
+    });
+
+    editor.DomComponents.addType('contact-form-component', {
+      model: {
+        defaults: {
+          displayName: 'Contact Form',
+          tagName: 'div',
+          draggable: true,
+          droppable: false,
+          editable: false,
+          attributes: { 'data-chabadcomponent': 'contact-form', class: 'contact-form-block' },
+          style: { padding: '20px', border: '2px dashed #7a1020', borderRadius: '8px', minHeight: '120px', backgroundColor: '#fff5f6' },
+          content: `<div style="text-align:center;color:#7a1020;padding:16px;">
+            <div style="font-size:2rem;margin-bottom:8px;">✉️</div>
+            <strong style="font-size:1rem;">Contact Form</strong>
+            <p style="margin:6px 0 0;font-size:0.85rem;color:#7a1020;">Name, email, phone, subject and message fields will render here</p>
+          </div>`,
+        },
+      },
+    });
+
     // Register layout-column as a droppable component type
     editor.DomComponents.addType('layout-column', {
       model: {

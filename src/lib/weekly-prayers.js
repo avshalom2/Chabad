@@ -1,5 +1,17 @@
 import { getPool } from './db.js';
 
+const ZMANIM_API_BASE_URL = 'https://www.hebcal.com/zmanim';
+const SHABBAT_API_BASE_URL = 'https://www.hebcal.com/shabbat';
+const CONVERTER_API_BASE_URL = 'https://www.hebcal.com/converter';
+const SHABBAT_SOURCE_VERSION = 'shabbat-city-tel-aviv-v1';
+const HEBREW_DATE_SOURCE_VERSION = 'hebcal-converter-v2';
+const ZMANIM_LOCATION = {
+  latitude: '32.1663',
+  longitude: '34.8439',
+  tzid: 'Asia/Jerusalem',
+};
+const ISRAEL_TIME_ZONE = 'Asia/Jerusalem';
+
 const DEFAULT_SCHEDULE = {
   parasha_name: '',
   hebrew_date_from: '',
@@ -63,8 +75,12 @@ function normalizeScheduleRow(row) {
     hebrew_date_from: row.hebrew_date_from || '',
     hebrew_date_to: row.hebrew_date_to || '',
     hebrew_month: row.hebrew_month || '',
-    gregorian_date_from: row.gregorian_date_from ? String(row.gregorian_date_from).slice(0, 10) : '',
-    gregorian_date_to: row.gregorian_date_to ? String(row.gregorian_date_to).slice(0, 10) : '',
+    gregorian_date_from: normalizeDateKey(row.gregorian_date_from),
+    gregorian_date_to: normalizeDateKey(row.gregorian_date_to),
+    zmanim_week_start: normalizeDateKey(row.zmanim_week_start),
+    zmanim_week_end: normalizeDateKey(row.zmanim_week_end),
+    zmanim_data: normalizeZmanimData(row.zmanim_data),
+    zmanim_updated_at: row.zmanim_updated_at,
     updated_at: row.updated_at,
   };
 }
@@ -84,6 +100,7 @@ function normalizeTimes(times) {
   if (!Array.isArray(times)) return [];
 
   return times
+    .filter((time) => !time.is_calculated)
     .map((time, index) => ({
       prayer_type: String(time.prayer_type || '').trim(),
       day_group: String(time.day_group || '').trim(),
@@ -92,6 +109,410 @@ function normalizeTimes(times) {
       sort_order: Number.isFinite(Number(time.sort_order)) ? Number(time.sort_order) : index,
     }))
     .filter((time) => time.prayer_type && time.day_group && /^\d{2}:\d{2}$/.test(time.time_value));
+}
+
+function parseDateOnly(value) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0, 0);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function normalizeZmanimData(value) {
+  if (!value) return null;
+  if (typeof value === 'object') return value;
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeDateKey(value) {
+  if (!value) return '';
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return formatDateInIsrael(value);
+  }
+
+  const text = String(value);
+  const match = text.match(/\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : '';
+}
+
+function formatDateInIsrael(date) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: ISRAEL_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function addDays(date, days) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function compareDateKeys(a, b) {
+  return String(a || '').localeCompare(String(b || ''));
+}
+
+function dateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getIsraelDate() {
+  return parseDateOnly(formatDateInIsrael(new Date()));
+}
+
+function getSundayToFridayRange(baseDate = getIsraelDate()) {
+  const day = baseDate.getDay();
+  const sunday = addDays(baseDate, -day);
+
+  return {
+    start: sunday,
+    end: addDays(sunday, 5),
+  };
+}
+
+function datesBetween(start, end) {
+  const dates = [];
+  let current = new Date(start);
+
+  while (current <= end && dates.length < 14) {
+    dates.push(new Date(current));
+    current = addDays(current, 1);
+  }
+
+  return dates;
+}
+
+function scheduleCalculationDates(schedule) {
+  const from = parseDateOnly(schedule.zmanim_week_start || schedule.gregorian_date_from);
+  const to = parseDateOnly(schedule.zmanim_week_end || schedule.gregorian_date_to);
+  const dates = from && to && from <= to
+    ? datesBetween(from, to)
+    : datesBetween(new Date(), addDays(new Date(), 6));
+
+  const sunThuDates = dates.filter((date) => {
+    const day = date.getDay();
+    return day >= 0 && day <= 4;
+  });
+
+  return sunThuDates.length ? sunThuDates : dates;
+}
+
+function scheduleBaseDate(schedule) {
+  return (
+    parseDateOnly(schedule.zmanim_week_start) ||
+    parseDateOnly(schedule.gregorian_date_from) ||
+    getSundayToFridayRange().start
+  );
+}
+
+function cleanHebrewText(text) {
+  return String(text || '').replace(/[\u0591-\u05C7]/g, '').trim();
+}
+
+function normalizeParashaName(text) {
+  return cleanHebrewText(text).replace(/^פרשת\s+/, '').trim();
+}
+
+function stripHebrewYear(text) {
+  return cleanHebrewText(text).replace(/\s+תש[\u05D0-\u05EA"״׳']+$/, '').trim();
+}
+
+function splitHebrewDate(text) {
+  const clean = stripHebrewYear(text);
+  const match = clean.match(/^(.+?)\s+([^\s]+)$/);
+  const day = match ? match[1].trim() : clean;
+  const month = match ? match[2].trim().replace(/^ב(?=[\u05D0-\u05EA])/, '') : '';
+
+  return {
+    day,
+    month,
+    text: month ? `${day} ${month}` : clean,
+  };
+}
+
+function compactHebrewDateRange(fromDate, toDate) {
+  if (!fromDate?.text || !toDate?.text) return null;
+
+  const sameMonth = fromDate.month && fromDate.month === toDate.month;
+  const text = sameMonth
+    ? `${fromDate.day}-${toDate.day} ${fromDate.month}`
+    : `${fromDate.text} - ${toDate.text}`;
+
+  return {
+    source: HEBREW_DATE_SOURCE_VERSION,
+    from: fromDate.text,
+    to: toDate.text,
+    from_day: fromDate.day,
+    to_day: toDate.day,
+    month: sameMonth ? fromDate.month : '',
+    text,
+  };
+}
+
+function minutesFromDate(date) {
+  return (date.getHours() * 60) + date.getMinutes() + (date.getSeconds() >= 30 ? 1 : 0);
+}
+
+function formatTimeFromMinutes(totalMinutes) {
+  const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+  const hours = Math.floor(normalized / 60);
+  const minutes = normalized % 60;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+async function fetchZmanimForDate(date) {
+  const url = new URL(ZMANIM_API_BASE_URL);
+  url.search = new URLSearchParams({
+    cfg: 'json',
+    latitude: ZMANIM_LOCATION.latitude,
+    longitude: ZMANIM_LOCATION.longitude,
+    tzid: ZMANIM_LOCATION.tzid,
+    date: dateKey(date),
+  }).toString();
+
+  const response = await fetch(url, { next: { revalidate: 60 * 60 * 6 } });
+  if (!response.ok) {
+    throw new Error(`Hebcal zmanim request failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function fetchShabbatInfo() {
+  const url = new URL(SHABBAT_API_BASE_URL);
+  url.search = new URLSearchParams({
+    cfg: 'json',
+    city: 'Tel Aviv',
+  }).toString();
+
+  const response = await fetch(url, { next: { revalidate: 60 * 60 * 6 } });
+  if (!response.ok) {
+    throw new Error(`Hebcal shabbat request failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const parashat = (data.items || []).find((item) => item.category === 'parashat');
+  const candles = (data.items || []).find((item) => item.category === 'candles');
+  const havdalah = (data.items || []).find((item) => item.category === 'havdalah');
+
+  return {
+    source: SHABBAT_SOURCE_VERSION,
+    data,
+    parasha_name: normalizeParashaName(parashat?.hebrew || parashat?.title || candles?.memo),
+    parasha_full: cleanHebrewText(parashat?.hebrew || parashat?.title || candles?.memo),
+    candles: candles?.date || '',
+    havdalah: havdalah?.date || '',
+  };
+}
+
+async function fetchHebrewDate(date) {
+  const url = new URL(CONVERTER_API_BASE_URL);
+  url.search = new URLSearchParams({
+    cfg: 'json',
+    g2h: '1',
+    gy: String(date.getFullYear()),
+    gm: String(date.getMonth() + 1),
+    gd: String(date.getDate()),
+  }).toString();
+
+  const response = await fetch(url, { next: { revalidate: 60 * 60 * 6 } });
+  if (!response.ok) {
+    throw new Error(`Hebcal converter request failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return splitHebrewDate(data.hebrew);
+}
+
+async function fetchHebrewDateRange(start, end) {
+  const [from, to] = await Promise.all([
+    fetchHebrewDate(start),
+    fetchHebrewDate(end),
+  ]);
+
+  return compactHebrewDateRange(from, to);
+}
+
+async function getSunsetMinutesFromHebcal(date) {
+  const data = await fetchZmanimForDate(date);
+  return sunsetMinutesFromZmanimData(data, dateKey(date));
+}
+
+function sunsetMinutesFromZmanimData(data, fallbackDate = '') {
+  const sunset = data?.times?.sunset;
+  if (!sunset) {
+    throw new Error(`Hebcal zmanim response missing sunset for ${fallbackDate}`);
+  }
+
+  return minutesFromDate(new Date(sunset));
+}
+
+function cachedZmanimIsCurrent(schedule, todayKey = dateKey(getIsraelDate())) {
+  if (
+    !schedule?.zmanim_week_start ||
+    !schedule?.zmanim_week_end ||
+    !schedule?.zmanim_data?.days ||
+    !schedule?.zmanim_data?.shabbat?.parasha_name ||
+    schedule?.zmanim_data?.shabbat?.source !== SHABBAT_SOURCE_VERSION ||
+    schedule?.zmanim_data?.hebrew_date_range?.source !== HEBREW_DATE_SOURCE_VERSION
+  ) {
+    return false;
+  }
+
+  return (
+    compareDateKeys(schedule.zmanim_week_start, todayKey) <= 0 &&
+    compareDateKeys(todayKey, schedule.zmanim_week_end) <= 0
+  );
+}
+
+async function buildWeeklyZmanimCache(baseDate = getIsraelDate()) {
+  const { start, end } = getSundayToFridayRange(baseDate);
+  const shabbatEnd = addDays(start, 6);
+  const dates = datesBetween(start, end);
+  const [days, shabbat, hebrewDateRange] = await Promise.all([
+    Promise.all(dates.map(async (date) => ({
+      date: dateKey(date),
+      data: await fetchZmanimForDate(date),
+    }))),
+    fetchShabbatInfo(),
+    fetchHebrewDateRange(start, shabbatEnd),
+  ]);
+
+  return {
+    weekStart: dateKey(start),
+    weekEnd: dateKey(end),
+    payload: {
+      generated_at: new Date().toISOString(),
+      location: ZMANIM_LOCATION,
+      week_start: dateKey(start),
+      week_end: dateKey(end),
+      display_week_end: dateKey(shabbatEnd),
+      hebrew_date_range: hebrewDateRange,
+      shabbat,
+      days,
+    },
+  };
+}
+
+async function persistWeeklyZmanimCache(scheduleId, cache) {
+  if (!scheduleId) return;
+
+  await queryWrite(
+    `UPDATE weekly_prayer_schedule
+     SET zmanim_week_start = ?, zmanim_week_end = ?, zmanim_data = ?,
+         zmanim_updated_at = CURRENT_TIMESTAMP
+     WHERE id = ?`,
+    [cache.weekStart, cache.weekEnd, JSON.stringify(cache.payload), scheduleId]
+  );
+}
+
+async function ensureWeeklyZmanimCache(schedule) {
+  const today = getIsraelDate();
+  const todayKey = dateKey(today);
+  if (cachedZmanimIsCurrent(schedule, todayKey)) {
+    return schedule;
+  }
+
+  const cache = await buildWeeklyZmanimCache(today);
+  await persistWeeklyZmanimCache(schedule.id, cache);
+
+  return {
+    ...schedule,
+    zmanim_week_start: cache.weekStart,
+    zmanim_week_end: cache.weekEnd,
+    zmanim_data: cache.payload,
+    zmanim_updated_at: new Date().toISOString(),
+  };
+}
+
+function getCachedSunsetMinutes(schedule, date) {
+  const key = dateKey(date);
+  const day = schedule.zmanim_data?.days?.find((entry) => entry.date === key);
+  if (!day) return null;
+
+  return sunsetMinutesFromZmanimData(day.data, key);
+}
+
+async function calculateDynamicPrayerTimes(schedule) {
+  try {
+    const baseDate = scheduleBaseDate(schedule);
+
+    const lockedSunset = (
+      getCachedSunsetMinutes(schedule, baseDate) ??
+      await getSunsetMinutesFromHebcal(baseDate)
+    );
+    const minchaBeforeSunset = lockedSunset - 10;
+    const maariv = minchaBeforeSunset + 43;
+
+    return {
+      locked_sunset_date: dateKey(baseDate),
+      locked_sunset: formatTimeFromMinutes(lockedSunset),
+      average_sunset: formatTimeFromMinutes(lockedSunset),
+      mincha_before_sunset: formatTimeFromMinutes(minchaBeforeSunset),
+      maariv: formatTimeFromMinutes(maariv),
+    };
+  } catch (error) {
+    console.error('Error calculating dynamic weekly prayer times:', error);
+    return null;
+  }
+}
+
+async function withDynamicPrayerTimes(schedule) {
+  const scheduleWithZmanim = await ensureWeeklyZmanimCache(schedule);
+  const dynamicTimes = await calculateDynamicPrayerTimes(scheduleWithZmanim);
+  if (!dynamicTimes) return scheduleWithZmanim;
+  const dynamicParasha = scheduleWithZmanim.zmanim_data?.shabbat?.parasha_name || '';
+  const dynamicHebrewDateRange = scheduleWithZmanim.zmanim_data?.hebrew_date_range;
+
+  const staticTimes = (schedule.times || []).filter((time) => {
+    const isSunsetMincha = time.prayer_type === 'mincha' && time.day_group === 'sunset';
+    const isMaariv = time.prayer_type === 'maariv' && time.day_group === 'sun_thu';
+    return !isSunsetMincha && !isMaariv;
+  });
+
+  return {
+    ...scheduleWithZmanim,
+    parasha_name: dynamicParasha || scheduleWithZmanim.parasha_name,
+    hebrew_date_from: dynamicHebrewDateRange?.from_day || scheduleWithZmanim.hebrew_date_from,
+    hebrew_date_to: dynamicHebrewDateRange?.to_day || scheduleWithZmanim.hebrew_date_to,
+    hebrew_month: dynamicHebrewDateRange?.month || scheduleWithZmanim.hebrew_month,
+    hebrew_date_range_text: dynamicHebrewDateRange?.text || '',
+    dynamic_parasha_name: dynamicParasha,
+    dynamic_times: dynamicTimes,
+    times: [
+      ...staticTimes,
+      {
+        prayer_type: 'mincha',
+        day_group: 'sunset',
+        time_value: dynamicTimes.mincha_before_sunset,
+        note: '',
+        sort_order: 0,
+        is_calculated: true,
+      },
+      {
+        prayer_type: 'maariv',
+        day_group: 'sun_thu',
+        time_value: dynamicTimes.maariv,
+        note: '',
+        sort_order: 0,
+        is_calculated: true,
+      },
+    ],
+  };
 }
 
 export function getDefaultWeeklyPrayerSchedule() {
@@ -107,7 +528,7 @@ export async function getWeeklyPrayerSchedule() {
   );
 
   const schedule = normalizeScheduleRow(schedules[0]);
-  if (!schedule) return getDefaultWeeklyPrayerSchedule();
+  if (!schedule) return withDynamicPrayerTimes(getDefaultWeeklyPrayerSchedule());
 
   const times = await queryRows(
     `SELECT * FROM weekly_prayer_times
@@ -116,10 +537,10 @@ export async function getWeeklyPrayerSchedule() {
     [schedule.id]
   );
 
-  return {
+  return withDynamicPrayerTimes({
     ...schedule,
     times: times.map(normalizeTime),
-  };
+  });
 }
 
 export async function saveWeeklyPrayerSchedule(data) {
@@ -200,10 +621,10 @@ export async function clearWeeklyPrayerSchedule() {
   );
   const scheduleId = schedules[0]?.id;
 
-  if (!scheduleId) return getDefaultWeeklyPrayerSchedule();
+  if (!scheduleId) return withDynamicPrayerTimes(getDefaultWeeklyPrayerSchedule());
 
   await queryWrite('DELETE FROM weekly_prayer_times WHERE schedule_id = ?', [scheduleId]);
   await queryWrite('DELETE FROM weekly_prayer_schedule WHERE id = ?', [scheduleId]);
 
-  return getDefaultWeeklyPrayerSchedule();
+  return withDynamicPrayerTimes(getDefaultWeeklyPrayerSchedule());
 }

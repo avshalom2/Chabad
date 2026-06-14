@@ -35,6 +35,8 @@ function groupTimes(times) {
 }
 
 function formatDateRange(schedule) {
+  if (schedule.hebrew_date_range_text) return schedule.hebrew_date_range_text;
+
   const hebrewFrom = schedule.hebrew_date_from;
   const hebrewTo = schedule.hebrew_date_to;
   const month = schedule.hebrew_month;
@@ -125,9 +127,48 @@ function buildShareText(schedule, grouped, sunsetTimes) {
   return lines.join('\n');
 }
 
+async function createSharePngBlob(imageUrl) {
+  const response = await fetch(imageUrl);
+  if (!response.ok) throw new Error('Failed to load weekly prayer image');
+
+  const svgText = await response.text();
+  const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+  const objectUrl = URL.createObjectURL(svgBlob);
+
+  try {
+    const image = new Image();
+    const imageLoaded = new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = reject;
+    });
+
+    image.src = objectUrl;
+    await imageLoaded;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 690;
+    canvas.height = 980;
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    const pngBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!pngBlob) throw new Error('Failed to create weekly prayer PNG');
+
+    return pngBlob;
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
+async function createSharePngFile(imageUrl) {
+  const pngBlob = await createSharePngBlob(imageUrl);
+  return new File([pngBlob], 'zmanim-tefila.png', { type: 'image/png' });
+}
+
 export default function WeeklyPrayerBox() {
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [shareStatus, setShareStatus] = useState('');
 
   useEffect(() => {
     fetch('/api/weekly-prayers')
@@ -149,7 +190,53 @@ export default function WeeklyPrayerBox() {
   const hasTimes = (schedule.times || []).length > 0;
   if (!hasTimes && !schedule.parasha_name) return null;
 
-  const handleShare = () => {
+  const handleShare = async () => {
+    const text = buildShareText(schedule, grouped, sunsetTimes);
+    const imageUrl = `${window.location.origin}/api/weekly-prayers/share-image`;
+
+    try {
+      if (navigator.clipboard && window.ClipboardItem) {
+        const pngBlob = await createSharePngBlob(imageUrl);
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': pngBlob }),
+        ]);
+        setShareStatus('התמונה הועתקה');
+        window.setTimeout(() => setShareStatus(''), 3000);
+        return;
+      }
+
+      if (navigator.share && navigator.canShare) {
+        const file = await createSharePngFile(imageUrl);
+
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: 'זמני תפילה',
+            text,
+            files: [file],
+          });
+          return;
+        }
+      }
+
+      if (navigator.share) {
+        await navigator.share({
+          title: 'זמני תפילה',
+          text,
+          url: imageUrl,
+        });
+        return;
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      console.error('Error sharing weekly prayer image:', error);
+    }
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n\n${imageUrl}`)}`;
+
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleWhatsAppShare = () => {
     const text = buildShareText(schedule, grouped, sunsetTimes);
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
 
@@ -219,9 +306,14 @@ export default function WeeklyPrayerBox() {
         )}
 
         <footer className={styles.footer}>
-          <button type="button" className={styles.share} onClick={handleShare}>
-            שתף ←
-          </button>
+          <div className={styles.shareActions}>
+            <button type="button" className={styles.share} onClick={handleShare}>
+              {shareStatus || 'העתק תמונה ←'}
+            </button>
+            <button type="button" className={styles.share} onClick={handleWhatsAppShare}>
+              שתף וואטסאפ ←
+            </button>
+          </div>
           <span className={styles.updated}>
             <span className={styles.statusDot} aria-hidden="true" />
             {updatedTime ? `עודכן היום, ${updatedTime}` : 'מעודכן לשבוע הנוכחי'}

@@ -10,6 +10,7 @@
   box-shadow: 0 3px 14px rgba(33, 35, 38, 0.12);
   color: #13213a;
   font-family: Arial, sans-serif;
+  text-align: right;
 }
 
 .header {
@@ -132,7 +133,9 @@
 }
 
 .eventInfo {
+  flex: 1 1 auto;
   min-width: 0;
+  text-align: right;
 }
 
 .eventTitle {

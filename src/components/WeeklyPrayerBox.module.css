@@ -202,6 +202,13 @@
   font-size: 11px;
 }
 
+.shareActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
 .share {
   border: 0;
   padding: 0;
@@ -247,5 +254,15 @@
 @media (max-width: 390px) {
   .header {
     padding: 16px 18px 14px;
+  }
+
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .shareActions {
+    width: 100%;
+    justify-content: space-between;
   }
 }

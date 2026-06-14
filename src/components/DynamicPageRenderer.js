@@ -5,6 +5,7 @@ import EventsBox from '@/components/EventsBox';
 import ShabbatCompactBox from '@/components/ShabbatCompactBox';
 import ArticlesSlider from '@/components/ArticlesSlider';
 import WeeklyPrayerBox from '@/components/WeeklyPrayerBox';
+import ContactForm from '@/components/ContactForm';
 import ArticlesCube from '@/components/ArticlesCube';
 import styles from './DynamicPageRenderer.module.css';
 
@@ -12,6 +13,7 @@ const COMPONENT_MAP = {
   'events-box': EventsBox,
   'shabbat-box': ShabbatCompactBox,
   'weekly-prayers-box': WeeklyPrayerBox,
+  'contact-form': ContactForm,
   'articles-slider': ArticlesSlider,
   'articles-cube': ArticlesCube,
 };
