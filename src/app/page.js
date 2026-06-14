@@ -12,6 +12,7 @@ export const dynamic = 'force-dynamic';
 export default async function MainPage() {
   let homepageContent = '';
   let activeTemplate = null;
+  let mobileControlOrder = [];
   
   // Try to get the active HP template first
   try {
@@ -38,15 +39,24 @@ export default async function MainPage() {
     }
   }
 
+  try {
+    const settings = await getSettings(['control_mobile_order']);
+    if (Array.isArray(settings.control_mobile_order)) {
+      mobileControlOrder = settings.control_mobile_order;
+    }
+  } catch (err) {
+    console.warn('Mobile control order setting fetch failed:', err?.message);
+  }
+
   return (
     <main className={styles.main}>
       {/* ACTIVE TEMPLATE (from hp_templates) */}
       {activeTemplate && activeTemplate.html ? (
-        <TemplateRenderer html={activeTemplate.html} />
+        <TemplateRenderer html={activeTemplate.html} mobileControlOrder={mobileControlOrder} />
       ) : (
         /* LEGACY DYNAMIC PAGE CONTENT (from PageBuilder) */
         homepageContent ? (
-          <DynamicPageRenderer html={homepageContent} />
+          <DynamicPageRenderer html={homepageContent} mobileControlOrder={mobileControlOrder} />
         ) : (
           /* DEFAULT LAYOUT - BANNER SLOT + EVENTS & SHABBAT */
           <>

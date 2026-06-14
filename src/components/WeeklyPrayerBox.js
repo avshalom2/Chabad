@@ -169,6 +169,7 @@ export default function WeeklyPrayerBox() {
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
   const [shareStatus, setShareStatus] = useState('');
+  const [isMobileDevice, setIsMobileDevice] = useState(true);
 
   useEffect(() => {
     fetch('/api/weekly-prayers')
@@ -179,6 +180,16 @@ export default function WeeklyPrayerBox() {
         setSchedule(null);
       })
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(pointer: coarse), (max-width: 767px)');
+    const updateDeviceMode = () => setIsMobileDevice(mediaQuery.matches);
+
+    updateDeviceMode();
+    mediaQuery.addEventListener('change', updateDeviceMode);
+
+    return () => mediaQuery.removeEventListener('change', updateDeviceMode);
   }, []);
 
   if (loading) return null;
@@ -307,9 +318,11 @@ export default function WeeklyPrayerBox() {
 
         <footer className={styles.footer}>
           <div className={styles.shareActions}>
-            <button type="button" className={styles.share} onClick={handleShare}>
-              {shareStatus || 'העתק תמונה ←'}
-            </button>
+            {!isMobileDevice && (
+              <button type="button" className={styles.share} onClick={handleShare}>
+                {shareStatus || 'העתק תמונה ←'}
+              </button>
+            )}
             <button type="button" className={styles.share} onClick={handleWhatsAppShare}>
               שתף וואטסאפ ←
             </button>

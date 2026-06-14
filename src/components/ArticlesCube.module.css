@@ -4,14 +4,6 @@
   font-family: Arial, sans-serif;
 }
 
-.heading {
-  margin: 0 0 18px;
-  color: #5a2432;
-  font-size: 24px;
-  font-weight: 700;
-  text-align: right;
-}
-
 .grid {
   display: grid !important;
   grid-template-columns: repeat(var(--cube-columns, 3), minmax(0, 1fr)) !important;

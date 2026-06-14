@@ -4,6 +4,31 @@ import { useState, useEffect } from 'react';
 import TemplateEditor from '@/components/TemplateEditor';
 import styles from './settings.module.css';
 
+const MOBILE_CONTROL_ORDER_SETTING = 'control_mobile_order';
+const defaultMobileControlOrder = [
+  { id: 'events', label: 'Events' },
+  { id: 'shabbat', label: 'Shabbat' },
+  { id: 'weekly-prayers', label: 'Weekly Prayer Times' },
+  { id: 'contact-form', label: 'Contact Form' },
+  { id: 'news', label: 'News' },
+  { id: 'articles-slider', label: 'Articles Slider' },
+  { id: 'articles-cube', label: 'Articles Cube' },
+];
+
+function normalizeMobileControlOrder(value) {
+  const ids = Array.isArray(value) ? value : [];
+  const uniqueIds = ids.filter((id, index) => (
+    typeof id === 'string' &&
+    ids.indexOf(id) === index &&
+    defaultMobileControlOrder.some((control) => control.id === id)
+  ));
+  const missingIds = defaultMobileControlOrder
+    .map((control) => control.id)
+    .filter((id) => !uniqueIds.includes(id));
+
+  return [...uniqueIds, ...missingIds];
+}
+
 export default function SettingsPage() {
   const [templates, setTemplates] = useState([]);
   const [activeTemplate, setActiveTemplate] = useState(null);
@@ -11,12 +36,15 @@ export default function SettingsPage() {
   const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateHtml, setNewTemplateHtml] = useState('');
+  const [mobileControlOrder, setMobileControlOrder] = useState(defaultMobileControlOrder.map((control) => control.id));
+  const [savingMobileOrder, setSavingMobileOrder] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
 
   // Load templates on mount
   useEffect(() => {
     loadTemplates();
+    loadMobileControlOrder();
   }, []);
 
   const loadTemplates = async () => {
@@ -36,6 +64,47 @@ export default function SettingsPage() {
       setMessage({ type: 'error', text: 'Failed to load templates' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMobileControlOrder = async () => {
+    try {
+      const response = await fetch(`/api/admin/settings?keys=${MOBILE_CONTROL_ORDER_SETTING}`);
+      const data = await response.json();
+      setMobileControlOrder(normalizeMobileControlOrder(data.data?.[MOBILE_CONTROL_ORDER_SETTING]));
+    } catch (error) {
+      console.error('Error loading mobile control order:', error);
+    }
+  };
+
+  const moveMobileControl = (controlId, direction) => {
+    setMobileControlOrder((current) => {
+      const index = current.indexOf(controlId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return current;
+
+      const next = [...current];
+      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+      return next;
+    });
+  };
+
+  const handleSaveMobileOrder = async () => {
+    setSavingMobileOrder(true);
+    try {
+      const response = await fetch(`/api/admin/settings/${MOBILE_CONTROL_ORDER_SETTING}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: mobileControlOrder }),
+      });
+
+      if (!response.ok) throw new Error('Failed to save mobile order');
+      setMessage({ type: 'success', text: 'Mobile control order saved!' });
+    } catch (error) {
+      console.error('Error saving mobile control order:', error);
+      setMessage({ type: 'error', text: 'Failed to save mobile control order' });
+    } finally {
+      setSavingMobileOrder(false);
     }
   };
 
@@ -131,6 +200,52 @@ export default function SettingsPage() {
       ) : (
         <>
           {/* Templates List */}
+          <div className={styles.mobileOrderPanel}>
+            <div className={styles.panelHeader}>
+              <div>
+                <h2>Mobile Control Order</h2>
+                <p className={styles.panelHint}>Controls use this order when they stack one below another on mobile.</p>
+              </div>
+              <button
+                className={styles.addBtn}
+                onClick={handleSaveMobileOrder}
+                disabled={savingMobileOrder}
+              >
+                {savingMobileOrder ? 'Saving...' : 'Save Order'}
+              </button>
+            </div>
+
+            <div className={styles.mobileOrderList}>
+              {mobileControlOrder.map((controlId, index) => {
+                const control = defaultMobileControlOrder.find((item) => item.id === controlId);
+                if (!control) return null;
+
+                return (
+                  <div key={controlId} className={styles.mobileOrderItem}>
+                    <span className={styles.mobileOrderNumber}>{index + 1}</span>
+                    <span className={styles.mobileOrderLabel}>{control.label}</span>
+                    <div className={styles.mobileOrderActions}>
+                      <button
+                        type="button"
+                        onClick={() => moveMobileControl(controlId, -1)}
+                        disabled={index === 0}
+                      >
+                        Up
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveMobileControl(controlId, 1)}
+                        disabled={index === mobileControlOrder.length - 1}
+                      >
+                        Down
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className={styles.templatesPanel}>
             <div className={styles.panelHeader}>
               <h2>Templates</h2>

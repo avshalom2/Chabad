@@ -49,34 +49,33 @@ export default function ContactForm() {
       <form className={styles.form} onSubmit={handleSubmit}>
         <header className={styles.header}>
           <h2>יצירת קשר</h2>
-          <p>נשמח לחזור אליכם בהקדם</p>
         </header>
 
         <div className={styles.grid}>
-          <label>
-            <span>שם מלא</span>
+          <label aria-label="שם מלא">
             <input
               required
+              placeholder="שם מלא"
               value={form.name}
               onChange={(event) => updateField('name', event.target.value)}
               autoComplete="name"
             />
           </label>
 
-          <label>
-            <span>אימייל</span>
+          <label aria-label="אימייל">
             <input
               required
               type="email"
+              placeholder="אימייל"
               value={form.email}
               onChange={(event) => updateField('email', event.target.value)}
               autoComplete="email"
             />
           </label>
 
-          <label>
-            <span>טלפון</span>
+          <label aria-label="טלפון">
             <input
+              placeholder="טלפון"
               value={form.phone}
               onChange={(event) => updateField('phone', event.target.value)}
               autoComplete="tel"
@@ -84,20 +83,20 @@ export default function ContactForm() {
             />
           </label>
 
-          <label>
-            <span>נושא</span>
+          <label aria-label="נושא">
             <input
+              placeholder="נושא"
               value={form.subject}
               onChange={(event) => updateField('subject', event.target.value)}
             />
           </label>
         </div>
 
-        <label className={styles.messageField}>
-          <span>הודעה</span>
+        <label className={styles.messageField} aria-label="הודעה">
           <textarea
             required
-            rows={5}
+            rows={3}
+            placeholder="הודעה"
             value={form.message}
             onChange={(event) => updateField('message', event.target.value)}
           />

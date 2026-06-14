@@ -79,6 +79,10 @@
     max-width: 100%;
     flex: 1;
   }
+
+  .container :global(.chabad-mobile-order-control) {
+    order: var(--chabad-mobile-order, 0) !important;
+  }
 }
 
 @media (max-width: 600px) {
@@ -108,6 +112,7 @@
 .container :global(eventsbox),
 .container :global(shabbatbox),
 .container :global(weeklyprayersbox),
+.container :global(contactform),
 .container :global(articlesslider),
 .container :global(articlescube) {
   min-width: 0;

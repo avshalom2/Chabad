@@ -18,7 +18,7 @@ const COMPONENT_MAP = {
   'articles-cube': ArticlesCube,
 };
 
-export default function DynamicPageRenderer({ html }) {
+export default function DynamicPageRenderer({ html, mobileControlOrder = [] }) {
   const containerRef = useRef(null);
   const rootsRef = useRef([]);
 
@@ -60,6 +60,14 @@ export default function DynamicPageRenderer({ html }) {
       const Component = COMPONENT_MAP[componentName];
       if (!Component) return;
 
+      const mobileOrder = Array.isArray(mobileControlOrder)
+        ? mobileControlOrder.indexOf(componentName)
+        : -1;
+      if (mobileOrder >= 0) {
+        placeholder.classList.add('chabad-mobile-order-control');
+        placeholder.style.setProperty('--chabad-mobile-order', String(mobileOrder + 1));
+      }
+
       // Strip editor preview styles before rendering
       placeholder.style.border = 'none';
       placeholder.style.backgroundColor = 'transparent';
@@ -83,7 +91,7 @@ export default function DynamicPageRenderer({ html }) {
       rootsRef.current.forEach(r => r.unmount());
       rootsRef.current = [];
     };
-  }, [html]);
+  }, [html, mobileControlOrder]);
 
   if (!html) return null;
 

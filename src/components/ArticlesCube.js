@@ -70,7 +70,6 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
       aria-label={categoryName || 'Articles Cube'}
       style={{ '--cube-columns': columns }}
     >
-      {categoryName && <h2 className={styles.heading}>{categoryName}</h2>}
       <div
         className={styles.grid}
         style={{ '--cube-columns': columns }}

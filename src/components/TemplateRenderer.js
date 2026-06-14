@@ -15,7 +15,7 @@ import styles from './TemplateRenderer.module.css';
 /**
  * Render template HTML with component tags dynamically replaced with React components
  */
-export default function TemplateRenderer({ html }) {
+export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
   const containerRef = useRef(null);
   const [portalsMap, setPortalsMap] = useState({});
 
@@ -63,9 +63,16 @@ export default function TemplateRenderer({ html }) {
 
     const newPortalsMap = {};
 
+    const getMobileOrder = (type) => {
+      if (!Array.isArray(mobileControlOrder)) return null;
+      const index = mobileControlOrder.indexOf(type);
+      return index >= 0 ? index + 1 : null;
+    };
+
     Array.from(componentElements).forEach((tag, idx) => {
       const componentName = tag.tagName.toLowerCase();
       const componentId = `portal-${idx}`;
+      const type = componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'weeklyprayersbox' ? 'weekly-prayers' : componentName === 'contactform' ? 'contact-form' : componentName === 'newsbox' ? 'news' : componentName === 'articlesslider' ? 'articles-slider' : 'articles-cube';
       
       // Create a wrapper div to host the React component
       const wrapper = document.createElement('div');
@@ -83,9 +90,16 @@ export default function TemplateRenderer({ html }) {
         tag.replaceWith(wrapper);
       }
 
+      const orderTarget = wrapper.closest('[data-type], .card') || wrapper;
+      const mobileOrder = getMobileOrder(type);
+      if (mobileOrder) {
+        orderTarget.classList.add('chabad-mobile-order-control');
+        orderTarget.style.setProperty('--chabad-mobile-order', String(mobileOrder));
+      }
+
       // Store which component should go in this wrapper
       newPortalsMap[componentId] = {
-        type: componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'weeklyprayersbox' ? 'weekly-prayers' : componentName === 'contactform' ? 'contact-form' : componentName === 'newsbox' ? 'news' : componentName === 'articlesslider' ? 'articles-slider' : 'articles-cube',
+        type,
         target: wrapper,
         categoryId: tag.getAttribute('category-id'),
         categorySlug: tag.getAttribute('category-slug'),
@@ -115,7 +129,7 @@ export default function TemplateRenderer({ html }) {
     }, 0);
 
     return () => window.clearTimeout(portalUpdate);
-  }, [html]);
+  }, [html, mobileControlOrder]);
 
   // Render React components into their placeholder divs using createPortal
   const portals = Object.entries(portalsMap).map(([portalId, config]) => {

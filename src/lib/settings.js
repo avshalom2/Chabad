@@ -1,5 +1,9 @@
 import { getPool } from './db.js';
 
+function isPostgres() {
+  return process.env.DB_TYPE === 'postgres' || process.env.DB_TYPE === 'pg';
+}
+
 /**
  * Get a single setting by key
  * @param {string} key - The setting key
@@ -8,7 +12,10 @@ import { getPool } from './db.js';
 export async function getSetting(key) {
   try {
     const pool = await getPool();
-    const [rows] = await pool.query('SELECT `value` FROM site_settings WHERE `key` = ?', [key]);
+    const result = isPostgres()
+      ? await pool.query('SELECT "value" FROM site_settings WHERE "key" = $1', [key])
+      : await pool.query('SELECT `value` FROM site_settings WHERE `key` = ?', [key]);
+    const rows = Array.isArray(result) ? result[0] : result.rows;
     if (rows.length === 0) return null;
     try {
       return JSON.parse(rows[0].value);
@@ -64,7 +71,10 @@ export async function getSettings(keys) {
 export async function getAllSettings() {
   try {
     const pool = await getPool();
-    const [rows] = await pool.query('SELECT `key`, `value` FROM site_settings');
+    const queryResult = isPostgres()
+      ? await pool.query('SELECT "key", "value" FROM site_settings')
+      : await pool.query('SELECT `key`, `value` FROM site_settings');
+    const rows = Array.isArray(queryResult) ? queryResult[0] : queryResult.rows;
     const result = {};
     rows.forEach(row => {
       try {
@@ -90,10 +100,33 @@ export async function setSetting(key, value) {
   try {
     const pool = await getPool();
     const jsonValue = typeof value === 'string' ? value : JSON.stringify(value);
-    await pool.query(
-      'INSERT INTO site_settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?, updated_at = CURRENT_TIMESTAMP',
-      [key, jsonValue, jsonValue]
-    );
+    if (isPostgres()) {
+      const updateResult = await pool.query(
+        'UPDATE site_settings SET "value" = $2, updated_at = CURRENT_TIMESTAMP WHERE "key" = $1',
+        [key, jsonValue]
+      );
+
+      if (updateResult.rowCount > 0) return;
+
+      await pool.query(
+        `SELECT setval(
+          pg_get_serial_sequence('site_settings', 'id'),
+          COALESCE((SELECT MAX(id) FROM site_settings), 0) + 1,
+          false
+        )`
+      );
+
+      await pool.query(
+        `INSERT INTO site_settings ("key", "value") VALUES ($1, $2)
+         ON CONFLICT ("key") DO UPDATE SET "value" = EXCLUDED."value", updated_at = CURRENT_TIMESTAMP`,
+        [key, jsonValue]
+      );
+    } else {
+      await pool.query(
+        'INSERT INTO site_settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?, updated_at = CURRENT_TIMESTAMP',
+        [key, jsonValue, jsonValue]
+      );
+    }
   } catch (err) {
     console.error(`Error setting "${key}":`, err);
     throw err;
@@ -108,7 +141,11 @@ export async function setSetting(key, value) {
 export async function deleteSetting(key) {
   try {
     const pool = await getPool();
-    await pool.query('DELETE FROM site_settings WHERE `key` = ?', [key]);
+    if (isPostgres()) {
+      await pool.query('DELETE FROM site_settings WHERE "key" = $1', [key]);
+    } else {
+      await pool.query('DELETE FROM site_settings WHERE `key` = ?', [key]);
+    }
   } catch (err) {
     console.error(`Error deleting setting "${key}":`, err);
     throw err;

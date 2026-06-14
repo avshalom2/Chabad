@@ -63,6 +63,12 @@
   color: #333;
 }
 
+.panelHint {
+  margin: 0.35rem 0 0;
+  color: #777;
+  font-size: 0.85rem;
+}
+
 .addBtn {
   background: #6b1020;
   color: #fff;
@@ -79,6 +85,82 @@
 
 .addBtn:hover {
   background: #9a1830;
+}
+
+.addBtn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.mobileOrderPanel {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.mobileOrderList {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem 1.5rem 1.5rem;
+  background: #fafafa;
+}
+
+.mobileOrderItem {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.mobileOrderNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1e8ea;
+  color: #6b1020;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.mobileOrderLabel {
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.mobileOrderActions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.mobileOrderActions button {
+  min-width: 58px;
+  border: none;
+  border-radius: 4px;
+  background: #e8e8e8;
+  color: #333;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.45rem 0.65rem;
+}
+
+.mobileOrderActions button:hover:not(:disabled) {
+  background: #d8d8d8;
+}
+
+.mobileOrderActions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 /* New Template Form */
@@ -292,5 +374,17 @@
 
   .templatesList {
     grid-template-columns: 1fr;
+  }
+
+  .mobileOrderItem {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .mobileOrderActions {
+    grid-column: 1 / -1;
+  }
+
+  .mobileOrderActions button {
+    flex: 1;
   }
 }

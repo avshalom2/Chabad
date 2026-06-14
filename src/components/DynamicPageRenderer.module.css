@@ -28,4 +28,8 @@
     width: 100% !important;
     flex: 0 0 100% !important;
   }
+
+  .renderer :global(.chabad-mobile-order-control) {
+    order: var(--chabad-mobile-order, 0) !important;
+  }
 }
