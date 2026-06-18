@@ -4,13 +4,26 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { mergeAttributes, Node } from '@tiptap/core';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import ImageExtension from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import styles from './ArticleBodyEditor.module.css';
 
 const EMPTY_CONTENT = '<p></p>';
+
+const ArticleImage = ImageExtension.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      align: {
+        default: 'center',
+        parseHTML: (element) => element.getAttribute('data-align') || 'center',
+        renderHTML: (attributes) => ({ 'data-align': attributes.align || 'center' }),
+      },
+    };
+  },
+});
 
 const ArticleBox = Node.create({
   name: 'articleBox',
@@ -157,7 +170,7 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
         },
       }),
       Underline,
-      Image.configure({
+      ArticleImage.configure({
         inline: false,
         allowBase64: false,
         HTMLAttributes: {
@@ -286,6 +299,17 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
     }
 
     editor.chain().focus().extendMarkRange('link').setLink({ href: url.trim() }).run();
+  }
+
+  function setAlignment(alignment) {
+    if (!editor || disabled) return;
+
+    if (editor.isActive('image')) {
+      editor.chain().focus().updateAttributes('image', { align: alignment }).run();
+      return;
+    }
+
+    editor.chain().focus().setTextAlign(alignment).run();
   }
 
   function openHtmlEditor() {
@@ -532,13 +556,13 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
             Box
           </button>
           <span className={styles.separator} />
-          <button type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} disabled={disabled}>
+          <button type="button" onClick={() => setAlignment('right')} disabled={disabled}>
             Right
           </button>
-          <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} disabled={disabled}>
+          <button type="button" onClick={() => setAlignment('center')} disabled={disabled}>
             Center
           </button>
-          <button type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} disabled={disabled}>
+          <button type="button" onClick={() => setAlignment('left')} disabled={disabled}>
             Left
           </button>
           <span className={styles.separator} />

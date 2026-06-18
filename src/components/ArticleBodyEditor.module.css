@@ -372,6 +372,24 @@
   border-radius: 8px;
 }
 
+.editor img[data-align="left"],
+.editor :global(.article-inline-image[data-align="left"]) {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.editor img[data-align="center"],
+.editor :global(.article-inline-image[data-align="center"]) {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.editor img[data-align="right"],
+.editor :global(.article-inline-image[data-align="right"]) {
+  margin-left: auto;
+  margin-right: 0;
+}
+
 .loading {
   padding: 2rem;
   border: 1px solid #d1d5db;

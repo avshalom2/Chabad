@@ -191,6 +191,16 @@ export default function EditArticlePage() {
               <small>אופציונלי - נוצר באופן אוטומטי מהכותרת</small>
             </div>
 
+            <ArticleImageGallery
+              articleId={articleId}
+              selectedImage={form.short_description_image}
+              onSelectImage={(imageId) => setForm((prev) => ({ ...prev, short_description_image: imageId }))}
+              disabled={loading}
+            />
+          </div>
+
+          {/* RIGHT COLUMN: Options */}
+          <div className={styles.rightColumn}>
             <div className={styles.formGroup}>
               <label htmlFor="category_id">קטגוריה *</label>
               <select
@@ -209,10 +219,7 @@ export default function EditArticlePage() {
                 ))}
               </select>
             </div>
-          </div>
 
-          {/* RIGHT COLUMN: Short Description, Images & Options */}
-          <div className={styles.rightColumn}>
             <div className={styles.formGroup}>
               <label htmlFor="short_description">תיאור קצר</label>
               <textarea
@@ -226,13 +233,6 @@ export default function EditArticlePage() {
               />
               <small>מוצג בכרטיסיות וקטגוריות</small>
             </div>
-
-            <ArticleImageGallery
-              articleId={articleId}
-              selectedImage={form.short_description_image}
-              onSelectImage={(imageId) => setForm((prev) => ({ ...prev, short_description_image: imageId }))}
-              disabled={loading}
-            />
 
             {/* OPTIONS PANEL */}
             <div className={styles.optionsPanel}>
