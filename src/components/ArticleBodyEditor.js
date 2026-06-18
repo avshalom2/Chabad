@@ -1,6 +1,7 @@
 'use client';
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { mergeAttributes, Node } from '@tiptap/core';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -10,6 +11,43 @@ import Underline from '@tiptap/extension-underline';
 import styles from './ArticleBodyEditor.module.css';
 
 const EMPTY_CONTENT = '<p></p>';
+
+const ArticleBox = Node.create({
+  name: 'articleBox',
+  group: 'block',
+  content: 'block+',
+  defining: true,
+
+  addAttributes() {
+    return {
+      class: {
+        default: 'article-content-box',
+        parseHTML: (element) => element.getAttribute('class') || 'article-content-box',
+        renderHTML: (attributes) => ({
+          class: String(attributes.class || '')
+            .split(/\s+/)
+            .filter(Boolean)
+            .includes('article-content-box')
+            ? attributes.class
+            : `article-content-box ${attributes.class || ''}`.trim(),
+        }),
+      },
+      style: {
+        default: null,
+        parseHTML: (element) => element.getAttribute('style'),
+        renderHTML: (attributes) => (attributes.style ? { style: attributes.style } : {}),
+      },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'div.article-content-box' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { class: 'article-content-box' }), 0];
+  },
+});
 
 function isMeaningfulHtml(html) {
   if (!html) return false;
@@ -56,6 +94,26 @@ function buildPreviewDocument(html) {
 ${source}
 </body>
 </html>`;
+}
+
+function cleanVisualEditorHtml(html) {
+  const source = html || '';
+
+  if (typeof window === 'undefined' || typeof window.DOMParser === 'undefined') {
+    return source.replace(/<p(?:\s[^>]*)?>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, '');
+  }
+
+  const document = new window.DOMParser().parseFromString(`<main>${source}</main>`, 'text/html');
+  document.querySelectorAll('p').forEach((paragraph) => {
+    const text = paragraph.textContent.replace(/\u00a0/g, ' ').trim();
+    const hasVisibleElement = paragraph.querySelector('img, iframe, video, audio, table, hr, input, button, svg');
+
+    if (!text && !hasVisibleElement) {
+      paragraph.remove();
+    }
+  });
+
+  return document.body.firstElementChild?.innerHTML || '';
 }
 
 const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
@@ -118,6 +176,7 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      ArticleBox,
     ],
     content: initialHtml || EMPTY_CONTENT,
     editorProps: {
@@ -137,7 +196,12 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
   useImperativeHandle(
     ref,
     () => ({
-      getHtml: () => (freeHtml ? htmlDraft : directHtml ?? sourceHtml ?? editor?.getHTML() ?? initialHtml ?? ''),
+      getHtml: () => {
+        if (freeHtml) return htmlDraft;
+        if (directHtml !== null) return directHtml;
+
+        return cleanVisualEditorHtml(sourceHtml ?? editor?.getHTML() ?? initialHtml ?? '');
+      },
       clearDraft: () => {
         try {
           window.localStorage.removeItem(storageKey);
@@ -303,30 +367,32 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
   if (freeHtml) {
     return (
       <section className={styles.shell} aria-label="Free HTML article body editor">
-        <div className={styles.header}>
-          <div>
-            <h2 className={styles.title}>Free HTML body</h2>
-            <p className={styles.subtitle}>Preview the raw HTML by default, or switch to code to paste a full custom layout.</p>
+        <div className={styles.controls}>
+          <div className={styles.header}>
+            <div>
+              <h2 className={styles.title}>Free HTML body</h2>
+              <p className={styles.subtitle}>Preview the raw HTML by default, or switch to code to paste a full custom layout.</p>
+            </div>
+            <span className={`${styles.status} ${styles[saveState]}`}>{statusText}</span>
           </div>
-          <span className={`${styles.status} ${styles[saveState]}`}>{statusText}</span>
-        </div>
 
-        <div className={styles.toolbar} aria-label="Free HTML toolbar">
-          <button
-            type="button"
-            onClick={() => setFreeHtmlView('preview')}
-            className={freeHtmlView === 'preview' ? styles.active : ''}
-          >
-            Preview
-          </button>
-          <button
-            type="button"
-            onClick={() => setFreeHtmlView('code')}
-            className={freeHtmlView === 'code' ? styles.active : ''}
-            disabled={disabled}
-          >
-            Code
-          </button>
+          <div className={styles.toolbar} aria-label="Free HTML toolbar">
+            <button
+              type="button"
+              onClick={() => setFreeHtmlView('preview')}
+              className={freeHtmlView === 'preview' ? styles.active : ''}
+            >
+              Preview
+            </button>
+            <button
+              type="button"
+              onClick={() => setFreeHtmlView('code')}
+              className={freeHtmlView === 'code' ? styles.active : ''}
+              disabled={disabled}
+            >
+              Code
+            </button>
+          </div>
         </div>
 
         {freeHtmlView === 'code' ? (
@@ -356,134 +422,144 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
 
   return (
     <section className={styles.shell} aria-label="Article body editor">
-      <div className={styles.header}>
-        <div>
-          <h2 className={styles.title}>Article body</h2>
-          <p className={styles.subtitle}>Write the article text and insert images inside the body.</p>
+      <div className={styles.controls}>
+        <div className={styles.header}>
+          <div>
+            <h2 className={styles.title}>Article body</h2>
+            <p className={styles.subtitle}>Write the article text and insert images inside the body.</p>
+          </div>
+          <span className={`${styles.status} ${styles[saveState]}`}>{statusText}</span>
         </div>
-        <span className={`${styles.status} ${styles[saveState]}`}>{statusText}</span>
-      </div>
 
-      {draftRestored && (
-        <div className={styles.notice}>
-          <span>A local draft was restored. Saving the article will make it permanent.</span>
-          <button type="button" onClick={discardLocalDraft} disabled={disabled}>
-            Use saved content
+        {draftRestored && (
+          <div className={styles.notice}>
+            <span>A local draft was restored. Saving the article will make it permanent.</span>
+            <button type="button" onClick={discardLocalDraft} disabled={disabled}>
+              Use saved content
+            </button>
+          </div>
+        )}
+
+        <div className={styles.toolbar} aria-label="Formatting toolbar">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            className={editor.isActive('heading', { level: 2 }) ? styles.active : ''}
+            disabled={disabled}
+          >
+            H2
           </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            className={editor.isActive('heading', { level: 3 }) ? styles.active : ''}
+            disabled={disabled}
+          >
+            H3
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().setParagraph().run()}
+            className={editor.isActive('paragraph') ? styles.active : ''}
+            disabled={disabled}
+          >
+            Text
+          </button>
+          <span className={styles.separator} />
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={editor.isActive('bold') ? styles.active : ''}
+            disabled={disabled}
+          >
+            B
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={editor.isActive('italic') ? styles.active : ''}
+            disabled={disabled}
+          >
+            I
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            className={editor.isActive('underline') ? styles.active : ''}
+            disabled={disabled}
+          >
+            U
+          </button>
+          <button
+            type="button"
+            onClick={setLink}
+            className={editor.isActive('link') ? styles.active : ''}
+            disabled={disabled}
+          >
+            Link
+          </button>
+          <span className={styles.separator} />
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={editor.isActive('bulletList') ? styles.active : ''}
+            disabled={disabled}
+          >
+            Bullets
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            className={editor.isActive('orderedList') ? styles.active : ''}
+            disabled={disabled}
+          >
+            Numbers
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={editor.isActive('blockquote') ? styles.active : ''}
+            disabled={disabled}
+          >
+            Quote
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleWrap('articleBox').run()}
+            className={editor.isActive('articleBox') ? styles.active : ''}
+            disabled={disabled}
+          >
+            Box
+          </button>
+          <span className={styles.separator} />
+          <button type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} disabled={disabled}>
+            Right
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} disabled={disabled}>
+            Center
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} disabled={disabled}>
+            Left
+          </button>
+          <span className={styles.separator} />
+          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={disabled || uploading}>
+            {uploading ? 'Uploading...' : 'Image'}
+          </button>
+          <button type="button" onClick={openHtmlEditor} disabled={disabled}>
+            Edit HTML
+          </button>
+          <button type="button" onClick={openHtmlPreview}>
+            HTML Preview
+          </button>
+          <input
+            ref={fileInputRef}
+            className={styles.fileInput}
+            type="file"
+            accept="image/*"
+            onChange={(event) => uploadImage(event.target.files?.[0])}
+            disabled={disabled || uploading}
+          />
         </div>
-      )}
-
-      <div className={styles.toolbar} aria-label="Formatting toolbar">
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={editor.isActive('heading', { level: 2 }) ? styles.active : ''}
-          disabled={disabled}
-        >
-          H2
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={editor.isActive('heading', { level: 3 }) ? styles.active : ''}
-          disabled={disabled}
-        >
-          H3
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().setParagraph().run()}
-          className={editor.isActive('paragraph') ? styles.active : ''}
-          disabled={disabled}
-        >
-          Text
-        </button>
-        <span className={styles.separator} />
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive('bold') ? styles.active : ''}
-          disabled={disabled}
-        >
-          B
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive('italic') ? styles.active : ''}
-          disabled={disabled}
-        >
-          I
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={editor.isActive('underline') ? styles.active : ''}
-          disabled={disabled}
-        >
-          U
-        </button>
-        <button
-          type="button"
-          onClick={setLink}
-          className={editor.isActive('link') ? styles.active : ''}
-          disabled={disabled}
-        >
-          Link
-        </button>
-        <span className={styles.separator} />
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive('bulletList') ? styles.active : ''}
-          disabled={disabled}
-        >
-          Bullets
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={editor.isActive('orderedList') ? styles.active : ''}
-          disabled={disabled}
-        >
-          Numbers
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={editor.isActive('blockquote') ? styles.active : ''}
-          disabled={disabled}
-        >
-          Quote
-        </button>
-        <span className={styles.separator} />
-        <button type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} disabled={disabled}>
-          Right
-        </button>
-        <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} disabled={disabled}>
-          Center
-        </button>
-        <button type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} disabled={disabled}>
-          Left
-        </button>
-        <span className={styles.separator} />
-        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={disabled || uploading}>
-          {uploading ? 'Uploading...' : 'Image'}
-        </button>
-        <button type="button" onClick={openHtmlEditor} disabled={disabled}>
-          Edit HTML
-        </button>
-        <button type="button" onClick={openHtmlPreview}>
-          HTML Preview
-        </button>
-        <input
-          ref={fileInputRef}
-          className={styles.fileInput}
-          type="file"
-          accept="image/*"
-          onChange={(event) => uploadImage(event.target.files?.[0])}
-          disabled={disabled || uploading}
-        />
       </div>
 
       {error && <div className={styles.error}>{error}</div>}
