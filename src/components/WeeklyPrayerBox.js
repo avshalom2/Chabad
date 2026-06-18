@@ -172,7 +172,7 @@ export default function WeeklyPrayerBox() {
   const [isMobileDevice, setIsMobileDevice] = useState(true);
 
   useEffect(() => {
-    fetch('/api/weekly-prayers')
+    fetch('/api/weekly-prayers', { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => setSchedule(data.schedule || null))
       .catch((error) => {

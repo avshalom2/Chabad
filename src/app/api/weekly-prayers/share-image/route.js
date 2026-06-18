@@ -4,6 +4,7 @@ import path from 'path';
 import { getWeeklyPrayerSchedule } from '@/lib/weekly-prayers.js';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 function escapeXml(value) {
   return String(value ?? '')
