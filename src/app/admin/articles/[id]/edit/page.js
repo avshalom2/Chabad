@@ -1,9 +1,8 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import ImageUpload from '@/components/ImageUpload.js';
 import ArticleImageGallery from '@/components/ArticleImageGallery.js';
-import PageBuilder from '@/components/PageBuilder/index.js';
+import ArticleBodyEditor from '@/components/ArticleBodyEditor.js';
 import styles from '../../new/article-form.module.css';
 
 export default function EditArticlePage() {
@@ -14,8 +13,7 @@ export default function EditArticlePage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showContent, setShowContent] = useState(false);
-  const pageBuilderRef = useRef(null);
+  const articleBodyRef = useRef(null);
 
   const [form, setForm] = useState({
     title: '',
@@ -32,6 +30,8 @@ export default function EditArticlePage() {
     template: 'standard',
     is_main_article: false,
     article_type: 'article',
+    is_free_html: false,
+    show_contact_form: false,
   });
 
   // Load article and categories
@@ -67,6 +67,8 @@ export default function EditArticlePage() {
             template: art.template || 'standard',
             is_main_article: art.is_main_article ? true : false,
             article_type: art.article_type || 'article',
+            is_free_html: art.is_free_html ? true : false,
+            show_contact_form: art.show_contact_form ? true : false,
           });
         } else {
           setError(articleData.error || 'Article not found');
@@ -101,14 +103,14 @@ export default function EditArticlePage() {
     setLoading(true);
 
     try {
-      const pageHtml = pageBuilderRef.current?.getHtml() || form.content;
+      const articleHtml = articleBodyRef.current?.getHtml() || form.content;
 
       const res = await fetch(`/api/admin/articles/${articleId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          content: pageHtml,
+          content: articleHtml,
           short_description: form.short_description || null,
           short_description_image: form.short_description_image || null,
           price: form.price ? parseFloat(form.price) : null,
@@ -127,8 +129,9 @@ export default function EditArticlePage() {
 
       setSaveSuccess(true);
       setLoading(false);
+      articleBodyRef.current?.clearDraft();
       // Update form.content with the saved HTML so subsequent saves don't revert
-      setForm((prev) => ({ ...prev, content: pageHtml }));
+      setForm((prev) => ({ ...prev, content: articleHtml }));
       // Scroll to top to show success message
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
@@ -314,6 +317,30 @@ export default function EditArticlePage() {
                 <label htmlFor="is_main_article">כתבה ראשית</label>
               </div>
 
+              <div className={styles.checkboxGroup}>
+                <input
+                  id="is_free_html"
+                  name="is_free_html"
+                  type="checkbox"
+                  checked={form.is_free_html}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <label htmlFor="is_free_html">Free HTML body</label>
+              </div>
+
+              <div className={styles.checkboxGroup}>
+                <input
+                  id="show_contact_form"
+                  name="show_contact_form"
+                  type="checkbox"
+                  checked={form.show_contact_form}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <label htmlFor="show_contact_form">Add contact form under article</label>
+              </div>
+
               {form.is_purchasable && (
                 <>
                   <div className={styles.formGroup}>
@@ -350,20 +377,14 @@ export default function EditArticlePage() {
           </div>
         </div>
 
-        {/* PAGE CONTENT SECTION - COLLAPSIBLE */}
-        <div className={styles.contentToggle}>
-          <input
-            type="checkbox"
-            id="toggleContent"
-            checked={showContent}
-            onChange={(e) => setShowContent(e.target.checked)}
+        <div className={styles.contentSection}>
+          <ArticleBodyEditor
+            ref={articleBodyRef}
+            initialHtml={form.content}
+            storageKey={`admin.article.${articleId}.body`}
             disabled={loading}
+            freeHtml={form.is_free_html}
           />
-          <label htmlFor="toggleContent">תוכן הדף (בונה עמודים)</label>
-        </div>
-
-        <div className={`${styles.contentSection} ${!showContent ? styles.hidden : ''}`}>
-          <PageBuilder ref={pageBuilderRef} initialHtml={form.content} />
         </div>
 
         {/* FORM ACTIONS */}

@@ -112,6 +112,25 @@
   margin-bottom: 2rem;
 }
 
+.content p {
+  margin: 0 0 1rem;
+}
+
+.content h2,
+.content h3 {
+  margin: 1.5rem 0 0.75rem;
+  line-height: 1.35;
+  color: #111;
+}
+
+.content h2 {
+  font-size: 1.55rem;
+}
+
+.content h3 {
+  font-size: 1.25rem;
+}
+
 .content ul {
   list-style: none;
   padding-right: 1.5rem;
@@ -138,6 +157,32 @@
 
 .content ol li {
   margin-bottom: 0.5rem;
+}
+
+.content blockquote {
+  margin: 1.25rem 0;
+  padding: 0.85rem 1rem;
+  border-right: 4px solid #8b0000;
+  background: #faf7f4;
+  color: #444;
+}
+
+.content img,
+.content :global(.article-inline-image) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem auto;
+  border-radius: 8px;
+}
+
+.content a {
+  color: #8b0000;
+  text-decoration: underline;
+}
+
+.articleContactForm {
+  margin: 2rem 0;
 }
 
 .author {

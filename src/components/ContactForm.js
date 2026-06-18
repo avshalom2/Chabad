@@ -12,7 +12,7 @@ const initialForm = {
   company: '',
 };
 
-export default function ContactForm() {
+export default function ContactForm({ articleTitle = '' }) {
   const [form, setForm] = useState(initialForm);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
@@ -30,7 +30,7 @@ export default function ContactForm() {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, articleTitle }),
       });
 
       const data = await response.json().catch(() => ({}));

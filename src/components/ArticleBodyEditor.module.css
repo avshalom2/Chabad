@@ -1,0 +1,387 @@
+.shell {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+  color: #111827;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.status {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.saved {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.unsaved {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.draft {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: #eff6ff;
+  border-bottom: 1px solid #bfdbfe;
+  color: #1e40af;
+  font-size: 0.85rem;
+}
+
+.notice button {
+  flex-shrink: 0;
+  border: 1px solid #1d4ed8;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1d4ed8;
+  padding: 0.35rem 0.65rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.notice button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.toolbar button {
+  min-height: 34px;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #374151;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toolbar button:hover:not(:disabled) {
+  border-color: #2563eb;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.toolbar button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.toolbar .active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.separator {
+  width: 1px;
+  height: 24px;
+  margin: 0 0.2rem;
+  background: #e5e7eb;
+}
+
+.fileInput {
+  display: none;
+}
+
+.error {
+  margin: 0.75rem 1rem 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+.content {
+  background: #ffffff;
+}
+
+.htmlEditor {
+  display: block;
+  width: 100%;
+  min-height: 520px;
+  padding: 1rem;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  background: #111827;
+  color: #e5e7eb;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  direction: ltr;
+  text-align: left;
+  tab-size: 2;
+}
+
+.htmlEditor:disabled {
+  color: #9ca3af;
+  background: #1f2937;
+}
+
+.preview {
+  display: block;
+  width: 100%;
+  min-height: 520px;
+  border: 0;
+  background: #ffffff;
+}
+
+.inlinePreview {
+  display: block;
+  width: 100%;
+  min-height: 620px;
+  border: 0;
+  background: #ffffff;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.htmlModal,
+.previewModal {
+  display: flex;
+  flex-direction: column;
+  width: min(1120px, 96vw);
+  height: min(820px, 92vh);
+  overflow: hidden;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.modalHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.modalHeader button,
+.secondaryButton,
+.primaryButton {
+  min-height: 34px;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modalHeader button,
+.secondaryButton {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+}
+
+.primaryButton {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.htmlModal .htmlEditor {
+  flex: 1;
+  min-height: 0;
+  border-radius: 0;
+}
+
+.previewModal .preview {
+  flex: 1;
+  min-height: 0;
+}
+
+.editor {
+  min-height: 420px;
+  padding: 1.25rem 1.5rem 2rem;
+  outline: none;
+  color: #111827;
+  font-size: 1.05rem;
+  line-height: 1.9;
+}
+
+.editor p {
+  margin: 0 0 1rem;
+}
+
+.editor h2,
+.editor h3 {
+  margin: 1.4rem 0 0.75rem;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.editor h2 {
+  font-size: 1.55rem;
+}
+
+.editor h3 {
+  font-size: 1.25rem;
+}
+
+.editor ul,
+.editor ol {
+  margin: 0 1.4rem 1rem 0;
+  padding: 0;
+}
+
+.editor blockquote {
+  margin: 1.25rem 0;
+  padding: 0.8rem 1rem;
+  border-right: 4px solid #2563eb;
+  background: #f8fafc;
+  color: #374151;
+}
+
+.editor a {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.editor img,
+.editor :global(.article-inline-image) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem auto;
+  border-radius: 8px;
+}
+
+.loading {
+  padding: 2rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #6b7280;
+}
+
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column;
+  }
+
+  .toolbar {
+    gap: 0.3rem;
+  }
+
+  .toolbar button {
+    min-height: 32px;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.78rem;
+  }
+
+  .editor {
+    min-height: 360px;
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .htmlEditor {
+    min-height: 420px;
+    font-size: 0.86rem;
+  }
+
+  .preview {
+    min-height: 420px;
+  }
+
+  .inlinePreview {
+    min-height: 460px;
+  }
+
+  .modalBackdrop {
+    padding: 0.5rem;
+  }
+
+  .htmlModal,
+  .previewModal {
+    width: 100%;
+    height: 96vh;
+  }
+}

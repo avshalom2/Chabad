@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getArticleBySlug, getRelatedArticles } from '@/lib/articles';
 import RelatedArticles from '@/components/RelatedArticles';
+import ContactForm from '@/components/ContactForm';
 import styles from './article.module.css';
 
 export async function generateMetadata({ params }) {
@@ -62,6 +63,12 @@ export default async function ArticlePage({ params }) {
             className={styles.content}
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
+        )}
+
+        {article.show_contact_form && (
+          <div className={styles.articleContactForm}>
+            <ContactForm articleTitle={article.title} />
+          </div>
         )}
 
         {/* Author */}

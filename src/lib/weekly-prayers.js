@@ -3,7 +3,7 @@ import { getPool } from './db.js';
 const ZMANIM_API_BASE_URL = 'https://www.hebcal.com/zmanim';
 const SHABBAT_API_BASE_URL = 'https://www.hebcal.com/shabbat';
 const CONVERTER_API_BASE_URL = 'https://www.hebcal.com/converter';
-const SHABBAT_SOURCE_VERSION = 'shabbat-city-tel-aviv-v1';
+const SHABBAT_SOURCE_VERSION = 'shabbat-city-tel-aviv-v2-explicit-date';
 const HEBREW_DATE_SOURCE_VERSION = 'hebcal-converter-v2';
 const ZMANIM_LOCATION = {
   latitude: '32.1663',
@@ -292,11 +292,14 @@ async function fetchZmanimForDate(date) {
   return response.json();
 }
 
-async function fetchShabbatInfo() {
+async function fetchShabbatInfo(targetDate = getIsraelDate()) {
   const url = new URL(SHABBAT_API_BASE_URL);
   url.search = new URLSearchParams({
     cfg: 'json',
     city: 'Tel Aviv',
+    gy: String(targetDate.getFullYear()),
+    gm: String(targetDate.getMonth() + 1),
+    gd: String(targetDate.getDate()),
   }).toString();
 
   const response = await fetch(url, { next: { revalidate: 60 * 60 * 6 } });
@@ -388,7 +391,7 @@ async function buildWeeklyZmanimCache(baseDate = getIsraelDate()) {
       date: dateKey(date),
       data: await fetchZmanimForDate(date),
     }))),
-    fetchShabbatInfo(),
+    fetchShabbatInfo(shabbatEnd),
     fetchHebrewDateRange(start, shabbatEnd),
   ]);
 

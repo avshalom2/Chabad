@@ -35,6 +35,7 @@ export async function POST(request) {
     const subject = normalizeText(body.subject, 160) || 'פנייה חדשה מהאתר';
     const message = normalizeText(body.message, 4000);
     const company = normalizeText(body.company, 120);
+    const articleTitle = normalizeText(body.articleTitle, 240);
 
     if (company) {
       return Response.json({ success: true });
@@ -59,6 +60,7 @@ export async function POST(request) {
         <p><strong>אימייל:</strong> ${escapeHtml(email)}</p>
         ${phone ? `<p><strong>טלפון:</strong> ${escapeHtml(phone)}</p>` : ''}
         <p><strong>נושא:</strong> ${escapeHtml(subject)}</p>
+        ${articleTitle ? `<p><strong>כתבה:</strong> ${escapeHtml(articleTitle)}</p>` : ''}
         <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #e5e7eb;">
           ${escapeHtml(message).replace(/\n/g, '<br />')}
         </div>

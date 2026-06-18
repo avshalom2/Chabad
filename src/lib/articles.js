@@ -37,6 +37,17 @@ function mainArticleFlag(value) {
   return isPostgres() ? value : value ? 1 : 0;
 }
 
+function isMissingOptionalArticleColumn(error) {
+  const message = String(error?.message || '');
+  return (
+    error?.code === 'ER_BAD_FIELD_ERROR' ||
+    error?.code === '42703' ||
+    message.includes('is_free_html') ||
+    message.includes('show_contact_form') ||
+    message.includes('Unknown column')
+  );
+}
+
 function shortDescriptionImageJoin(alias = 'a') {
   if (isPostgres()) {
     return `LEFT JOIN article_images ai ON ${alias}.short_description_image ~ '^[0-9]+$' AND ai.id = ${alias}.short_description_image::integer`;
@@ -134,33 +145,59 @@ export async function createArticle({
   template = 'standard',
   is_main_article = 0,
   article_type = 'article',
+  is_free_html = 0,
+  show_contact_form = 0,
 }) {
   const published_at = status === 'published' ? new Date() : null;
   const pool = await getPool();
 
   if (isPostgres()) {
-    const result = await execute(
-      pool,
-      `INSERT INTO articles
-        (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       RETURNING id`,
-      [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type]
-    );
-    return result.rows[0]?.id || null;
+    try {
+      const result = await execute(
+        pool,
+        `INSERT INTO articles
+          (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type, is_free_html, show_contact_form)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         RETURNING id`,
+        [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type, is_free_html, show_contact_form]
+      );
+      return result.rows[0]?.id || null;
+    } catch (error) {
+      if (!isMissingOptionalArticleColumn(error)) throw error;
+      const result = await execute(
+        pool,
+        `INSERT INTO articles
+          (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         RETURNING id`,
+        [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type]
+      );
+      return result.rows[0]?.id || null;
+    }
   }
 
-  const [result] = await execute(
-    pool,
-    `INSERT INTO articles (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type]
-  );
-  return result.insertId;
+  try {
+    const [result] = await execute(
+      pool,
+      `INSERT INTO articles (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type, is_free_html, show_contact_form)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type, is_free_html, show_contact_form]
+    );
+    return result.insertId;
+  } catch (error) {
+    if (!isMissingOptionalArticleColumn(error)) throw error;
+    const [result] = await execute(
+      pool,
+      `INSERT INTO articles (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type]
+    );
+    return result.insertId;
+  }
 }
 
 export async function updateArticle(id, fields) {
-  const allowed = ['title', 'slug', 'excerpt', 'short_description', 'short_description_image', 'content', 'category_id', 'featured_image', 'price', 'is_purchasable', 'stock', 'status', 'published_at', 'page_html', 'template', 'is_main_article', 'article_type'];
+  const allowed = ['title', 'slug', 'excerpt', 'short_description', 'short_description_image', 'content', 'category_id', 'featured_image', 'price', 'is_purchasable', 'stock', 'status', 'published_at', 'page_html', 'template', 'is_main_article', 'article_type', 'is_free_html', 'show_contact_form'];
   const updates = Object.keys(fields).filter((key) => allowed.includes(key));
 
   if (updates.length === 0) {
@@ -175,7 +212,16 @@ export async function updateArticle(id, fields) {
   const sql = `UPDATE articles SET ${updates.map((key) => `${key} = ?`).join(', ')} WHERE id = ?`;
   const values = [...updates.map((key) => fields[key]), id];
   const pool = await getPool();
-  await execute(pool, sql, values);
+  try {
+    await execute(pool, sql, values);
+  } catch (error) {
+    if (!isMissingOptionalArticleColumn(error)) throw error;
+    const fallbackUpdates = updates.filter((key) => key !== 'is_free_html' && key !== 'show_contact_form');
+    if (fallbackUpdates.length === 0) return;
+    const fallbackSql = `UPDATE articles SET ${fallbackUpdates.map((key) => `${key} = ?`).join(', ')} WHERE id = ?`;
+    const fallbackValues = [...fallbackUpdates.map((key) => fields[key]), id];
+    await execute(pool, fallbackSql, fallbackValues);
+  }
 }
 
 export async function deleteArticle(id) {
