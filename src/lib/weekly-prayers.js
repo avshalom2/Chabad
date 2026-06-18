@@ -267,6 +267,13 @@ function minutesFromDate(date) {
   return (date.getHours() * 60) + date.getMinutes() + (date.getSeconds() >= 30 ? 1 : 0);
 }
 
+function minutesFromTimeString(value) {
+  const match = String(value || '').match(/T(\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!match) return null;
+
+  return (Number(match[1]) * 60) + Number(match[2]) + (Number(match[3] || 0) >= 30 ? 1 : 0);
+}
+
 function formatTimeFromMinutes(totalMinutes) {
   const normalized = ((totalMinutes % 1440) + 1440) % 1440;
   const hours = Math.floor(normalized / 60);
@@ -360,6 +367,9 @@ function sunsetMinutesFromZmanimData(data, fallbackDate = '') {
   if (!sunset) {
     throw new Error(`Hebcal zmanim response missing sunset for ${fallbackDate}`);
   }
+
+  const localMinutes = minutesFromTimeString(sunset);
+  if (localMinutes !== null) return localMinutes;
 
   return minutesFromDate(new Date(sunset));
 }
