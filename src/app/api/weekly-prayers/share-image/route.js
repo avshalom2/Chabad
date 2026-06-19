@@ -56,9 +56,9 @@ function textLine(text, x, y, size = 28, weight = 600, color = '#080808') {
 
 function sectionBar(text, y, icon = '') {
   return `
-    <rect x="180" y="${y - 31}" width="504" height="44" fill="url(#sectionBar)"/>
-    ${icon ? textLine(icon, 510, y, 32, 500) : ''}
-    ${textLine(text, 432, y, 34, 800)}
+    <rect x="210" y="${y - 29}" width="444" height="40" fill="url(#sectionBar)"/>
+    ${icon ? textLine(icon, 502, y, 25, 500) : ''}
+    ${textLine(text, 432, y, 29, 800)}
   `;
 }
 
@@ -106,25 +106,25 @@ export async function GET() {
   <rect x="150" y="155" width="564" height="929" fill="#ffffff" opacity="0.58"/>
 
   <g font-family="Arial, sans-serif" style="font-family: Arial, sans-serif;">
-    ${textLine('ב"ה', 688, 179, 24, 500, '#927f54')}
-    ${textLine('בית חב"ד אזור התעשייה הרצליה', 432, 245, 42, 800)}
-    ${textLine("רח' משכית 22", 432, 296, 42, 800)}
-    ${textLine('(שע"י מוסדות חב"ד הרצליה (ע"ר))', 432, 333, 25, 500)}
-    ${textLine("שעות הפתיחה (בימים א' - ה'):", 432, 386, 42, 800)}
-    ${textLine('19:00 - 10:00', 432, 445, 48, 800)}
-    ${textLine(`פרשת ${parasha}${range ? ` - ${range}` : ''}`, 432, 518, 42, 800)}
+    ${textLine('ב"ה', 688, 179, 22, 500, '#927f54')}
+    ${textLine('בית חב"ד אזור התעשייה הרצליה', 432, 245, 35, 800)}
+    ${textLine("רח' משכית 22", 432, 294, 35, 800)}
+    ${textLine('(שע"י מוסדות חב"ד הרצליה (ע"ר))', 432, 330, 22, 500)}
+    ${textLine("שעות הפתיחה (בימים א' - ה'):", 432, 386, 34, 800)}
+    ${textLine('19:00 - 10:00', 432, 442, 41, 800)}
+    ${textLine(`פרשת ${parasha}${range ? ` - ${range}` : ''}`, 432, 518, 34, 800)}
 
     ${sectionBar('שחרית', 590, '🕍')}
-    ${textLine(`א'-ה': ${shacharitSunThu}`, 432, 640, 35, 500)}
-    ${textLine(`שישי: ${shacharitFriday} בלבד`, 432, 684, 35, 500)}
+    ${textLine(`א'-ה': ${shacharitSunThu}`, 432, 640, 30, 500)}
+    ${textLine(`שישי: ${shacharitFriday} בלבד`, 432, 684, 30, 500)}
 
     ${sectionBar('מנחה', 760, '☼')}
-    ${textLine(`א'-ה': ${minchaSunThu}`, 432, 812, 35, 500)}
-    ${textLine(`מנחה (לפני שקיעה): ${minchaSunset}`, 432, 858, 35, 500)}
-    ${textLine(`שישי: ${minchaFriday} בלבד`, 432, 904, 35, 500)}
+    ${textLine(`א'-ה': ${minchaSunThu}`, 432, 812, 30, 500)}
+    ${textLine(`מנחה (לפני שקיעה): ${minchaSunset}`, 432, 858, 30, 500)}
+    ${textLine(`שישי: ${minchaFriday} בלבד`, 432, 904, 30, 500)}
 
     ${sectionBar('ערבית', 986, '☾')}
-    ${textLine(maariv, 432, 1036, 38, 500)}
+    ${textLine(maariv, 432, 1036, 32, 500)}
   </g>
 </svg>`;
 
