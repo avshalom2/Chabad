@@ -85,8 +85,14 @@ export async function GET() {
   const range = dateRange(schedule);
 
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${IMAGE_WIDTH}" height="${IMAGE_HEIGHT}" viewBox="0 0 ${IMAGE_WIDTH} ${IMAGE_HEIGHT}" direction="rtl">
+<svg xmlns="http://www.w3.org/2000/svg" width="${IMAGE_WIDTH}" height="${IMAGE_HEIGHT}" viewBox="0 0 ${IMAGE_WIDTH} ${IMAGE_HEIGHT}" direction="rtl" color-scheme="light" style="color-scheme: light; background: #ffffff;">
   <defs>
+    <style>
+      svg, rect, text, image {
+        color-scheme: light;
+        forced-color-adjust: none;
+      }
+    </style>
     <linearGradient id="sectionBar" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#f4f0e8" stop-opacity="0"/>
       <stop offset="50%" stop-color="#d7d0c0" stop-opacity="0.85"/>
