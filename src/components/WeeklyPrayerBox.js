@@ -165,6 +165,23 @@ async function createSharePngFile(imageUrl) {
   return new File([pngBlob], 'zmanim-tefila.png', { type: 'image/png' });
 }
 
+async function downloadSharePng(imageUrl) {
+  const pngBlob = await createSharePngBlob(imageUrl);
+  const objectUrl = URL.createObjectURL(pngBlob);
+
+  try {
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = 'zmanim-tefila.png';
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } finally {
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  }
+}
+
 export default function WeeklyPrayerBox() {
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -206,6 +223,13 @@ export default function WeeklyPrayerBox() {
     const imageUrl = `${window.location.origin}/api/weekly-prayers/share-image`;
 
     try {
+      if (isMobileDevice) {
+        await downloadSharePng(imageUrl);
+        setShareStatus('התמונה ירדה למכשיר');
+        window.setTimeout(() => setShareStatus(''), 3000);
+        return;
+      }
+
       if (navigator.clipboard && window.ClipboardItem) {
         const pngBlob = await createSharePngBlob(imageUrl);
         await navigator.clipboard.write([
@@ -318,11 +342,9 @@ export default function WeeklyPrayerBox() {
 
         <footer className={styles.footer}>
           <div className={styles.shareActions}>
-            {!isMobileDevice && (
-              <button type="button" className={styles.share} onClick={handleShare}>
-                {shareStatus || 'העתק תמונה ←'}
-              </button>
-            )}
+            <button type="button" className={styles.share} onClick={handleShare}>
+              {shareStatus || (isMobileDevice ? '\u05d4\u05d5\u05e8\u05d3 \u05ea\u05de\u05d5\u05e0\u05d4 \u2190' : '\u05d4\u05e2\u05ea\u05e7 \u05ea\u05de\u05d5\u05e0\u05d4 \u2190')}
+            </button>
             <button type="button" className={styles.share} onClick={handleWhatsAppShare}>
               שתף וואטסאפ ←
             </button>
