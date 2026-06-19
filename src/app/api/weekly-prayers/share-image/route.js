@@ -6,6 +6,9 @@ import { getWeeklyPrayerSchedule } from '@/lib/weekly-prayers.js';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+const IMAGE_WIDTH = 864;
+const IMAGE_HEIGHT = 1212;
+
 function escapeXml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -27,7 +30,12 @@ function groupTimes(times = []) {
 function sortedTimes(groups, prayerType, dayGroup) {
   return [...(groups[`${prayerType}:${dayGroup}`] || [])]
     .sort((a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0))
-    .map((time) => time.time_value);
+    .map((time) => time.time_value)
+    .filter(Boolean);
+}
+
+function formatTimes(times) {
+  return times.join(' ,');
 }
 
 function dateRange(schedule) {
@@ -42,69 +50,75 @@ function dateRange(schedule) {
   return '';
 }
 
-function textLine(text, x, y, size = 24, weight = 600, color = '#070707') {
+function textLine(text, x, y, size = 28, weight = 600, color = '#080808') {
   return `<text x="${x}" y="${y}" text-anchor="middle" direction="rtl" unicode-bidi="plaintext" font-size="${size}" font-weight="${weight}" fill="${color}">${escapeXml(text)}</text>`;
 }
 
-function pill(text, x, y, width = 168) {
+function sectionBar(text, y, icon = '') {
   return `
-    <rect x="${x - width / 2}" y="${y - 25}" width="${width}" height="34" rx="8" fill="#d8d8d8" opacity="0.95"/>
-    ${textLine(text, x, y, 25, 700)}
+    <rect x="180" y="${y - 31}" width="504" height="44" fill="url(#sectionBar)"/>
+    ${icon ? textLine(icon, 510, y, 32, 500) : ''}
+    ${textLine(text, 432, y, 34, 800)}
   `;
 }
 
-async function getBaseImageDataUri() {
-  const imagePath = path.join(process.cwd(), 'public', 'OpenHours.png');
+async function getTemplateImageDataUri() {
+  const imagePath = path.join(process.cwd(), 'public', 'ZmaneyTfila.png');
   const image = await readFile(imagePath);
   return `data:image/png;base64,${image.toString('base64')}`;
 }
 
 export async function GET() {
-  const [schedule, baseImage] = await Promise.all([
+  const [schedule, templateImage] = await Promise.all([
     getWeeklyPrayerSchedule(),
-    getBaseImageDataUri(),
+    getTemplateImageDataUri(),
   ]);
 
   const groups = groupTimes(schedule.times || []);
-  const shacharitSunThu = sortedTimes(groups, 'shacharit', 'sun_thu').join(', ');
-  const shacharitFriday = sortedTimes(groups, 'shacharit', 'friday').join(', ');
-  const minchaSunThu = sortedTimes(groups, 'mincha', 'sun_thu').join(', ');
+  const shacharitSunThu = formatTimes(sortedTimes(groups, 'shacharit', 'sun_thu'));
+  const shacharitFriday = formatTimes(sortedTimes(groups, 'shacharit', 'friday'));
+  const minchaSunThu = formatTimes(sortedTimes(groups, 'mincha', 'sun_thu'));
   const minchaSunset = sortedTimes(groups, 'mincha', 'sunset')[0] || '';
-  const minchaFriday = sortedTimes(groups, 'mincha', 'friday').join(', ');
+  const minchaFriday = formatTimes(sortedTimes(groups, 'mincha', 'friday'));
   const maariv = sortedTimes(groups, 'maariv', 'sun_thu')[0] || '';
   const parasha = schedule.parasha_name || 'השבוע';
   const range = dateRange(schedule);
 
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="690" height="980" viewBox="0 0 690 980" direction="rtl">
-  <image href="${baseImage}" x="0" y="0" width="690" height="980" preserveAspectRatio="xMidYMid slice"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="${IMAGE_WIDTH}" height="${IMAGE_HEIGHT}" viewBox="0 0 ${IMAGE_WIDTH} ${IMAGE_HEIGHT}" direction="rtl">
+  <defs>
+    <linearGradient id="sectionBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f4f0e8" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#d7d0c0" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#f4f0e8" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
 
-  <rect x="52" y="106" width="604" height="644" fill="#ffffff" opacity="0.99"/>
-  <rect x="0" y="856" width="690" height="98" fill="#ffffff"/>
+  <image href="${templateImage}" x="0" y="0" width="${IMAGE_WIDTH}" height="${IMAGE_HEIGHT}" preserveAspectRatio="none"/>
+
+  <rect x="137" y="142" width="590" height="955" fill="#ffffff" opacity="0.92"/>
+  <rect x="150" y="155" width="564" height="929" fill="#ffffff" opacity="0.58"/>
 
   <g font-family="Arial, sans-serif" style="font-family: Arial, sans-serif;">
-    ${textLine('בית חב"ד אזור התעשייה הרצליה', 345, 155, 29, 700)}
-    ${textLine("רח' משכית 22", 345, 197, 28, 700)}
-    ${textLine('(שע"י מוסדות חב"ד הרצליה (ע"ר))', 345, 228, 16, 500)}
-    ${textLine("שעות הפתיחה (בימים א' - ה'):", 345, 265, 27, 700)}
-    ${textLine('19:00 - 10:00', 345, 310, 29, 700)}
-    ${textLine(`פרשת ${parasha}${range ? ` - ${range}` : ''}`, 345, 360, 29, 700)}
+    ${textLine('ב"ה', 688, 179, 24, 500, '#927f54')}
+    ${textLine('בית חב"ד אזור התעשייה הרצליה', 432, 245, 42, 800)}
+    ${textLine("רח' משכית 22", 432, 296, 42, 800)}
+    ${textLine('(שע"י מוסדות חב"ד הרצליה (ע"ר))', 432, 333, 25, 500)}
+    ${textLine("שעות הפתיחה (בימים א' - ה'):", 432, 386, 42, 800)}
+    ${textLine('19:00 - 10:00', 432, 445, 48, 800)}
+    ${textLine(`פרשת ${parasha}${range ? ` - ${range}` : ''}`, 432, 518, 42, 800)}
 
-    ${pill('שחרית', 345, 416)}
-    ${textLine(`א'-ה': ${shacharitSunThu}`, 345, 454, 23, 700)}
-    ${textLine(`שישי: ${shacharitFriday} בלבד`, 345, 492, 23, 700)}
+    ${sectionBar('שחרית', 590, '🕍')}
+    ${textLine(`א'-ה': ${shacharitSunThu}`, 432, 640, 35, 500)}
+    ${textLine(`שישי: ${shacharitFriday} בלבד`, 432, 684, 35, 500)}
 
-    ${pill('מנחה', 345, 544)}
-    ${textLine(`א'-ה': ${minchaSunThu}`, 345, 582, 22, 700)}
-    ${textLine(`מנחה (לפני שקיעה): ${minchaSunset}`, 345, 621, 22, 700)}
-    ${textLine(`שישי: ${minchaFriday} בלבד`, 345, 660, 22, 700)}
+    ${sectionBar('מנחה', 760, '☼')}
+    ${textLine(`א'-ה': ${minchaSunThu}`, 432, 812, 35, 500)}
+    ${textLine(`מנחה (לפני שקיעה): ${minchaSunset}`, 432, 858, 35, 500)}
+    ${textLine(`שישי: ${minchaFriday} בלבד`, 432, 904, 35, 500)}
 
-    ${pill('ערבית', 345, 709)}
-    ${textLine(maariv, 345, 747, 24, 700)}
-
-    ${textLine('לפרטים - whatsapp בלבד: 0522523430', 345, 894, 18, 400, '#61788a')}
-    ${textLine('kfar770@gmail.com', 345, 922, 18, 400, '#61788a')}
-    ${textLine('יחי אדוננו מורנו ורבינו מלך המשיח לעולם ועד', 345, 950, 18, 400, '#61788a')}
+    ${sectionBar('ערבית', 986, '☾')}
+    ${textLine(maariv, 432, 1036, 38, 500)}
   </g>
 </svg>`;
 

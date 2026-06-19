@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import styles from './WeeklyPrayerBox.module.css';
 
+const SHARE_IMAGE_WIDTH = 864;
+const SHARE_IMAGE_HEIGHT = 1212;
+
 const prayerLabels = {
   shacharit: { title: 'שחרית', icon: '🌅', tone: 'shacharit' },
   mincha: { title: 'מנחה', icon: '☀️', tone: 'mincha' },
@@ -146,8 +149,8 @@ async function createSharePngBlob(imageUrl) {
     await imageLoaded;
 
     const canvas = document.createElement('canvas');
-    canvas.width = 690;
-    canvas.height = 980;
+    canvas.width = SHARE_IMAGE_WIDTH;
+    canvas.height = SHARE_IMAGE_HEIGHT;
     const context = canvas.getContext('2d');
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
