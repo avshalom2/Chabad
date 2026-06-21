@@ -108,8 +108,8 @@ export async function GET() {
 
   <image href="${templateImage}" x="0" y="0" width="${IMAGE_WIDTH}" height="${IMAGE_HEIGHT}" preserveAspectRatio="none"/>
 
-  <rect x="137" y="142" width="590" height="955" fill="#ffffff" opacity="0.92"/>
-  <rect x="150" y="155" width="564" height="929" fill="#ffffff" opacity="0.58"/>
+  <rect x="137" y="142" width="548" height="955" fill="#ffffff" opacity="0.92"/>
+  <rect x="150" y="155" width="522" height="929" fill="#ffffff" opacity="0.58"/>
 
   <g font-family="Arial, sans-serif" style="font-family: Arial, sans-serif;">
     ${textLine('ב"ה', 688, 179, 22, 500, '#927f54')}
