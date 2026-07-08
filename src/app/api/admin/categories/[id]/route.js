@@ -1,5 +1,26 @@
-import { getCategoryById, updateCategory } from '@/lib/categories.js';
+import { deleteCategory, getCategoryById, updateCategory } from '@/lib/categories.js';
 import { getCurrentUserSession } from '@/lib/auth-session.js';
+import { getPool } from '@/lib/db.js';
+
+function isPostgres() {
+  return process.env.DB_TYPE === 'postgres' || process.env.DB_TYPE === 'pg';
+}
+
+function adaptPlaceholders(query, params) {
+  if (!isPostgres()) {
+    return [query, params];
+  }
+
+  let idx = 0;
+  return [query.replace(/\?/g, () => `$${++idx}`), params];
+}
+
+async function queryFirst(pool, query, params = []) {
+  const [adaptedQuery, adaptedParams] = adaptPlaceholders(query, params);
+  const result = await pool.query(adaptedQuery, adaptedParams);
+  const rows = isPostgres() ? result.rows : result[0];
+  return rows[0] || null;
+}
 
 function categoryErrorResponse(error, fallbackMessage) {
   if (error.code === 'ER_DUP_ENTRY' || error.code === '23505') {
@@ -11,6 +32,13 @@ function categoryErrorResponse(error, fallbackMessage) {
   }
 
   return Response.json({ error: fallbackMessage }, { status: 500 });
+}
+
+function normalizeCustomUrl(value) {
+  const url = typeof value === 'string' ? value.trim() : '';
+  if (!url) return null;
+  if (/^(https?:|mailto:|tel:|#|\/)/i.test(url)) return url;
+  return `/${url}`;
 }
 
 export async function GET(request, { params }) {
@@ -38,7 +66,7 @@ export async function PUT(request, { params }) {
 
     const { id } = await params;
     const body = await request.json();
-    const { name, slug, description, category_type_id, parent_id, is_menu, sort_order, is_active, default_columns } = body;
+    const { name, slug, description, category_type_id, parent_id, custom_url, is_menu, sort_order, is_active, default_columns } = body;
     const cleanName = typeof name === 'string' ? name.trim() : '';
     const cleanSlug = typeof slug === 'string' ? slug.trim() : '';
 
@@ -56,6 +84,7 @@ export async function PUT(request, { params }) {
       description: description || null,
       category_type_id: category_type_id ? parseInt(category_type_id) : undefined,
       parent_id: parent_id ? parseInt(parent_id) : null,
+      custom_url: normalizeCustomUrl(custom_url),
       is_menu: is_menu ? 1 : 0,
       sort_order: parseInt(sort_order) || 0,
       is_active: is_active ? 1 : 0,
@@ -102,5 +131,60 @@ export async function PATCH(request, { params }) {
   } catch (error) {
     console.error('Patch category error:', error);
     return Response.json({ error: 'Failed to update category' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const user = await getCurrentUserSession();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const categoryId = parseInt(id);
+    const category = await getCategoryById(categoryId);
+
+    if (!category) {
+      return Response.json({ error: 'Category not found' }, { status: 404 });
+    }
+
+    const pool = await getPool();
+    const childCount = await queryFirst(
+      pool,
+      'SELECT COUNT(*) AS count FROM categories WHERE parent_id = ?',
+      [categoryId]
+    );
+    const articleCount = await queryFirst(
+      pool,
+      'SELECT COUNT(*) AS count FROM articles WHERE category_id = ?',
+      [categoryId]
+    );
+    const productCount = await queryFirst(
+      pool,
+      'SELECT COUNT(*) AS count FROM products WHERE category_id = ?',
+      [categoryId]
+    ).catch(() => ({ count: 0 }));
+
+    const children = Number(childCount?.count || 0);
+    const articles = Number(articleCount?.count || 0);
+    const products = Number(productCount?.count || 0);
+
+    if (children > 0 || articles > 0 || products > 0) {
+      return Response.json(
+        {
+          error: 'Cannot delete a category that contains subcategories, articles, or products. Move or delete its content first.',
+          usage: { children, articles, products },
+        },
+        { status: 409 }
+      );
+    }
+
+    await deleteCategory(categoryId);
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error('Delete category error:', error);
+    return categoryErrorResponse(error, 'Failed to delete category');
   }
 }

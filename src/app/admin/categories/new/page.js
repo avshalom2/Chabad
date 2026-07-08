@@ -26,6 +26,7 @@ export default function NewCategoryPage() {
     description: '',
     category_type_id: '',
     parent_id: '',
+    custom_url: '',
     is_menu: false,
     sort_order: 0,
     default_columns: 3,
@@ -178,6 +179,20 @@ export default function NewCategoryPage() {
             rows={3}
             disabled={loading}
           />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="custom_url">URL</label>
+          <input
+            id="custom_url"
+            name="custom_url"
+            type="text"
+            value={form.custom_url}
+            onChange={handleChange}
+            placeholder="e.g. /donate or /pages/my-page"
+            disabled={loading}
+          />
+          <small>Optional: when set, menu links go here instead of the default category page</small>
         </div>
 
         <div className={styles.checkboxGroup}>

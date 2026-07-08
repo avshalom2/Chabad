@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAdminFeedback } from '@/components/AdminFeedbackProvider.js';
 import styles from './articles.module.css';
 
 const CategoryIcon = ({ name }) => {
@@ -12,6 +13,24 @@ const CategoryIcon = ({ name }) => {
   };
   return <span className={styles.categoryIcon}>{icons[name] || '📄'}</span>;
 };
+
+function sortArticlesByManualOrder(items) {
+  return [...items].sort((a, b) => {
+    const aHasOrder = a.sort_order !== null && a.sort_order !== undefined;
+    const bHasOrder = b.sort_order !== null && b.sort_order !== undefined;
+
+    if (aHasOrder && bHasOrder) {
+      const orderDiff = Number(a.sort_order) - Number(b.sort_order);
+      if (orderDiff !== 0) return orderDiff;
+    }
+
+    if (aHasOrder !== bHasOrder) {
+      return aHasOrder ? -1 : 1;
+    }
+
+    return String(a.title || '').localeCompare(String(b.title || ''), 'he');
+  });
+}
 
 const ArticleRow = ({ article }) => (
   <tr key={article.id} className={styles.tableRow}>
@@ -64,9 +83,11 @@ const ArticleTable = ({ articles }) => (
 );
 
 export default function ArticlesPage() {
+  const { confirm, notify } = useAdminFeedback();
   const [articles, setArticles] = useState([]);
   const [expandedGroups, setExpandedGroups] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     async function fetchArticles() {
@@ -98,6 +119,53 @@ export default function ArticlesPage() {
     return Object.values(grouped[parentName] || {}).reduce((sum, arr) => sum + arr.length, 0);
   };
 
+  async function handlePageClick(event) {
+    const deleteLink = event.target.closest('a[href^="/admin/articles/"][href$="/delete"]');
+    if (!deleteLink) return;
+
+    event.preventDefault();
+
+    const match = deleteLink.getAttribute('href').match(/\/admin\/articles\/(\d+)\/delete$/);
+    const articleId = match?.[1];
+    const article = articles.find((item) => String(item.id) === String(articleId));
+    if (!articleId || !article) return;
+
+    const confirmed = await confirm({
+      title: 'Delete article?',
+      description: article.title,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+
+    setError('');
+
+    try {
+      const res = await fetch(`/api/admin/articles/${articleId}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to delete article');
+      }
+
+      setArticles((current) => current.filter((item) => String(item.id) !== String(articleId)));
+      notify({
+        title: 'Article deleted',
+        description: article.title,
+        tone: 'success',
+      });
+    } catch (err) {
+      setError(err.message || 'Failed to delete article');
+      notify({
+        title: 'Delete failed',
+        description: err.message || 'Failed to delete article',
+        tone: 'danger',
+        autoClose: false,
+      });
+    }
+  }
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -110,13 +178,15 @@ export default function ArticlesPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} onClick={handlePageClick}>
       <div className={styles.header}>
         <h1 className={styles.pageTitle}>כתבות</h1>
         <a href="/admin/articles/new" className={styles.addButton}>
           + הוספת כתבה
         </a>
       </div>
+
+      {error && <div className={styles.error}>{error}</div>}
 
       {articles.length === 0 ? (
         <div className={styles.emptyState}>
@@ -147,7 +217,7 @@ export default function ArticlesPage() {
                 {isExpanded && (
                   <div className={styles.accordionContent}>
                     {subCategories.length === 1 && subCategories[0] === '__direct__' ? (
-                      <ArticleTable articles={grouped[parentName]['__direct__']} />
+                      <ArticleTable articles={sortArticlesByManualOrder(grouped[parentName]['__direct__'])} />
                     ) : (
                       subCategories.filter(c => c !== '__direct__').map((categoryName) => {
                         const categoryKey = `category-${categoryName}`;
@@ -164,7 +234,7 @@ export default function ArticlesPage() {
                             </button>
                             {isCatExpanded && (
                               <div className={styles.nestedAccordionContent}>
-                                <ArticleTable articles={grouped[parentName][categoryName]} />
+                                <ArticleTable articles={sortArticlesByManualOrder(grouped[parentName][categoryName])} />
                               </div>
                             )}
                           </div>

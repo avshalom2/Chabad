@@ -13,6 +13,13 @@ function categoryErrorResponse(error, fallbackMessage) {
   return Response.json({ error: fallbackMessage }, { status: 500 });
 }
 
+function normalizeCustomUrl(value) {
+  const url = typeof value === 'string' ? value.trim() : '';
+  if (!url) return null;
+  if (/^(https?:|mailto:|tel:|#|\/)/i.test(url)) return url;
+  return `/${url}`;
+}
+
 export async function GET() {
   try {
     const user = await getCurrentUserSession();
@@ -68,7 +75,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { name, slug, description, category_type_id, parent_id, is_menu, sort_order, default_columns } = body;
+    const { name, slug, description, category_type_id, parent_id, custom_url, is_menu, sort_order, default_columns } = body;
     const cleanName = typeof name === 'string' ? name.trim() : '';
     const cleanSlug = typeof slug === 'string' ? slug.trim() : '';
 
@@ -85,6 +92,7 @@ export async function POST(request) {
       description: description || null,
       category_type_id: parseInt(category_type_id),
       parent_id: parent_id ? parseInt(parent_id) : null,
+      custom_url: normalizeCustomUrl(custom_url),
       is_menu: is_menu ? 1 : 0,
       sort_order: parseInt(sort_order) || 0,
       default_columns: default_columns ? parseInt(default_columns) : 3,

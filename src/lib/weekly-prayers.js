@@ -469,7 +469,7 @@ async function calculateDynamicPrayerTimes(schedule) {
       await getSunsetMinutesFromHebcal(baseDate)
     );
     const minchaBeforeSunset = lockedSunset - 10;
-    const maariv = minchaBeforeSunset + 43;
+    const maariv = lockedSunset + 31;
 
     return {
       locked_sunset_date: dateKey(baseDate),

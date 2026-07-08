@@ -8,6 +8,16 @@ function activeFlag(value) {
   return isPostgres() ? value : value ? 1 : 0;
 }
 
+function isMissingCustomUrlColumn(error) {
+  const message = String(error?.message || '');
+  return (
+    error?.code === 'ER_BAD_FIELD_ERROR' ||
+    error?.code === '42703' ||
+    message.includes('custom_url') ||
+    message.includes('Unknown column')
+  );
+}
+
 export async function getCategories({ typeSlug = null, activeOnly = true } = {}) {
   const pool = await getPool();
   let sql = `
@@ -92,23 +102,47 @@ export async function getSiblingCategories(parentId) {
   const pool = await getPool();
 
   if (isPostgres()) {
-    const result = await pool.query(
-      `SELECT c.id, c.name, c.slug, c.description, c.sort_order
-       FROM categories c
-       WHERE c.parent_id = $1 AND c.is_active = TRUE
-       ORDER BY c.sort_order ASC, c.name ASC`,
-      [parentId]
-    );
+    let result;
+    try {
+      result = await pool.query(
+        `SELECT c.id, c.name, c.slug, c.description, NULL AS custom_url, c.sort_order
+         FROM categories c
+         WHERE c.parent_id = $1 AND c.is_active = TRUE
+         ORDER BY c.sort_order ASC, c.name ASC`,
+        [parentId]
+      );
+    } catch (error) {
+      if (!isMissingCustomUrlColumn(error)) throw error;
+      result = await pool.query(
+        `SELECT c.id, c.name, c.slug, c.description, NULL AS custom_url, c.sort_order
+         FROM categories c
+         WHERE c.parent_id = $1 AND c.is_active = TRUE
+         ORDER BY c.sort_order ASC, c.name ASC`,
+        [parentId]
+      );
+    }
     return result.rows;
   }
 
-  const [rows] = await pool.query(
-    `SELECT c.id, c.name, c.slug, c.description, c.sort_order
-     FROM categories c
-     WHERE c.parent_id = ? AND c.is_active = 1
-     ORDER BY c.sort_order ASC, c.name ASC`,
-    [parentId]
-  );
+  let rows;
+  try {
+    [rows] = await pool.query(
+      `SELECT c.id, c.name, c.slug, c.description, NULL AS custom_url, c.sort_order
+       FROM categories c
+       WHERE c.parent_id = ? AND c.is_active = 1
+       ORDER BY c.sort_order ASC, c.name ASC`,
+      [parentId]
+    );
+  } catch (error) {
+    if (!isMissingCustomUrlColumn(error)) throw error;
+    [rows] = await pool.query(
+      `SELECT c.id, c.name, c.slug, c.description, NULL AS custom_url, c.sort_order
+       FROM categories c
+       WHERE c.parent_id = ? AND c.is_active = 1
+       ORDER BY c.sort_order ASC, c.name ASC`,
+      [parentId]
+    );
+  }
   return rows;
 }
 
@@ -119,6 +153,7 @@ export async function createCategory({
   category_type_id,
   parent_id = null,
   image_url = null,
+  custom_url = null,
   is_menu = 0,
   sort_order = 0,
   default_columns = 3,
@@ -127,38 +162,72 @@ export async function createCategory({
   const pool = await getPool();
 
   if (isPostgres()) {
-    const result = await pool.query(
-      `INSERT INTO categories
-        (name, slug, description, category_type_id, parent_id, image_url, is_menu, sort_order, default_columns, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING id`,
-      [
-        name,
-        slug,
-        description,
-        category_type_id,
-        parent_id,
-        image_url,
-        activeFlag(is_menu),
-        sort_order,
-        default_columns,
-        created_by,
-      ]
-    );
+    let result;
+    try {
+      result = await pool.query(
+        `INSERT INTO categories
+          (name, slug, description, category_type_id, parent_id, image_url, custom_url, is_menu, sort_order, default_columns, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+         RETURNING id`,
+        [
+          name,
+          slug,
+          description,
+          category_type_id,
+          parent_id,
+          image_url,
+          custom_url,
+          activeFlag(is_menu),
+          sort_order,
+          default_columns,
+          created_by,
+        ]
+      );
+    } catch (error) {
+      if (!isMissingCustomUrlColumn(error)) throw error;
+      result = await pool.query(
+        `INSERT INTO categories
+          (name, slug, description, category_type_id, parent_id, image_url, is_menu, sort_order, default_columns, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         RETURNING id`,
+        [
+          name,
+          slug,
+          description,
+          category_type_id,
+          parent_id,
+          image_url,
+          activeFlag(is_menu),
+          sort_order,
+          default_columns,
+          created_by,
+        ]
+      );
+    }
     return result.rows[0]?.id || null;
   }
 
-  const [result] = await pool.query(
-    `INSERT INTO categories (name, slug, description, category_type_id, parent_id, image_url, is_menu, sort_order, default_columns, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [name, slug, description, category_type_id, parent_id, image_url, is_menu, sort_order, default_columns, created_by]
-  );
+  let result;
+  try {
+    [result] = await pool.query(
+      `INSERT INTO categories (name, slug, description, category_type_id, parent_id, image_url, custom_url, is_menu, sort_order, default_columns, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, slug, description, category_type_id, parent_id, image_url, custom_url, is_menu, sort_order, default_columns, created_by]
+    );
+  } catch (error) {
+    if (!isMissingCustomUrlColumn(error)) throw error;
+    [result] = await pool.query(
+      `INSERT INTO categories (name, slug, description, category_type_id, parent_id, image_url, is_menu, sort_order, default_columns, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, slug, description, category_type_id, parent_id, image_url, is_menu, sort_order, default_columns, created_by]
+    );
+  }
   return result.insertId;
 }
 
 export async function updateCategory(id, fields) {
   const pool = await getPool();
-  const allowed = ['name', 'slug', 'description', 'image_url', 'sort_order', 'is_active', 'is_menu', 'parent_id', 'category_type_id', 'default_columns'];
+  const allowed = ['name', 'slug', 'description', 'image_url', 'custom_url', 'sort_order', 'is_active', 'is_menu', 'parent_id', 'category_type_id', 'default_columns'];
   const updates = Object.keys(fields).filter((key) => allowed.includes(key));
 
   if (updates.length === 0) {
@@ -178,13 +247,39 @@ export async function updateCategory(id, fields) {
       .map((key, index) => `${key} = $${index + 1}`)
       .join(', ')} WHERE id = $${updates.length + 1}`;
 
-    await pool.query(sql, [...values, id]);
+    try {
+      await pool.query(sql, [...values, id]);
+    } catch (error) {
+      if (!isMissingCustomUrlColumn(error) || !updates.includes('custom_url')) throw error;
+      const fallbackUpdates = updates.filter((key) => key !== 'custom_url');
+      if (fallbackUpdates.length === 0) return;
+      const fallbackValues = fallbackUpdates.map((key) => {
+        if (key === 'is_active' || key === 'is_menu') {
+          return activeFlag(fields[key]);
+        }
+
+        return fields[key];
+      });
+      const fallbackSql = `UPDATE categories SET ${fallbackUpdates
+        .map((key, index) => `${key} = $${index + 1}`)
+        .join(', ')} WHERE id = $${fallbackUpdates.length + 1}`;
+      await pool.query(fallbackSql, [...fallbackValues, id]);
+    }
     return;
   }
 
   const sql = `UPDATE categories SET ${updates.map((key) => `${key} = ?`).join(', ')} WHERE id = ?`;
   const values = [...updates.map((key) => fields[key]), id];
-  await pool.query(sql, values);
+  try {
+    await pool.query(sql, values);
+  } catch (error) {
+    if (!isMissingCustomUrlColumn(error) || !updates.includes('custom_url')) throw error;
+    const fallbackUpdates = updates.filter((key) => key !== 'custom_url');
+    if (fallbackUpdates.length === 0) return;
+    const fallbackSql = `UPDATE categories SET ${fallbackUpdates.map((key) => `${key} = ?`).join(', ')} WHERE id = ?`;
+    const fallbackValues = [...fallbackUpdates.map((key) => fields[key]), id];
+    await pool.query(fallbackSql, fallbackValues);
+  }
 }
 
 export async function deleteCategory(id) {

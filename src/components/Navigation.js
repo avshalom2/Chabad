@@ -3,6 +3,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './Navigation.module.css';
 
+function categoryHref(category) {
+  const customUrl = typeof category.custom_url === 'string' ? category.custom_url.trim() : '';
+  if (!customUrl) return `/category/${category.slug}`;
+  if (/^(https?:|mailto:|tel:|#|\/)/i.test(customUrl)) return customUrl;
+  return `/${customUrl}`;
+}
+
 export default function Navigation() {
   const [categories, setCategories] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -45,7 +52,7 @@ export default function Navigation() {
         <div className={styles.desktopMenu}>
           {categories.map((parent) => (
             <div key={parent.id} className={styles.menuItem}>
-              <Link href={`/category/${parent.slug}`} className={styles.parentButton}>
+              <Link href={categoryHref(parent)} className={styles.parentButton}>
                 {parent.name}
               </Link>
 
@@ -55,7 +62,7 @@ export default function Navigation() {
                   {parent.subs.map((sub) => (
                     <Link
                       key={sub.id}
-                      href={`/category/${sub.slug}`}
+                      href={categoryHref(sub)}
                       className={styles.subLink}
                     >
                       {sub.name}
@@ -97,12 +104,22 @@ export default function Navigation() {
             <div className={styles.mobileMenu}>
               {categories.map((parent) => (
                 <div key={parent.id} className={styles.mobileParent}>
-                  <button
-                    className={styles.mobileParentButton}
-                    onClick={() => toggleMobileParent(parent.id)}
-                  >
-                    {parent.name}
-                  </button>
+                  {parent.subs && parent.subs.length > 0 ? (
+                    <button
+                      className={styles.mobileParentButton}
+                      onClick={() => toggleMobileParent(parent.id)}
+                    >
+                      {parent.name}
+                    </button>
+                  ) : (
+                    <Link
+                      href={categoryHref(parent)}
+                      className={styles.mobileParentButton}
+                      onClick={closeMobileMenu}
+                    >
+                      {parent.name}
+                    </Link>
+                  )}
 
                   {/* Mobile Submenu */}
                   {expandedParent === parent.id &&
@@ -112,7 +129,7 @@ export default function Navigation() {
                         {parent.subs.map((sub) => (
                           <Link
                             key={sub.id}
-                            href={`/category/${sub.slug}`}
+                            href={categoryHref(sub)}
                             className={styles.mobileSubLink}
                             onClick={closeMobileMenu}
                           >

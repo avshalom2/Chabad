@@ -31,6 +31,7 @@ export default function EditCategoryPage() {
     description: '',
     category_type_id: '',
     parent_id: '',
+    custom_url: '',
     is_menu: false,
     sort_order: 0,
     is_active: true,
@@ -64,6 +65,7 @@ export default function EditCategoryPage() {
           description: category.description || '',
           category_type_id: category.category_type_id || '',
           parent_id: category.parent_id || '',
+          custom_url: category.custom_url || '',
           is_menu: category.is_menu ? true : false,
           sort_order: category.sort_order || 0,
           is_active: category.is_active ? true : false,
@@ -225,6 +227,20 @@ export default function EditCategoryPage() {
             rows={3}
             disabled={loading}
           />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="custom_url">URL</label>
+          <input
+            id="custom_url"
+            name="custom_url"
+            type="text"
+            value={form.custom_url}
+            onChange={handleChange}
+            placeholder="e.g. /donate or /pages/my-page"
+            disabled={loading}
+          />
+          <small>Optional: when set, menu links go here instead of the default category page</small>
         </div>
 
         <div className={styles.checkboxGroup}>

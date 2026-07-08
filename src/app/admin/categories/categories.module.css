@@ -143,15 +143,35 @@
 .actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
-.editBtn {
+.editBtn,
+.deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  padding: 0.15rem;
   color: #2563eb;
   text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
+  cursor: pointer;
 }
 
 .editBtn:hover {
-  text-decoration: underline;
+  color: #1d4ed8;
+}
+
+.deleteBtn {
+  color: #ef4444;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  color: #dc2626;
+}
+
+.deleteBtn:disabled {
+  opacity: 0.5;
+  cursor: wait;
 }

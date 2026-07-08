@@ -26,7 +26,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { title, slug, excerpt, short_description, content, category_id, featured_image, price, is_purchasable, stock, status, template, is_main_article, article_type, is_free_html, show_contact_form } = body;
+    const { title, slug, excerpt, short_description, content, category_id, featured_image, price, is_purchasable, stock, status, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form } = body;
 
     if (!title || !category_id) {
       return Response.json(
@@ -51,6 +51,7 @@ export async function POST(request) {
       status: status || 'draft',
       template: template || 'standard',
       is_main_article: is_main_article ? 1 : 0,
+      sort_order: sort_order !== '' && sort_order !== null && sort_order !== undefined ? parseInt(sort_order) : null,
       article_type: article_type || 'article',
       is_free_html: is_free_html ? 1 : 0,
       show_contact_form: show_contact_form ? 1 : 0,

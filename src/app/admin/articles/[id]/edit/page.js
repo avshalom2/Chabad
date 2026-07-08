@@ -29,6 +29,7 @@ export default function EditArticlePage() {
     status: 'draft',
     template: 'standard',
     is_main_article: false,
+    sort_order: '',
     article_type: 'article',
     is_free_html: false,
     show_contact_form: false,
@@ -66,6 +67,7 @@ export default function EditArticlePage() {
             status: art.status || 'draft',
             template: art.template || 'standard',
             is_main_article: art.is_main_article ? true : false,
+            sort_order: art.sort_order !== null && art.sort_order !== undefined ? String(art.sort_order) : '',
             article_type: art.article_type || 'article',
             is_free_html: art.is_free_html ? true : false,
             show_contact_form: art.show_contact_form ? true : false,
@@ -291,6 +293,21 @@ export default function EditArticlePage() {
                   <option value="featured-banner">בנר מדגם</option>
                 </select>
                 <small>סגנון התצוגה כשמסומן כראשי</small>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="sort_order">Related articles sort order</label>
+                <input
+                  id="sort_order"
+                  name="sort_order"
+                  type="number"
+                  min="1"
+                  value={form.sort_order}
+                  onChange={handleChange}
+                  placeholder="Leave blank for alphabetic order"
+                  disabled={loading}
+                />
+                <small>Lower numbers appear first in related articles. Blank items are sorted by title.</small>
               </div>
 
               <div className={styles.checkboxGroup}>

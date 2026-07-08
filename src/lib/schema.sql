@@ -93,6 +93,7 @@ CREATE TABLE categories (
   category_type_id INT UNSIGNED  NOT NULL,
   parent_id        INT UNSIGNED  DEFAULT NULL,   -- NULL = top-level category
   image_url        VARCHAR(255)  DEFAULT NULL,
+  custom_url       VARCHAR(500)  DEFAULT NULL,
   is_active        TINYINT(1)    NOT NULL DEFAULT 1,
   sort_order       INT           NOT NULL DEFAULT 0,
   created_by       INT UNSIGNED  DEFAULT NULL,
@@ -119,6 +120,7 @@ CREATE TABLE articles (
   category_id    INT UNSIGNED  NOT NULL,
   author_id      INT UNSIGNED  DEFAULT NULL,
   featured_image VARCHAR(255)  DEFAULT NULL,
+  sort_order     INT           DEFAULT NULL,
   status         ENUM('draft','published','archived') NOT NULL DEFAULT 'draft',
   published_at   TIMESTAMP     DEFAULT NULL,
   created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,

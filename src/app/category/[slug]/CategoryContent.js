@@ -6,6 +6,13 @@ import NewsLayout from './NewsLayout.js';
 import styles from './category.module.css';
 import productStyles from './products.module.css';
 
+function categoryHref(category) {
+  const customUrl = typeof category?.custom_url === 'string' ? category.custom_url.trim() : '';
+  if (!customUrl) return `/category/${category.slug}`;
+  if (/^(https?:|mailto:|tel:|#|\/)/i.test(customUrl)) return customUrl;
+  return `/${customUrl}`;
+}
+
 export default function CategoryContent({ category, mainArticle, articles, total, subcategoryOverview }) {
   // Use default_columns from category if available, otherwise 3
   const defaultColumns = category.default_columns ? parseInt(category.default_columns) : 3;
@@ -29,7 +36,7 @@ export default function CategoryContent({ category, mainArticle, articles, total
               <>
                 {/* Article image */}
                 {sub.firstArticle.short_description_image_url && (
-                  <Link href={`/category/${sub.slug}`} className={styles.subcatImageLink}>
+                  <Link href={categoryHref(sub)} className={styles.subcatImageLink}>
                     <img
                       src={sub.firstArticle.short_description_image_url}
                       alt={sub.firstArticle.title}
@@ -41,7 +48,7 @@ export default function CategoryContent({ category, mainArticle, articles, total
                 {/* Card body */}
                 <div className={styles.subcatBody}>
                   <h2 className={styles.subcatArticleTitle}>
-                    <Link href={`/category/${sub.slug}`}>{sub.firstArticle.title}</Link>
+                    <Link href={categoryHref(sub)}>{sub.firstArticle.title}</Link>
                   </h2>
                   {sub.firstArticle.short_description && (
                     <p className={styles.subcatArticleDesc}>{sub.firstArticle.short_description}</p>
@@ -50,7 +57,7 @@ export default function CategoryContent({ category, mainArticle, articles, total
 
                 {/* Card footer */}
                 <div className={styles.subcatFooter}>
-                  <Link href={`/category/${sub.slug}`} className={styles.subcatCategoryLink}>
+                  <Link href={categoryHref(sub)} className={styles.subcatCategoryLink}>
                     עבור ל{sub.name} »
                   </Link>
                 </div>
@@ -62,7 +69,7 @@ export default function CategoryContent({ category, mainArticle, articles, total
                   <p className={styles.subcatEmpty}>אין כתבות עדיין</p>
                 </div>
                 <div className={styles.subcatFooter}>
-                  <Link href={`/category/${sub.slug}`} className={styles.subcatCategoryLink}>
+                  <Link href={categoryHref(sub)} className={styles.subcatCategoryLink}>
                     עבור ל{sub.name} »
                   </Link>
                 </div>

@@ -24,6 +24,7 @@ export default function NewArticlePage() {
     status: 'draft',
     template: 'standard',
     is_main_article: false,
+    sort_order: '',
     article_type: 'article',
     is_free_html: false,
     show_contact_form: false,
@@ -235,6 +236,21 @@ export default function NewArticlePage() {
                   <option value="featured-banner">בנר מדגם</option>
                 </select>
                 <small>סגנון התצוגה כשמסומן כראשי</small>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="sort_order">Related articles sort order</label>
+                <input
+                  id="sort_order"
+                  name="sort_order"
+                  type="number"
+                  min="1"
+                  value={form.sort_order}
+                  onChange={handleChange}
+                  placeholder="Leave blank for alphabetic order"
+                  disabled={loading}
+                />
+                <small>Lower numbers appear first in related articles. Blank items are sorted by title.</small>
               </div>
 
               <div className={styles.checkboxGroup}>

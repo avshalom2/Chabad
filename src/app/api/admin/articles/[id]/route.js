@@ -35,7 +35,7 @@ export async function PUT(request, props) {
 
     const { id: articleId } = await props.params;
     const body = await request.json();
-    const { title, slug, excerpt, short_description, short_description_image, content, category_id, featured_image, price, is_purchasable, stock, status, template, is_main_article, article_type, is_free_html, show_contact_form } = body;
+    const { title, slug, excerpt, short_description, short_description_image, content, category_id, featured_image, price, is_purchasable, stock, status, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form } = body;
 
     // Verify article exists
     const article = await getArticleById(articleId);
@@ -59,6 +59,7 @@ export async function PUT(request, props) {
     if (status !== undefined) updates.status = status;
     if (template !== undefined) updates.template = template;
     if (is_main_article !== undefined) updates.is_main_article = is_main_article ? 1 : 0;
+    if (sort_order !== undefined) updates.sort_order = sort_order !== '' && sort_order !== null ? parseInt(sort_order) : null;
     if (article_type !== undefined) updates.article_type = article_type;
     if (is_free_html !== undefined) updates.is_free_html = is_free_html ? 1 : 0;
     if (show_contact_form !== undefined) updates.show_contact_form = show_contact_form ? 1 : 0;

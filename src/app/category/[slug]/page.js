@@ -1,9 +1,16 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getArticlesByCategorySlug, getParentCategoryOverview } from '@/lib/articles.js';
 import { getSiblingCategories } from '@/lib/categories.js';
 import CategoryContent from './CategoryContent.js';
 import styles from './category.module.css';
+
+function categoryHref(category) {
+  const customUrl = typeof category?.custom_url === 'string' ? category.custom_url.trim() : '';
+  if (!customUrl) return `/category/${category.slug}`;
+  if (/^(https?:|mailto:|tel:|#|\/)/i.test(customUrl)) return customUrl;
+  return `/${customUrl}`;
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -17,6 +24,11 @@ export default async function CategoryPage({ params }) {
   const { category, mainArticle, articles, total } = await getArticlesByCategorySlug(slug);
 
   if (!category) notFound();
+
+  const customUrl = typeof category.custom_url === 'string' ? category.custom_url.trim() : '';
+  if (customUrl && customUrl !== `/category/${category.slug}`) {
+    redirect(categoryHref(category));
+  }
 
   // For parent categories (no parent_id), fetch subcategory overview
   let subcategoryOverview = null;
@@ -36,7 +48,7 @@ export default async function CategoryPage({ params }) {
         {category.parentCategory && (
           <>
             <span> « </span>
-            <Link href={`/category/${category.parentCategory.slug}`}>
+            <Link href={categoryHref(category.parentCategory)}>
               {category.parentCategory.name}
             </Link>
           </>
@@ -69,7 +81,7 @@ export default async function CategoryPage({ params }) {
               return (
                 <Link
                   key={sibling.id}
-                  href={`/category/${sibling.slug}`}
+                  href={categoryHref(sibling)}
                   className={`${styles.siblingPill} ${isActive ? styles.activeSiblingPill : ''}`}
                   aria-current={isActive ? 'page' : undefined}
                 >

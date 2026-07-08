@@ -44,8 +44,47 @@ function isMissingOptionalArticleColumn(error) {
     error?.code === '42703' ||
     message.includes('is_free_html') ||
     message.includes('show_contact_form') ||
+    message.includes('sort_order') ||
     message.includes('Unknown column')
   );
+}
+
+function isMissingSortOrderColumn(error) {
+  const message = String(error?.message || '');
+  return (
+    error?.code === 'ER_BAD_FIELD_ERROR' ||
+    error?.code === '42703' ||
+    message.includes('sort_order') ||
+    message.includes('Unknown column')
+  );
+}
+
+function isMissingCustomUrlColumn(error) {
+  const message = String(error?.message || '');
+  return (
+    error?.code === 'ER_BAD_FIELD_ERROR' ||
+    error?.code === '42703' ||
+    message.includes('custom_url') ||
+    message.includes('Unknown column')
+  );
+}
+
+async function queryFirstWithCustomUrlFallback(pool, query, fallbackQuery, params = []) {
+  try {
+    return await queryFirst(pool, query, params);
+  } catch (error) {
+    if (!isMissingCustomUrlColumn(error)) throw error;
+    return queryFirst(pool, fallbackQuery, params);
+  }
+}
+
+async function queryRowsWithCustomUrlFallback(pool, query, fallbackQuery, params = []) {
+  try {
+    return await queryRows(pool, query, params);
+  } catch (error) {
+    if (!isMissingCustomUrlColumn(error)) throw error;
+    return queryRows(pool, fallbackQuery, params);
+  }
 }
 
 function shortDescriptionImageJoin(alias = 'a') {
@@ -80,7 +119,7 @@ export async function getArticles({ status = 'published', categoryId = null, lim
     params.push(categoryId);
   }
 
-  sql += ' ORDER BY p.name, c.name, a.published_at DESC, a.created_at DESC LIMIT ? OFFSET ?';
+  sql += ' ORDER BY p.name, c.name, a.sort_order IS NULL ASC, a.sort_order ASC, a.title ASC LIMIT ? OFFSET ?';
   params.push(limit, offset);
 
   return queryRows(pool, sql, params);
@@ -144,6 +183,7 @@ export async function createArticle({
   status = 'draft',
   template = 'standard',
   is_main_article = 0,
+  sort_order = null,
   article_type = 'article',
   is_free_html = 0,
   show_contact_form = 0,
@@ -156,10 +196,10 @@ export async function createArticle({
       const result = await execute(
         pool,
         `INSERT INTO articles
-          (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type, is_free_html, show_contact_form)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          RETURNING id`,
-        [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type, is_free_html, show_contact_form]
+        [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form]
       );
       return result.rows[0]?.id || null;
     } catch (error) {
@@ -179,9 +219,9 @@ export async function createArticle({
   try {
     const [result] = await execute(
       pool,
-      `INSERT INTO articles (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type, is_free_html, show_contact_form)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, article_type, is_free_html, show_contact_form]
+      `INSERT INTO articles (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form]
     );
     return result.insertId;
   } catch (error) {
@@ -197,7 +237,7 @@ export async function createArticle({
 }
 
 export async function updateArticle(id, fields) {
-  const allowed = ['title', 'slug', 'excerpt', 'short_description', 'short_description_image', 'content', 'category_id', 'featured_image', 'price', 'is_purchasable', 'stock', 'status', 'published_at', 'page_html', 'template', 'is_main_article', 'article_type', 'is_free_html', 'show_contact_form'];
+  const allowed = ['title', 'slug', 'excerpt', 'short_description', 'short_description_image', 'content', 'category_id', 'featured_image', 'price', 'is_purchasable', 'stock', 'status', 'published_at', 'page_html', 'template', 'is_main_article', 'sort_order', 'article_type', 'is_free_html', 'show_contact_form'];
   const updates = Object.keys(fields).filter((key) => allowed.includes(key));
 
   if (updates.length === 0) {
@@ -216,7 +256,7 @@ export async function updateArticle(id, fields) {
     await execute(pool, sql, values);
   } catch (error) {
     if (!isMissingOptionalArticleColumn(error)) throw error;
-    const fallbackUpdates = updates.filter((key) => key !== 'is_free_html' && key !== 'show_contact_form');
+    const fallbackUpdates = updates.filter((key) => key !== 'is_free_html' && key !== 'show_contact_form' && key !== 'sort_order');
     if (fallbackUpdates.length === 0) return;
     const fallbackSql = `UPDATE articles SET ${fallbackUpdates.map((key) => `${key} = ?`).join(', ')} WHERE id = ?`;
     const fallbackValues = [...fallbackUpdates.map((key) => fields[key]), id];
@@ -245,26 +285,46 @@ export async function archiveArticle(id) {
 
 export async function getRelatedArticles(categoryId, excludeId, limit = 5) {
   const pool = await getPool();
-  return queryRows(
-    pool,
-    `SELECT a.id, a.title, a.slug, a.short_description, a.published_at,
-            ai.image_url AS short_description_image_url,
-            u.display_name AS author_name
-     FROM articles a
-     ${shortDescriptionImageJoin('a')}
-     LEFT JOIN users u ON u.id = a.author_id
-     WHERE a.category_id = ? AND a.status = 'published' AND a.id != ?
-     ORDER BY ${randomOrderSql()}
-     LIMIT ?`,
-    [categoryId, excludeId, limit]
-  );
+  const sql = `SELECT a.id, a.title, a.slug, a.short_description, a.published_at,
+                      ai.image_url AS short_description_image_url,
+                      u.display_name AS author_name
+               FROM articles a
+               ${shortDescriptionImageJoin('a')}
+               LEFT JOIN users u ON u.id = a.author_id
+               WHERE a.category_id = ? AND a.status = 'published' AND a.id != ?
+               ORDER BY a.sort_order IS NULL ASC, a.sort_order ASC, a.title ASC
+               LIMIT ?`;
+
+  try {
+    return await queryRows(pool, sql, [categoryId, excludeId, limit]);
+  } catch (error) {
+    if (!isMissingSortOrderColumn(error)) throw error;
+    return queryRows(
+      pool,
+      `SELECT a.id, a.title, a.slug, a.short_description, a.published_at,
+              ai.image_url AS short_description_image_url,
+              u.display_name AS author_name
+       FROM articles a
+       ${shortDescriptionImageJoin('a')}
+       LEFT JOIN users u ON u.id = a.author_id
+       WHERE a.category_id = ? AND a.status = 'published' AND a.id != ?
+       ORDER BY a.title ASC
+       LIMIT ?`,
+      [categoryId, excludeId, limit]
+    );
+  }
 }
 
 export async function getArticlesByCategorySlug(slug, { limit = 20, offset = 0 } = {}) {
   const pool = await getPool();
-  const category = await queryFirst(
+  const category = await queryFirstWithCustomUrlFallback(
     pool,
-    `SELECT c.id, c.name, c.slug, c.parent_id, c.description, c.default_columns,
+    `SELECT c.id, c.name, c.slug, c.parent_id, c.description, c.custom_url, c.default_columns,
+            ct.slug AS type_slug, ct.name AS type_name
+     FROM categories c
+     JOIN category_types ct ON ct.id = c.category_type_id
+     WHERE c.slug = ? AND c.is_active = ${isPostgres() ? 'TRUE' : '1'}`,
+    `SELECT c.id, c.name, c.slug, c.parent_id, c.description, NULL AS custom_url, c.default_columns,
             ct.slug AS type_slug, ct.name AS type_name
      FROM categories c
      JOIN category_types ct ON ct.id = c.category_type_id
@@ -289,9 +349,10 @@ export async function getArticlesByCategorySlug(slug, { limit = 20, offset = 0 }
 
   let parentCategory = null;
   if (category.parent_id) {
-    parentCategory = await queryFirst(
+    parentCategory = await queryFirstWithCustomUrlFallback(
       pool,
-      `SELECT id, name, slug FROM categories WHERE id = ?`,
+      `SELECT id, name, slug, custom_url FROM categories WHERE id = ?`,
+      `SELECT id, name, slug, NULL AS custom_url FROM categories WHERE id = ?`,
       [category.parent_id]
     );
   }
@@ -326,7 +387,7 @@ export async function getArticlesByCategorySlug(slug, { limit = 20, offset = 0 }
      JOIN categories c ON c.id = a.category_id
      ${shortDescriptionImageJoin('a')}
      WHERE a.status = 'published' AND a.is_main_article = ? AND a.category_id IN (${inPlaceholders})
-     ORDER BY a.published_at DESC, a.created_at DESC
+     ORDER BY a.sort_order IS NULL ASC, a.sort_order ASC, a.title ASC
      LIMIT ? OFFSET ?`,
     [mainArticleFlag(false), ...categoryIds, limit, offset]
   );
@@ -362,9 +423,13 @@ export async function getParentCategoryOverview(parentSlug) {
     return null;
   }
 
-  const subcats = await queryRows(
+  const subcats = await queryRowsWithCustomUrlFallback(
     pool,
-    `SELECT id, name, slug, description, image_url, default_columns
+    `SELECT id, name, slug, description, image_url, custom_url, default_columns
+     FROM categories
+     WHERE parent_id = ? AND is_active = ${isPostgres() ? 'TRUE' : '1'}
+     ORDER BY sort_order ASC, name ASC`,
+    `SELECT id, name, slug, description, image_url, NULL AS custom_url, default_columns
      FROM categories
      WHERE parent_id = ? AND is_active = ${isPostgres() ? 'TRUE' : '1'}
      ORDER BY sort_order ASC, name ASC`,

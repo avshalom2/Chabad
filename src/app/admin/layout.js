@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUserSession } from '@/lib/auth-session.js';
+import AdminFeedbackBridge from '@/components/AdminFeedbackBridge.js';
 import AdminSidebarFooter from '@/components/AdminSidebarFooter.js';
+import { AdminFeedbackProvider } from '@/components/AdminFeedbackProvider.js';
 import styles from './admin-layout.module.css';
 
 export default async function AdminLayout({ children }) {
@@ -54,7 +56,12 @@ export default async function AdminLayout({ children }) {
         </nav>
         <AdminSidebarFooter userEmail={user.email} />
       </aside>
-      <main className={styles.mainContent}>{children}</main>
+      <main className={styles.mainContent}>
+        <AdminFeedbackProvider>
+          <AdminFeedbackBridge />
+          {children}
+        </AdminFeedbackProvider>
+      </main>
     </div>
   );
 }
