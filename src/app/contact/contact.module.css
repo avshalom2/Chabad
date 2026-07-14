@@ -1,0 +1,243 @@
+.page {
+  width: min(100%, 980px);
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+  color: #1f2937;
+}
+
+.hero {
+  text-align: center;
+  margin: 0 auto 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: #7a1428;
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin: 0;
+  color: #7a1428;
+  font-size: clamp(2rem, 6vw, 3.3rem);
+  line-height: 1.1;
+}
+
+.hero p {
+  margin: 0.75rem auto 0;
+  max-width: 620px;
+  color: #5b6472;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.formSection,
+.detailsSection,
+.mapSection {
+  background: #ffffff;
+  border: 1px solid #ead8bd;
+  border-radius: 8px;
+  box-shadow: 0 16px 42px rgba(122, 20, 40, 0.08);
+}
+
+.formSection {
+  padding: 1.5rem;
+}
+
+.formSection h2,
+.detailsSection h2,
+.addressCard h2 {
+  margin: 0 0 1rem;
+  color: #7a1428;
+  text-align: center;
+  font-size: 1.45rem;
+  line-height: 1.3;
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.form label span {
+  color: #7a1428;
+  font-weight: 700;
+  padding-inline: 0.35rem;
+}
+
+.form input,
+.form textarea {
+  width: 100%;
+  border: 1px solid #9b1c35;
+  border-radius: 4px;
+  background: #f7f7f7;
+  color: #1f2937;
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.8rem 0.9rem;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.form input:focus,
+.form textarea:focus {
+  background: #ffffff;
+  border-color: #7a1428;
+  box-shadow: 0 0 0 3px rgba(122, 20, 40, 0.12);
+}
+
+.messageField textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.formActions {
+  display: grid;
+  justify-items: center;
+  gap: 0.65rem;
+  margin-top: 0.25rem;
+}
+
+.formActions button {
+  border: none;
+  border-radius: 999px;
+  background: #f28a16;
+  color: #ffffff;
+  min-width: 92px;
+  padding: 0.78rem 1.7rem;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.formActions button:hover:not(:disabled) {
+  background: #dc7608;
+  transform: translateY(-1px);
+}
+
+.formActions button:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.success,
+.error {
+  margin: 0;
+  font-weight: 700;
+}
+
+.success {
+  color: #0f7a3b;
+}
+
+.error {
+  color: #9b1c35;
+}
+
+.detailsSection {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+}
+
+.contactList {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: #1f2937;
+  text-decoration: none;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.contactItem:hover {
+  color: #7a1428;
+}
+
+.icon {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #f28a16;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.mapSection {
+  margin-top: 1.5rem;
+  overflow: hidden;
+}
+
+.addressCard {
+  padding: 1.25rem 1.5rem 1rem;
+  text-align: center;
+}
+
+.addressCard p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.map {
+  display: block;
+  width: 100%;
+  height: 360px;
+  border: 0;
+}
+
+@media (min-width: 760px) {
+  .form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .messageField,
+  .formActions,
+  .honeypot {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 1rem 0.5rem 2rem;
+  }
+
+  .formSection,
+  .detailsSection {
+    padding: 1rem;
+  }
+
+  .contactItem {
+    font-size: 1rem;
+  }
+
+  .map {
+    height: 300px;
+  }
+}

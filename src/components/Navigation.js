@@ -72,6 +72,11 @@ export default function Navigation() {
               )}
             </div>
           ))}
+          <div className={styles.menuItem}>
+            <Link href="/contact" className={styles.parentButton}>
+              צור קשר
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Hamburger Button */}
@@ -140,6 +145,15 @@ export default function Navigation() {
                     )}
                 </div>
               ))}
+              <div className={styles.mobileParent}>
+                <Link
+                  href="/contact"
+                  className={styles.mobileParentButton}
+                  onClick={closeMobileMenu}
+                >
+                  צור קשר
+                </Link>
+              </div>
             </div>
           </div>
         </div>
