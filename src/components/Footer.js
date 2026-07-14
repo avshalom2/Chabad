@@ -2,9 +2,11 @@
 
 import styles from './Footer.module.css';
 import { usePathname } from 'next/navigation';
+import { siteConfig } from '@/lib/site-config';
 
 export default function Footer() {
   const pathname = usePathname();
+  const { address, email, phone } = siteConfig.contact;
 
   if (pathname.startsWith('/admin') || pathname === '/login' || pathname === '/admin/login') {
     return null;
@@ -16,7 +18,7 @@ export default function Footer() {
         <div className={styles.footerGrid}>
           {/* Main Info */}
           <div className={`${styles.fCol} ${styles.mainInfo}`}>
-            <div className={styles.fLogo}>בית חב"ד</div>
+            <div className={styles.fLogo}>בית חב&quot;ד</div>
             <p className={styles.fDescription}>מרכז של אור, חסד ויהדות לכל אחד ואחת בקהילה. דלתנו פתוחה תמיד.</p>
             <div className={styles.mashiachBadge}>יחי המלך המשיח</div>
           </div>
@@ -48,21 +50,21 @@ export default function Footer() {
             <h4 className={styles.fHeader}>צרו קשר</h4>
             <div className={styles.contactItem}>
               <span className={styles.icon}>📍</span>
-              <span>מרכז העיר, רחוב הקהילה 4</span>
+              <span>{address}</span>
             </div>
             <div className={styles.contactItem}>
               <span className={styles.icon}>📞</span>
-              <span>054-123-4567</span>
+              <span>{phone}</span>
             </div>
             <div className={styles.contactItem}>
               <span className={styles.icon}>✉️</span>
-              <span>office@chabad-info.com</span>
+              <span>{email}</span>
             </div>
           </div>
         </div>
 
         <div className={styles.footerCopy}>
-          <p>© בית חב"ד | כל הזכויות שמורות לא.ש אינטראקטיב</p>
+          <p>© בית חב&quot;ד | כל הזכויות שמורות לא.ש אינטראקטיב</p>
         </div>
       </div>
     </footer>

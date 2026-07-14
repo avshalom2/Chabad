@@ -1,6 +1,7 @@
 const defaultContactEmail = 'avsha12@gmail.com';
 const defaultContactFromEmail = 'onboarding@resend.dev';
 const defaultWhatsAppPhone = '0522523430';
+const defaultContactAddress = 'משכית 22, הרצליה פיתוח';
 
 function normalizeWhatsAppPhone(value) {
   const digits = String(value || '').replace(/\D/g, '');
@@ -14,6 +15,7 @@ export const siteConfig = {
   contact: {
     email: process.env.CONTACT_FORM_TO_EMAIL || defaultContactEmail,
     fromEmail: process.env.CONTACT_FORM_FROM_EMAIL || defaultContactFromEmail,
+    address: process.env.CONTACT_ADDRESS || defaultContactAddress,
     phone: process.env.CONTACT_WHATSAPP_PHONE || defaultWhatsAppPhone,
     whatsappPhone: normalizeWhatsAppPhone(process.env.CONTACT_WHATSAPP_PHONE),
   },
