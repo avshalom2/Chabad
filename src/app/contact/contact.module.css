@@ -1,8 +1,17 @@
 .page {
-  width: min(100%, 980px);
+  width: 100%;
+  max-width: 980px;
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
   color: #1f2937;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
 }
 
 .hero {
@@ -34,6 +43,7 @@
 .formSection,
 .detailsSection,
 .mapSection {
+  width: 100%;
   background: #ffffff;
   border: 1px solid #ead8bd;
   border-radius: 8px;
@@ -97,11 +107,7 @@
 }
 
 .honeypot {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
+  display: none;
 }
 
 .formActions {
