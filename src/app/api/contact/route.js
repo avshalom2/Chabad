@@ -1,8 +1,8 @@
 export const runtime = 'nodejs';
 
+import { siteConfig } from '@/lib/site-config';
+
 const RESEND_API_URL = 'https://api.resend.com/emails';
-const DEFAULT_TO_EMAIL = 'avsha12@gmail.com';
-const DEFAULT_FROM_EMAIL = 'onboarding@resend.dev';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -49,8 +49,8 @@ export async function POST(request) {
       return Response.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
-    const toEmail = process.env.CONTACT_FORM_TO_EMAIL || DEFAULT_TO_EMAIL;
-    const fromEmail = process.env.CONTACT_FORM_FROM_EMAIL || DEFAULT_FROM_EMAIL;
+    const toEmail = siteConfig.contact.email;
+    const fromEmail = siteConfig.contact.fromEmail;
     const safeSubject = `Contact form: ${subject}`;
 
     const html = `

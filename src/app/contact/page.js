@@ -1,4 +1,5 @@
 import ContactPageForm from './ContactPageForm';
+import { siteConfig } from '@/lib/site-config';
 import styles from './contact.module.css';
 
 export const metadata = {
@@ -8,20 +9,9 @@ export const metadata = {
 
 const address = 'משכית 22, הרצליה פיתוח';
 const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
-const contactEmail = process.env.CONTACT_FORM_TO_EMAIL || 'avsha12@gmail.com';
-const defaultWhatsAppPhone = '97286233197';
+const { email: contactEmail, phone: contactPhoneDisplay, whatsappPhone } = siteConfig.contact;
 
-function normalizeWhatsAppPhone(value) {
-  const digits = String(value || '').replace(/\D/g, '');
-  if (!digits) return defaultWhatsAppPhone;
-  if (digits.startsWith('00')) return digits.slice(2);
-  if (digits.startsWith('0')) return `972${digits.slice(1)}`;
-  return digits;
-}
-
-const whatsappPhone = normalizeWhatsAppPhone(process.env.CONTACT_WHATSAPP_PHONE);
 const whatsappHref = `https://wa.me/${whatsappPhone}`;
-const contactPhoneDisplay = process.env.CONTACT_WHATSAPP_PHONE || defaultWhatsAppPhone;
 
 export default function ContactPage() {
   return (
