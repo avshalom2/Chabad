@@ -8,6 +8,7 @@ export const metadata = {
 
 const address = 'משכית 22, הרצליה פיתוח';
 const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+const contactEmail = process.env.CONTACT_FORM_TO_EMAIL || 'avsha12@gmail.com';
 const defaultWhatsAppPhone = '97286233197';
 
 function normalizeWhatsAppPhone(value) {
@@ -20,6 +21,7 @@ function normalizeWhatsAppPhone(value) {
 
 const whatsappPhone = normalizeWhatsAppPhone(process.env.CONTACT_WHATSAPP_PHONE);
 const whatsappHref = `https://wa.me/${whatsappPhone}`;
+const contactPhoneDisplay = process.env.CONTACT_WHATSAPP_PHONE || defaultWhatsAppPhone;
 
 export default function ContactPage() {
   return (
@@ -38,21 +40,17 @@ export default function ContactPage() {
       <section className={styles.detailsSection} aria-labelledby="contact-details-title">
         <h2 id="contact-details-title">זמינים בכל דרך</h2>
         <div className={styles.contactList}>
-          <a href="mailto:chabadbr7@gmail.com" className={styles.contactItem}>
+          <a href={`mailto:${contactEmail}`} className={styles.contactItem}>
             <span className={styles.icon}>@</span>
-            <span>chabadbr7@gmail.com</span>
+            <span>{contactEmail}</span>
           </a>
-          <a href="tel:08-6233197" className={styles.contactItem}>
+          <a href={`tel:${contactPhoneDisplay}`} className={styles.contactItem}>
             <span className={styles.icon}>☎</span>
-            <span>08-6233197</span>
+            <span>{contactPhoneDisplay}</span>
           </a>
           <a href={whatsappHref} className={styles.contactItem}>
             <span className={styles.icon}>W</span>
             <span>WhatsApp</span>
-          </a>
-          <a href="https://m.me/" className={styles.contactItem}>
-            <span className={styles.icon}>M</span>
-            <span>Messenger</span>
           </a>
         </div>
       </section>
