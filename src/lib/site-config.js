@@ -19,4 +19,14 @@ export const siteConfig = {
     phone: process.env.CONTACT_WHATSAPP_PHONE || defaultWhatsAppPhone,
     whatsappPhone: normalizeWhatsAppPhone(process.env.CONTACT_WHATSAPP_PHONE),
   },
+  youtube: {
+    rabbiClassesPlaylistId: 'PLs6HF4Iew6CO5UTrYdILjSLTucgWphtwd',
+    rabbiClassPlaylists: [
+      {
+        id: 'menachem-meidanchik',
+        name: 'הרב מנחם מיידנצ׳יק',
+        playlistId: 'PLs6HF4Iew6CO5UTrYdILjSLTucgWphtwd',
+      },
+    ],
+  },
 };
