@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styles from './shiurim.module.css';
 
 const PAGE_SIZE = 12;
@@ -29,6 +29,24 @@ export default function ShiurimGallery({ videos }) {
   const [activeRabbi, setActiveRabbi] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
   const [page, setPage] = useState(1);
+  const [activeVideo, setActiveVideo] = useState(null);
+
+  useEffect(() => {
+    if (!activeVideo) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setActiveVideo(null);
+    };
+
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [activeVideo]);
 
   const rabbis = useMemo(() => {
     const byId = new Map();
@@ -135,7 +153,12 @@ export default function ShiurimGallery({ videos }) {
               key={video.id}
               className={`${styles.lessonCard} ${isFirst ? styles.firstLesson : ''}`}
             >
-              <a className={styles.thumbWrap} href={video.url} target="_blank" rel="noopener noreferrer">
+              <button
+                type="button"
+                className={styles.thumbWrap}
+                onClick={() => setActiveVideo(video)}
+                aria-label={`Play ${video.title}`}
+              >
                 {video.thumbnail ? (
                   <span
                     className={styles.thumbnail}
@@ -146,7 +169,7 @@ export default function ShiurimGallery({ videos }) {
                   <span className={styles.noThumb}>שיעור תורה</span>
                 )}
                 <span className={styles.playMark}>▶</span>
-              </a>
+              </button>
 
               <div className={styles.lessonContent}>
                 <div className={styles.metaRow}>
@@ -196,6 +219,52 @@ export default function ShiurimGallery({ videos }) {
             הבא
           </button>
         </nav>
+      )}
+
+      {activeVideo && (
+        <div
+          className={styles.videoModalBackdrop}
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setActiveVideo(null);
+          }}
+        >
+          <div
+            className={styles.videoModal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="video-modal-title"
+          >
+            <div className={styles.videoModalHeader}>
+              <h2 id="video-modal-title">{activeVideo.title}</h2>
+              <button
+                type="button"
+                className={styles.closeModal}
+                onClick={() => setActiveVideo(null)}
+                aria-label="Close video"
+                autoFocus
+              >
+                &times;
+              </button>
+            </div>
+            <div className={styles.videoFrameWrap}>
+              <iframe
+                src={`${activeVideo.embedUrl}?autoplay=1&rel=0`}
+                title={activeVideo.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+            <a
+              className={styles.youtubeLink}
+              href={activeVideo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Watch on YouTube
+            </a>
+          </div>
+        </div>
       )}
     </section>
   );
