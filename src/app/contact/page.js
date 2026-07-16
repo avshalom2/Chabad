@@ -17,7 +17,6 @@ export default function ContactPage() {
   return (
     <main className={styles.page} dir="rtl">
       <section className={styles.hero}>
-        <p className={styles.eyebrow}>בית חב״ד הרצליה פיתוח</p>
         <h1>צור קשר</h1>
         <p>נשמח לשמוע מכם ולעזור בכל שאלה, בקשה או תיאום.</p>
       </section>

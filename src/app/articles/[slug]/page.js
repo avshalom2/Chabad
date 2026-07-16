@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getArticleBySlug, getRelatedArticles } from '@/lib/articles';
 import RelatedArticles from '@/components/RelatedArticles';
 import ContactForm from '@/components/ContactForm';
+import { siteConfig } from '@/lib/site-config';
 import styles from './article.module.css';
 
 export async function generateMetadata({ params }) {
@@ -19,6 +20,8 @@ export default async function ArticlePage({ params }) {
   if (!article) notFound();
 
   const related = await getRelatedArticles(article.category_id, article.id, 5);
+  const whatsappMessage = encodeURIComponent(`שלום, אשמח לקבל מידע נוסף בנושא: ${article.title}`);
+  const whatsappHref = `https://wa.me/${siteConfig.contact.whatsappPhone}?text=${whatsappMessage}`;
 
   return (
     <main className={styles.container} dir="rtl">
@@ -68,6 +71,14 @@ export default async function ArticlePage({ params }) {
         {article.show_contact_form && (
           <div className={styles.articleContactForm}>
             <ContactForm articleTitle={article.title} />
+          </div>
+        )}
+
+        {article.show_whatsapp_button && (
+          <div className={styles.articleWhatsApp}>
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              יצירת קשר ב-WhatsApp
+            </a>
           </div>
         )}
 

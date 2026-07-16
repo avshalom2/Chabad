@@ -299,3 +299,26 @@
     display: block;
   }
 }
+.articleWhatsApp {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.articleWhatsApp a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  background: #25d366;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.24);
+}
+
+.articleWhatsApp a:hover {
+  background: #1ebe5d;
+}

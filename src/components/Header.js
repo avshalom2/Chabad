@@ -22,8 +22,8 @@ export default function Header() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo_50px.png" alt='סמל בית חב"ד הרצליה פיתוח' className={styles.logoGraphic} />
             <div className={styles.logoText}>
-              <h1 className={styles.logoBrand}>בית חב"ד</h1>
-              <p className={styles.logoSubtitle}>הרצליה פיתוח</p>
+              <h1 className={styles.logoBrand}>בית חב&quot;ד</h1>
+              <p className={styles.logoSubtitle}>משכית 22 · הרצליה פיתוח</p>
             </div>
           </div>
         </Link>

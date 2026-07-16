@@ -33,6 +33,7 @@ export default function EditArticlePage() {
     article_type: 'article',
     is_free_html: false,
     show_contact_form: false,
+    show_whatsapp_button: false,
   });
 
   // Load article and categories
@@ -71,6 +72,7 @@ export default function EditArticlePage() {
             article_type: art.article_type || 'article',
             is_free_html: art.is_free_html ? true : false,
             show_contact_form: art.show_contact_form ? true : false,
+            show_whatsapp_button: art.show_whatsapp_button ? true : false,
           });
         } else {
           setError(articleData.error || 'Article not found');
@@ -356,6 +358,18 @@ export default function EditArticlePage() {
                   disabled={loading}
                 />
                 <label htmlFor="show_contact_form">Add contact form under article</label>
+              </div>
+
+              <div className={styles.checkboxGroup}>
+                <input
+                  id="show_whatsapp_button"
+                  name="show_whatsapp_button"
+                  type="checkbox"
+                  checked={form.show_whatsapp_button}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <label htmlFor="show_whatsapp_button">Add WhatsApp button under article</label>
               </div>
 
               {form.is_purchasable && (

@@ -26,7 +26,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { title, slug, excerpt, short_description, content, category_id, featured_image, price, is_purchasable, stock, status, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form } = body;
+    const { title, slug, excerpt, short_description, content, category_id, featured_image, price, is_purchasable, stock, status, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form, show_whatsapp_button } = body;
 
     if (!title || !category_id) {
       return Response.json(
@@ -55,6 +55,7 @@ export async function POST(request) {
       article_type: article_type || 'article',
       is_free_html: is_free_html ? 1 : 0,
       show_contact_form: show_contact_form ? 1 : 0,
+      show_whatsapp_button: show_whatsapp_button ? 1 : 0,
     };
 
     let id;

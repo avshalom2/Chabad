@@ -44,6 +44,7 @@ function isMissingOptionalArticleColumn(error) {
     error?.code === '42703' ||
     message.includes('is_free_html') ||
     message.includes('show_contact_form') ||
+    message.includes('show_whatsapp_button') ||
     message.includes('sort_order') ||
     message.includes('Unknown column')
   );
@@ -187,6 +188,7 @@ export async function createArticle({
   article_type = 'article',
   is_free_html = 0,
   show_contact_form = 0,
+  show_whatsapp_button = 0,
 }) {
   const published_at = status === 'published' ? new Date() : null;
   const pool = await getPool();
@@ -196,10 +198,10 @@ export async function createArticle({
       const result = await execute(
         pool,
         `INSERT INTO articles
-          (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form, show_whatsapp_button)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          RETURNING id`,
-        [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form]
+        [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form, show_whatsapp_button]
       );
       return result.rows[0]?.id || null;
     } catch (error) {
@@ -219,9 +221,9 @@ export async function createArticle({
   try {
     const [result] = await execute(
       pool,
-      `INSERT INTO articles (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form]
+      `INSERT INTO articles (title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form, show_whatsapp_button)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, slug, excerpt, short_description, content, category_id, author_id, featured_image, price, is_purchasable, stock, status, published_at, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form, show_whatsapp_button]
     );
     return result.insertId;
   } catch (error) {
@@ -237,7 +239,7 @@ export async function createArticle({
 }
 
 export async function updateArticle(id, fields) {
-  const allowed = ['title', 'slug', 'excerpt', 'short_description', 'short_description_image', 'content', 'category_id', 'featured_image', 'price', 'is_purchasable', 'stock', 'status', 'published_at', 'page_html', 'template', 'is_main_article', 'sort_order', 'article_type', 'is_free_html', 'show_contact_form'];
+  const allowed = ['title', 'slug', 'excerpt', 'short_description', 'short_description_image', 'content', 'category_id', 'featured_image', 'price', 'is_purchasable', 'stock', 'status', 'published_at', 'page_html', 'template', 'is_main_article', 'sort_order', 'article_type', 'is_free_html', 'show_contact_form', 'show_whatsapp_button'];
   const updates = Object.keys(fields).filter((key) => allowed.includes(key));
 
   if (updates.length === 0) {
@@ -256,7 +258,7 @@ export async function updateArticle(id, fields) {
     await execute(pool, sql, values);
   } catch (error) {
     if (!isMissingOptionalArticleColumn(error)) throw error;
-    const fallbackUpdates = updates.filter((key) => key !== 'is_free_html' && key !== 'show_contact_form' && key !== 'sort_order');
+    const fallbackUpdates = updates.filter((key) => key !== 'is_free_html' && key !== 'show_contact_form' && key !== 'show_whatsapp_button' && key !== 'sort_order');
     if (fallbackUpdates.length === 0) return;
     const fallbackSql = `UPDATE articles SET ${fallbackUpdates.map((key) => `${key} = ?`).join(', ')} WHERE id = ?`;
     const fallbackValues = [...fallbackUpdates.map((key) => fields[key]), id];

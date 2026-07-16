@@ -35,7 +35,7 @@ export async function PUT(request, props) {
 
     const { id: articleId } = await props.params;
     const body = await request.json();
-    const { title, slug, excerpt, short_description, short_description_image, content, category_id, featured_image, price, is_purchasable, stock, status, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form } = body;
+    const { title, slug, excerpt, short_description, short_description_image, content, category_id, featured_image, price, is_purchasable, stock, status, template, is_main_article, sort_order, article_type, is_free_html, show_contact_form, show_whatsapp_button } = body;
 
     // Verify article exists
     const article = await getArticleById(articleId);
@@ -63,6 +63,7 @@ export async function PUT(request, props) {
     if (article_type !== undefined) updates.article_type = article_type;
     if (is_free_html !== undefined) updates.is_free_html = is_free_html ? 1 : 0;
     if (show_contact_form !== undefined) updates.show_contact_form = show_contact_form ? 1 : 0;
+    if (show_whatsapp_button !== undefined) updates.show_whatsapp_button = show_whatsapp_button ? 1 : 0;
 
     await updateArticle(articleId, updates);
 

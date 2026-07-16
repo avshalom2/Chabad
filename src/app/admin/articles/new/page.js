@@ -28,6 +28,7 @@ export default function NewArticlePage() {
     article_type: 'article',
     is_free_html: false,
     show_contact_form: false,
+    show_whatsapp_button: false,
   });
 
   // Load categories on mount
@@ -299,6 +300,18 @@ export default function NewArticlePage() {
                   disabled={loading}
                 />
                 <label htmlFor="show_contact_form">Add contact form under article</label>
+              </div>
+
+              <div className={styles.checkboxGroup}>
+                <input
+                  id="show_whatsapp_button"
+                  name="show_whatsapp_button"
+                  type="checkbox"
+                  checked={form.show_whatsapp_button}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <label htmlFor="show_whatsapp_button">Add WhatsApp button under article</label>
               </div>
 
               {form.is_purchasable && (
