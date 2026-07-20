@@ -20,11 +20,7 @@ export default function Header() {
         <Link href="/" className={styles.logo}>
           <div className={styles.logoContainer}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo_50px.png" alt='סמל בית חב"ד הרצליה פיתוח' className={styles.logoGraphic} />
-            <div className={styles.logoText}>
-              <h1 className={styles.logoBrand}>בית חב&quot;ד</h1>
-              <p className={styles.logoSubtitle}>משכית 22 · הרצליה פיתוח</p>
-            </div>
+            <img src="/header-chabad-logo.png" alt='בית חב"ד הרצליה פיתוח' className={styles.logoGraphic} />
           </div>
         </Link>
 

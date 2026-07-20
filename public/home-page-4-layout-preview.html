@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home Page 4.0 – layout preview</title>
+  <style>
+    banner_slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      margin: 16px 0;
+      border: 2px dashed #8d5592;
+      border-radius: 8px;
+      background: #faf4fb;
+      color: #630a10;
+      font-weight: 700;
+    }
+    banner_slot::before { content: "Home Page Slot — banner 1"; }
+  </style>
+</head>
+<body>
+<style>
+
+    :root {
+        --primary-burgundy: #630a10;
+        --bg-light: #f4f1ea;
+        --border-color: #d1cfc7;
+        --text-dark: #333;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        
+        font-family: sans-serif;
+        color: var(--text-dark);
+        background-color: var(--bg-light);
+        direction: rtl;
+    }
+
+    .main-layout {
+        display: grid;
+        grid-template-columns: 402fr 43fr 347fr;
+        grid-template-rows: auto auto;
+        gap: 15px;
+        max-width: 1200px;
+        margin: 0 auto;
+        direction: ltr;
+    }
+
+    .left-stack {
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        min-width: 0;
+    }
+
+    .right-stack {
+        grid-column: 3 / 4;
+        grid-row: 1 / 2;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        min-width: 0;
+    }
+
+        .box-4 { grid-column: 1 / 4; grid-row: 2 / 3; }
+    .box-5 { grid-column: 1 / 4; grid-row: 3 / 4; }
+
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+
+        overflow: hidden;
+        direction: rtl;
+    }
+
+    .card::before {
+        content: attr(data-type);
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        padding: 2px 5px;
+        font-size: 10px;
+        color: white;
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    .card[data-type="IMAGE_DATA"] {
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .card[data-type="IMAGE_DATA"] img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .card-header {
+        padding: 10px;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        background-color: var(--primary-burgundy);
+    }
+
+    .content-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+
+        color: #999;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .main-layout { display: flex; flex-direction: column; align-items: stretch; gap: 15px; min-height: 0; }
+        .left-stack, .right-stack { display: contents; }
+        .card { width: 100%; }
+        .box-1 { order: 1; }
+        .box-3 { order: 2; }
+        .box-6 { order: 3; }
+        .box-2 { order: 4; }
+        .box-4 { order: 5; }
+        .box-5 { order: 6; }
+    }
+</style><br>
+    <div class="main-layout">
+<div class="right-stack">
+<div class="card box-1" data-type="CONTROL_DATA">
+            <div class="content-placeholder"><div class="content-placeholder" style="display: inline-block; padding: 1.5rem; margin: 1rem 0; background: linear-gradient(135deg, #f5f0eb 0%, #faf8f5 100%); border: 2px dashed #6b1020; border-radius: 8px; text-align: center; color: #333; font-weight: 600; min-height: 100px; min-width: 300px;"><div style="font-size: 1.1rem; margin-bottom: 0.5rem;">🕐</div><div style="font-size: 0.9rem;">WeeklyPrayerBox</div><div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Display weekly prayer times and parasha widget</div><weeklyprayersbox></weeklyprayersbox></div></div>
+        </div>
+<div class="card box-3" data-type="CONTROL_DATA">
+            <div class="content-placeholder"><div class="content-placeholder" style="display: inline-block; padding: 1.5rem; margin: 1rem 0; background: linear-gradient(135deg, #f5f0eb 0%, #faf8f5 100%); border: 2px dashed #6b1020; border-radius: 8px; text-align: center; color: #333; font-weight: 600; min-height: 100px; min-width: 300px;"><div style="font-size: 1.1rem; margin-bottom: 0.5rem;">📅</div><div style="font-size: 0.9rem;">EventsBox</div><div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Display upcoming events calendar</div><eventsbox></eventsbox></div></div>
+        </div>
+<div class="card box-6" data-type="CONTROL_DATA">
+            <div class="content-placeholder"><div class="content-placeholder" style="display: inline-block; padding: 1.5rem; margin: 1rem 0; background: linear-gradient(135deg, #f5f0eb 0%, #faf8f5 100%); border: 2px dashed #6b1020; border-radius: 8px; text-align: center; color: #333; font-weight: 600; min-height: 100px; min-width: 300px;"><div style="font-size: 1.1rem; margin-bottom: 0.5rem;">✉️</div><div style="font-size: 0.9rem;">ContactForm</div><div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Display a contact form that sends email from the website</div><contactform></contactform></div></div>
+        </div>
+</div>
+<div class="left-stack">
+<div class="card box-2" data-type="CONTROL_BANNER">
+            <div class="content-placeholder"><banner_slot id="1"></banner_slot></div>
+        </div>
+</div>
+<div class="card box-4" data-type="ARTICLES_CUBE">
+            <div class="content-placeholder"><div class="content-placeholder" style="display: inline-block; padding: 1.5rem; margin: 1rem 0; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 2px dashed #c47a1d; border-radius: 8px; text-align: center; color: #333; font-weight: 600; min-height: 100px; min-width: 300px;"><div style="font-size: 1.1rem; margin-bottom: 0.5rem;">◼</div><div style="font-size: 0.9rem;">שירותים לציבור</div><div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Articles Cube - שירותים לציבור</div><articlescube category-id="8" category-slug="שירותים-לציבור" category-name="שירותים לציבור"></articlescube></div></div>
+        </div>
+<div class="card box-5" data-type="ARTICLES_SLIDER">
+            <div class="content-placeholder"></div>
+        </div>
+</div>
+
+
+
+</body>
+</html>

@@ -60,7 +60,7 @@ export async function GET(request) {
               a.short_description_image AS short_description_image_id,
               ai.image_url AS short_description_image_url,
               a.price, a.is_purchasable, a.stock, a.template,
-              a.published_at, a.status,
+              a.published_at, a.status, a.sort_order,
               c.name AS category_name, c.slug AS category_slug,
               u.display_name AS author_name
        FROM articles a
@@ -68,7 +68,7 @@ export async function GET(request) {
        ${shortDescriptionImageJoin()}
        LEFT JOIN users u ON u.id = a.author_id
        WHERE a.status = 'published' AND a.category_id = ?
-       ORDER BY a.is_main_article DESC, a.published_at DESC, a.created_at DESC
+       ORDER BY a.sort_order IS NULL ASC, a.sort_order ASC, a.title ASC
        LIMIT ?`,
       [resolvedCategoryId, limit]
     );
