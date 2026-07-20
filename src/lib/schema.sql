@@ -254,6 +254,7 @@ CREATE TABLE hp_templates (
   template_name   VARCHAR(255)  NOT NULL UNIQUE,
   template_html   LONGTEXT      NOT NULL,  -- Original template structure
   homepage_html   LONGTEXT      DEFAULT NULL,  -- Edited/current version
+  mobile_control_order JSON     DEFAULT NULL,  -- Per-template mobile component order
   is_active       TINYINT(1)    NOT NULL DEFAULT 0,
   created_by      INT UNSIGNED  DEFAULT NULL,
   created_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,

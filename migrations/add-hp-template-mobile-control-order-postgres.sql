@@ -1,0 +1,2 @@
+ALTER TABLE hp_templates
+ADD COLUMN IF NOT EXISTS mobile_control_order JSONB DEFAULT NULL;

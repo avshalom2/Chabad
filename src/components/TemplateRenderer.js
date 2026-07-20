@@ -115,6 +115,13 @@ export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
       const placeholderId = `banner-slot-${slot.id}`;
       const placeholderElement = containerRef.current?.querySelector(`#${placeholderId}`);
       if (placeholderElement) {
+        const orderTarget = placeholderElement.closest('[data-type], .card') || placeholderElement;
+        const mobileOrder = getMobileOrder('banner');
+        if (mobileOrder) {
+          orderTarget.classList.add('chabad-mobile-order-control');
+          orderTarget.style.setProperty('--chabad-mobile-order', String(mobileOrder));
+        }
+
         newPortalsMap[placeholderId] = {
           type: 'banner',
           target: placeholderElement,

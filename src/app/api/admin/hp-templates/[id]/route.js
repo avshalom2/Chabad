@@ -1,4 +1,4 @@
-import { getTemplateById, updateTemplateHtml, updateTemplate, deleteTemplate, setActiveTemplate } from '@/lib/hp-templates.js';
+import { getTemplateById, updateTemplateHtml, updateTemplateMobileControlOrder, deleteTemplate, setActiveTemplate } from '@/lib/hp-templates.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,17 +29,24 @@ export async function PUT(request, { params }) {
     const { id } = resolvedParams;
     console.log('Extracted ID from params:', id);
     const body = await request.json();
-    const { homepageHtml } = body;
+    const { homepageHtml, mobileControlOrder } = body;
+    const updates = [];
 
-    if (!homepageHtml) {
-      return Response.json({ error: 'Missing homepageHtml' }, { status: 400 });
+    if (typeof homepageHtml === 'string' && homepageHtml) {
+      console.log('Updating template ID:', id, 'HTML length:', homepageHtml.length);
+      updates.push(updateTemplateHtml(id, homepageHtml));
     }
 
-    console.log('Updating template ID:', id, 'HTML length:', homepageHtml.length);
+    if (Array.isArray(mobileControlOrder)) {
+      updates.push(updateTemplateMobileControlOrder(id, mobileControlOrder));
+    }
 
-    const success = await updateTemplateHtml(id, homepageHtml);
+    if (updates.length === 0) {
+      return Response.json({ error: 'Missing homepageHtml or mobileControlOrder' }, { status: 400 });
+    }
 
-    if (!success) {
+    const results = await Promise.all(updates);
+    if (results.some((success) => !success)) {
       console.error('Template not found for ID:', id);
       return Response.json({ error: 'Template not found' }, { status: 404 });
     }

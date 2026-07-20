@@ -6,6 +6,7 @@ import styles from './settings.module.css';
 
 const MOBILE_CONTROL_ORDER_SETTING = 'control_mobile_order';
 const defaultMobileControlOrder = [
+  { id: 'banner', label: 'Banner Slot' },
   { id: 'events', label: 'Events' },
   { id: 'shabbat', label: 'Shabbat' },
   { id: 'weekly-prayers', label: 'Weekly Prayer Times' },
@@ -15,7 +16,7 @@ const defaultMobileControlOrder = [
   { id: 'articles-cube', label: 'Articles Cube' },
 ];
 
-function normalizeMobileControlOrder(value) {
+function normalizeGlobalMobileControlOrder(value) {
   const ids = Array.isArray(value) ? value : [];
   const uniqueIds = ids.filter((id, index) => (
     typeof id === 'string' &&
@@ -29,6 +30,49 @@ function normalizeMobileControlOrder(value) {
   return [...uniqueIds, ...missingIds];
 }
 
+function extractTemplateControlIds(html) {
+  if (typeof html !== 'string') return [];
+
+  const tagMap = {
+    banner_slot: 'banner',
+    eventsbox: 'events',
+    shabbatbox: 'shabbat',
+    weeklyprayersbox: 'weekly-prayers',
+    contactform: 'contact-form',
+    newsbox: 'news',
+    articlesslider: 'articles-slider',
+    articlescube: 'articles-cube',
+  };
+  const legacyMap = {
+    'events-box': 'events',
+    'shabbat-box': 'shabbat',
+    'weekly-prayers-box': 'weekly-prayers',
+    'contact-form': 'contact-form',
+    'articles-slider': 'articles-slider',
+    'articles-cube': 'articles-cube',
+  };
+  const matches = [];
+
+  for (const match of html.matchAll(/<(banner_slot|eventsbox|shabbatbox|weeklyprayersbox|contactform|newsbox|articlesslider|articlescube)\b/gi)) {
+    matches.push({ index: match.index, id: tagMap[match[1].toLowerCase()] });
+  }
+  for (const match of html.matchAll(/data-chabadcomponent=["']([^"']+)["']/gi)) {
+    const id = legacyMap[match[1].toLowerCase()];
+    if (id) matches.push({ index: match.index, id });
+  }
+
+  matches.sort((a, b) => a.index - b.index);
+  return matches.map((match) => match.id).filter((id, index, ids) => ids.indexOf(id) === index);
+}
+
+function normalizeTemplateMobileControlOrder(value, availableIds, fallbackOrder) {
+  const savedIds = Array.isArray(value) ? value : [];
+  const ordered = savedIds.filter((id, index) => availableIds.includes(id) && savedIds.indexOf(id) === index);
+  const remainingByFallback = fallbackOrder.filter((id) => availableIds.includes(id) && !ordered.includes(id));
+  const remainingByTemplate = availableIds.filter((id) => !ordered.includes(id) && !remainingByFallback.includes(id));
+  return [...ordered, ...remainingByFallback, ...remainingByTemplate];
+}
+
 export default function SettingsPage() {
   const [templates, setTemplates] = useState([]);
   const [activeTemplate, setActiveTemplate] = useState(null);
@@ -36,7 +80,8 @@ export default function SettingsPage() {
   const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateHtml, setNewTemplateHtml] = useState('');
-  const [mobileControlOrder, setMobileControlOrder] = useState(defaultMobileControlOrder.map((control) => control.id));
+  const [globalMobileControlOrder, setGlobalMobileControlOrder] = useState(defaultMobileControlOrder.map((control) => control.id));
+  const [mobileControlOrder, setMobileControlOrder] = useState([]);
   const [savingMobileOrder, setSavingMobileOrder] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
@@ -44,8 +89,24 @@ export default function SettingsPage() {
   // Load templates on mount
   useEffect(() => {
     loadTemplates();
-    loadMobileControlOrder();
+    loadGlobalMobileControlOrder();
   }, []);
+
+  useEffect(() => {
+    const template = templates.find((item) => item.id === selectedTemplate);
+    if (!template) {
+      setMobileControlOrder([]);
+      return;
+    }
+
+    const html = template.homepage_html || template.template_html || '';
+    const availableIds = extractTemplateControlIds(html);
+    setMobileControlOrder(normalizeTemplateMobileControlOrder(
+      template.mobile_control_order,
+      availableIds,
+      globalMobileControlOrder
+    ));
+  }, [templates, selectedTemplate, globalMobileControlOrder]);
 
   const loadTemplates = async () => {
     setLoading(true);
@@ -67,11 +128,11 @@ export default function SettingsPage() {
     }
   };
 
-  const loadMobileControlOrder = async () => {
+  const loadGlobalMobileControlOrder = async () => {
     try {
       const response = await fetch(`/api/admin/settings?keys=${MOBILE_CONTROL_ORDER_SETTING}`);
       const data = await response.json();
-      setMobileControlOrder(normalizeMobileControlOrder(data.data?.[MOBILE_CONTROL_ORDER_SETTING]));
+      setGlobalMobileControlOrder(normalizeGlobalMobileControlOrder(data.data?.[MOBILE_CONTROL_ORDER_SETTING]));
     } catch (error) {
       console.error('Error loading mobile control order:', error);
     }
@@ -90,16 +151,22 @@ export default function SettingsPage() {
   };
 
   const handleSaveMobileOrder = async () => {
+    if (!selectedTemplate) return;
     setSavingMobileOrder(true);
     try {
-      const response = await fetch(`/api/admin/settings/${MOBILE_CONTROL_ORDER_SETTING}`, {
+      const response = await fetch(`/api/admin/hp-templates/${selectedTemplate}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: mobileControlOrder }),
+        body: JSON.stringify({ mobileControlOrder }),
       });
 
       if (!response.ok) throw new Error('Failed to save mobile order');
-      setMessage({ type: 'success', text: 'Mobile control order saved!' });
+      setTemplates((current) => current.map((template) => (
+        template.id === selectedTemplate
+          ? { ...template, mobile_control_order: mobileControlOrder }
+          : template
+      )));
+      setMessage({ type: 'success', text: 'Template mobile control order saved!' });
     } catch (error) {
       console.error('Error saving mobile control order:', error);
       setMessage({ type: 'error', text: 'Failed to save mobile control order' });
@@ -184,6 +251,7 @@ export default function SettingsPage() {
 
   const currentTemplate = templates?.find(t => t.id === selectedTemplate);
   const templateHtml = currentTemplate?.homepage_html || currentTemplate?.template_html;
+  const availableMobileControls = extractTemplateControlIds(templateHtml);
 
   return (
     <div className={styles.container}>
@@ -203,19 +271,23 @@ export default function SettingsPage() {
           <div className={styles.mobileOrderPanel}>
             <div className={styles.panelHeader}>
               <div>
-                <h2>Mobile Control Order</h2>
-                <p className={styles.panelHint}>Controls use this order when they stack one below another on mobile.</p>
+                <h2>Mobile Control Order{currentTemplate ? ` — ${currentTemplate.template_name}` : ''}</h2>
+                <p className={styles.panelHint}>Only controls found in the selected template are shown. Each template keeps its own order.</p>
               </div>
               <button
                 className={styles.addBtn}
                 onClick={handleSaveMobileOrder}
-                disabled={savingMobileOrder}
+                disabled={savingMobileOrder || !currentTemplate || availableMobileControls.length === 0}
               >
                 {savingMobileOrder ? 'Saving...' : 'Save Order'}
               </button>
             </div>
 
             <div className={styles.mobileOrderList}>
+              {!currentTemplate && <p className={styles.empty}>Select a template to set its mobile order.</p>}
+              {currentTemplate && availableMobileControls.length === 0 && (
+                <p className={styles.empty}>No sortable controls were found in this template.</p>
+              )}
               {mobileControlOrder.map((controlId, index) => {
                 const control = defaultMobileControlOrder.find((item) => item.id === controlId);
                 if (!control) return null;

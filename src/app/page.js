@@ -48,6 +48,10 @@ export default async function MainPage() {
     console.warn('Mobile control order setting fetch failed:', err?.message);
   }
 
+  if (Array.isArray(activeTemplate?.mobileControlOrder)) {
+    mobileControlOrder = activeTemplate.mobileControlOrder;
+  }
+
   return (
     <main className={styles.main}>
       {/* ACTIVE TEMPLATE (from hp_templates) */}

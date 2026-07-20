@@ -12,6 +12,17 @@ function writeResultFromResult(result) {
   return Array.isArray(result) ? result[0] : result;
 }
 
+function parseMobileControlOrder(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== 'string' || !value) return null;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 // Helper to rewrite ? placeholders to $1, $2, ... for PostgreSQL
 function adaptPlaceholders(query, params) {
   if (isPostgres()) {
@@ -30,9 +41,12 @@ function adaptPlaceholders(query, params) {
 export async function getAllTemplates() {
   const pool = await getPool();
   const result = await pool.query(
-    'SELECT id, template_name, template_html, homepage_html, is_active, created_at, updated_at FROM hp_templates ORDER BY created_at DESC'
+    'SELECT id, template_name, template_html, homepage_html, mobile_control_order, is_active, created_at, updated_at FROM hp_templates ORDER BY created_at DESC'
   );
-  return rowsFromResult(result);
+  return rowsFromResult(result).map((template) => ({
+    ...template,
+    mobile_control_order: parseMobileControlOrder(template.mobile_control_order),
+  }));
 }
 
 /**
@@ -68,7 +82,7 @@ export async function getActiveTemplateForDisplay() {
       return null;
     }
     const result = await pool.query(
-      `SELECT id, template_name, template_html, homepage_html, is_active, created_at, updated_at 
+      `SELECT id, template_name, template_html, homepage_html, mobile_control_order, is_active, created_at, updated_at
        FROM hp_templates 
        WHERE is_active = TRUE 
        LIMIT 1`
@@ -85,6 +99,7 @@ export async function getActiveTemplateForDisplay() {
       id: template.id,
       name: template.template_name,
       html: template.homepage_html || template.template_html,
+      mobileControlOrder: parseMobileControlOrder(template.mobile_control_order),
       createdAt: template.created_at,
       updatedAt: template.updated_at
     };
@@ -124,6 +139,17 @@ export async function updateTemplateHtml(id, homepageHtml) {
   const affectedRows = result.affectedRows ?? result.rowCount ?? 0;
   console.log('Update result - affectedRows:', affectedRows);
   return affectedRows > 0;
+}
+
+export async function updateTemplateMobileControlOrder(id, mobileControlOrder) {
+  const pool = await getPool();
+  const value = JSON.stringify(mobileControlOrder);
+  const [query, params] = adaptPlaceholders(
+    `UPDATE hp_templates SET mobile_control_order = ?, updated_at = NOW() WHERE id = ?`,
+    [value, id]
+  );
+  const result = writeResultFromResult(await pool.query(query, params));
+  return (result.affectedRows ?? result.rowCount ?? 0) > 0;
 }
 
 /**
