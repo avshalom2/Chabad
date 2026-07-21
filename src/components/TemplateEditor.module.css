@@ -125,7 +125,7 @@
   width: 100% !important;
   max-width: none !important;
   min-width: 0;
-  flex: 1 1 100% !important;
+  flex: 0 0 auto !important;
 }
 
 .editorModal {
