@@ -10,6 +10,7 @@ import NewsControlEditor from './editors/NewsControlEditor';
 import BannerSlotControlEditor from './editors/BannerSlotControlEditor';
 import ArticlesSliderEditor from './editors/ArticlesSliderEditor';
 import ArticlesCubeEditor from './editors/ArticlesCubeEditor';
+import StoreHoursEditor from './editors/StoreHoursEditor';
 
 const editorTypeOptions = [
   { value: 'HTML_DATA', label: 'HTML content' },
@@ -19,6 +20,7 @@ const editorTypeOptions = [
   { value: 'NEWS_CONTROL', label: 'News control' },
   { value: 'ARTICLES_SLIDER', label: 'Articles slider' },
   { value: 'ARTICLES_CUBE', label: 'Articles Cube' },
+  { value: 'STORE_HOURS', label: 'Store opening hours' },
 ];
 
 export default function TemplateEditor({ templateId, initialHtml }) {
@@ -270,8 +272,11 @@ export default function TemplateEditor({ templateId, initialHtml }) {
       // Determine the type: use data-type attribute if available, otherwise infer from content
       let dataType = dataTypeAttr;
       
-      if (!dataType) {
-        const innerHtml = element.innerHTML.toLowerCase();
+      const innerHtml = element.innerHTML.toLowerCase();
+
+      if (innerHtml.includes('storehours')) {
+        dataType = 'STORE_HOURS';
+      } else if (!dataType) {
         dataType = 'HTML_DATA'; // default
         
         if (innerHtml.includes('newsbox')) {
@@ -554,6 +559,8 @@ export default function TemplateEditor({ templateId, initialHtml }) {
           onCancel={() => setShowEditor(false)}
         />
       );
+    } else if (editorType === 'STORE_HOURS') {
+      return <StoreHoursEditor onSave={updateContent} onClose={() => setShowEditor(false)} />;
     }
     return null;
   };

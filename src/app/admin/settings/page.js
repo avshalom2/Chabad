@@ -14,6 +14,7 @@ const defaultMobileControlOrder = [
   { id: 'news', label: 'News' },
   { id: 'articles-slider', label: 'Articles Slider' },
   { id: 'articles-cube', label: 'Articles Cube' },
+  { id: 'store-hours', label: 'Store Hours' },
 ];
 
 function normalizeGlobalMobileControlOrder(value) {
@@ -42,6 +43,7 @@ function extractTemplateControlIds(html) {
     newsbox: 'news',
     articlesslider: 'articles-slider',
     articlescube: 'articles-cube',
+    storehours: 'store-hours',
   };
   const legacyMap = {
     'events-box': 'events',
@@ -53,7 +55,7 @@ function extractTemplateControlIds(html) {
   };
   const matches = [];
 
-  for (const match of html.matchAll(/<(banner_slot|eventsbox|shabbatbox|weeklyprayersbox|contactform|newsbox|articlesslider|articlescube)\b/gi)) {
+  for (const match of html.matchAll(/<(banner_slot|eventsbox|shabbatbox|weeklyprayersbox|contactform|newsbox|articlesslider|articlescube|storehours)\b/gi)) {
     matches.push({ index: match.index, id: tagMap[match[1].toLowerCase()] });
   }
   for (const match of html.matchAll(/data-chabadcomponent=["']([^"']+)["']/gi)) {

@@ -32,6 +32,13 @@ const controls = [
     componentTag: '<contactform></contactform>',
     icon: '✉️',
   },
+  {
+    id: 'store-hours',
+    name: 'StoreHoursBar',
+    description: 'Display editable store opening hours',
+    componentTag: '<storehours></storehours>',
+    icon: '🕐',
+  },
 ];
 
 export default function ControlDataEditor({ onSave, onClose }) {

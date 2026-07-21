@@ -8,6 +8,7 @@ import NewsBox from '@/components/NewsBox';
 import ArticlesSlider from '@/components/ArticlesSlider';
 import ArticlesCube from '@/components/ArticlesCube';
 import BannerSlotRenderer from '@/components/BannerSlotRenderer';
+import StoreHoursBar from '@/components/StoreHoursBar';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './TemplateRenderer.module.css';
@@ -55,7 +56,7 @@ export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
     console.log('TemplateRenderer: Total elements in container:', allDivs.length);
 
     // Find all component tags - try multiple variations
-    const componentElements = containerRef.current.querySelectorAll('eventsbox, shabbatbox, weeklyprayersbox, contactform, newsbox, articlesslider, articlescube');
+    const componentElements = containerRef.current.querySelectorAll('eventsbox, shabbatbox, weeklyprayersbox, contactform, newsbox, articlesslider, articlescube, storehours');
     console.log('Found component tags:', componentElements.length);
 
     // Log each one
@@ -72,7 +73,7 @@ export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
     Array.from(componentElements).forEach((tag, idx) => {
       const componentName = tag.tagName.toLowerCase();
       const componentId = `portal-${idx}`;
-      const type = componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'weeklyprayersbox' ? 'weekly-prayers' : componentName === 'contactform' ? 'contact-form' : componentName === 'newsbox' ? 'news' : componentName === 'articlesslider' ? 'articles-slider' : 'articles-cube';
+      const type = componentName === 'eventsbox' ? 'events' : componentName === 'shabbatbox' ? 'shabbat' : componentName === 'weeklyprayersbox' ? 'weekly-prayers' : componentName === 'contactform' ? 'contact-form' : componentName === 'newsbox' ? 'news' : componentName === 'articlesslider' ? 'articles-slider' : componentName === 'storehours' ? 'store-hours' : 'articles-cube';
       
       // Create a wrapper div to host the React component
       const wrapper = document.createElement('div');
@@ -186,6 +187,10 @@ export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
         />,
         placeholderElement
       );
+    }
+
+    if (config.type === 'store-hours') {
+      return createPortal(<StoreHoursBar key={portalId} />, placeholderElement);
     }
 
     const Component = config.type === 'events' ? EventsBox : config.type === 'shabbat' ? ShabbatCompactBox : config.type === 'weekly-prayers' ? WeeklyPrayerBox : config.type === 'contact-form' ? ContactForm : null;
