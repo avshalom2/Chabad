@@ -22,7 +22,7 @@ export default function StoreHoursBar() {
       <div className={styles.clock} aria-hidden="true"><span className={styles.hourHand} /><span className={styles.minuteHand} /></div>
       <div className={styles.copy}>
         <h2>{details.title}</h2>
-        <p>{details.days} · {details.hours}</p>
+        <p>{details.days} · <bdi className={styles.hours}>{details.hours}</bdi></p>
       </div>
       {details.badge && <span className={styles.badge}><span aria-hidden="true">☀</span>{details.badge}</span>}
     </section>
