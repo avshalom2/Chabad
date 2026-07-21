@@ -196,8 +196,8 @@ export default function TemplateEditor({ templateId, initialHtml }) {
   // Process banner slot tags and convert them to visual boxes for preview
   const processPreviewHtml = (htmlString) => {
     const bannerSlotRegex = /<banner_slot\s+id=["'](\d+)["']\s*\/?>/gi;
-    
-    return htmlString.replace(bannerSlotRegex, (match, slotId) => {
+
+    const withBannerPreviews = htmlString.replace(bannerSlotRegex, (match, slotId) => {
       const slot = bannerSlots[slotId];
       const slotName = slot ? slot.name : `Banner Slot #${slotId}`;
       const location = slot ? slot.location : 'Unknown';
@@ -225,6 +225,32 @@ export default function TemplateEditor({ templateId, initialHtml }) {
         </div>
       </div>`;
     });
+
+    return withBannerPreviews.replace(
+      /<storehours\b[^>]*>\s*<\/storehours>/gi,
+      `<div class="template-store-hours-preview" style="
+        width: 100%;
+        min-height: 66px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 10px 20px;
+        border: 1px solid #bd8d27;
+        border-radius: 14px;
+        background: linear-gradient(110deg, #3f0710 0%, #64100f 52%, #3d0911 100%);
+        color: #e2bd68;
+        direction: rtl;
+        cursor: pointer;
+      ">
+        <div style="width: 34px; height: 34px; flex: 0 0 34px; border: 3px solid #dfbd66; border-radius: 50%; display: grid; place-items: center; color: #dfbd66; font-size: 20px;">◷</div>
+        <div style="min-width: 0; text-align: right;">
+          <div style="color: #efcf7d; font-size: 19px; line-height: 1.15; font-weight: 700;">שעות פתיחת החנות</div>
+          <div style="margin-top: 2px; color: #d7ad59; font-size: 14px;">ימים א׳-ה׳ · <bdi style="direction: ltr; unicode-bidi: isolate;">10:00–19:00</bdi></div>
+        </div>
+        <span style="margin-right: auto; padding: 5px 11px; border: 1px solid rgba(203,151,40,.3); border-radius: 999px; color: #d3a642; font-size: 12px; white-space: nowrap;">☀ מיקום מומלץ</span>
+      </div>`
+    );
   };
 
   // Handle edit button click
