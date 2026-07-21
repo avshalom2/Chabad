@@ -245,7 +245,7 @@ export default function TemplateEditor({ templateId, initialHtml }) {
       ">
         <div style="width: 34px; height: 34px; flex: 0 0 34px; border: 3px solid #dfbd66; border-radius: 50%; display: grid; place-items: center; color: #dfbd66; font-size: 20px;">◷</div>
         <div style="min-width: 0; text-align: right;">
-          <div style="color: #efcf7d; font-size: 19px; line-height: 1.15; font-weight: 700;">שעות פתיחת החנות</div>
+          <div style="color: #fff; font-size: 19px; line-height: 1.15; font-weight: 700;">שעות פתיחת החנות</div>
           <div style="margin-top: 2px; color: #d7ad59; font-size: 14px;">ימים א׳-ה׳ · <bdi style="direction: ltr; unicode-bidi: isolate;">10:00–19:00</bdi></div>
         </div>
       </div>`
