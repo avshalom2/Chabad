@@ -248,7 +248,6 @@ export default function TemplateEditor({ templateId, initialHtml }) {
           <div style="color: #efcf7d; font-size: 19px; line-height: 1.15; font-weight: 700;">שעות פתיחת החנות</div>
           <div style="margin-top: 2px; color: #d7ad59; font-size: 14px;">ימים א׳-ה׳ · <bdi style="direction: ltr; unicode-bidi: isolate;">10:00–19:00</bdi></div>
         </div>
-        <span style="margin-right: auto; padding: 5px 11px; border: 1px solid rgba(203,151,40,.3); border-radius: 999px; color: #d3a642; font-size: 12px; white-space: nowrap;">☀ מיקום מומלץ</span>
       </div>`
     );
   };

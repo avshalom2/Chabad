@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from './editors.module.css';
 
-const defaults = { title: 'שעות פתיחת החנות', days: "ימים א׳-ה׳", hours: '10:00–19:00', badge: 'מיקום מומלץ' };
+const defaults = { title: 'שעות פתיחת החנות', days: "ימים א׳-ה׳", hours: '10:00–19:00', badge: '' };
 
 export default function StoreHoursEditor({ onSave, onClose }) {
   const [values, setValues] = useState(defaults);

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from './StoreHoursBar.module.css';
 
-const defaults = { title: 'שעות פתיחת החנות', days: "ימים א׳-ה׳", hours: '10:00–19:00', badge: 'מיקום מומלץ' };
+const defaults = { title: 'שעות פתיחת החנות', days: "ימים א׳-ה׳", hours: '10:00–19:00', badge: '' };
 
 export default function StoreHoursBar() {
   const [details, setDetails] = useState(null);
