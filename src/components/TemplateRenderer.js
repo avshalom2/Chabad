@@ -78,6 +78,9 @@ export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
       // Create a wrapper div to host the React component
       const wrapper = document.createElement('div');
       wrapper.id = componentId;
+      if (type === 'store-hours') {
+        wrapper.classList.add('store-hours-portal');
+      }
       
       // Check if this tag is inside a content-placeholder wrapper
       const contentPlaceholder = tag.closest('.content-placeholder');

@@ -119,6 +119,15 @@
   flex-shrink: 0;
 }
 
+.preview :global(.store-hours-row),
+.preview :global(.store-hours-row > .content-placeholder),
+.preview :global(.template-store-hours-preview) {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  flex: 1 1 100% !important;
+}
+
 .editorModal {
   position: fixed;
   top: 0;

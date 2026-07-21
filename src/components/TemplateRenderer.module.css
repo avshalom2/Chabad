@@ -120,6 +120,15 @@
   width: 100%;
 }
 
+/* The template's generic "row" rule makes this portal shrink to its contents. */
+.container :global(.store-hours-row),
+.container :global(.store-hours-portal) {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  flex: 1 1 100% !important;
+}
+
 /* Sidebar-right styling - center the divs inside */
 .container :global(.sidebar-right) {
   display: flex;
