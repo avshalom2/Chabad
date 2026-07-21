@@ -23,6 +23,20 @@
 .logoContainer {
   display: flex;
   align-items: center;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Keep only the dark address line readable when the browser forces dark mode. */
+.logoContainer::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 4.5%;
+  top: 72%;
+  width: 67%;
+  height: 13%;
+  background: #fff;
 }
 
 .logoGraphic {
