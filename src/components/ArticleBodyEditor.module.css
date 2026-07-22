@@ -124,6 +124,31 @@
   cursor: not-allowed;
 }
 
+.toolbarSelect {
+  min-height: 34px;
+  max-width: 190px;
+  padding: 0.4rem 1.8rem 0.4rem 0.55rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #374151;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toolbarSelect:hover:not(:disabled),
+.toolbarSelect:focus-visible {
+  border-color: #2563eb;
+  outline: none;
+}
+
+.toolbarSelect:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .toolbar .active {
   border-color: #2563eb;
   background: #2563eb;

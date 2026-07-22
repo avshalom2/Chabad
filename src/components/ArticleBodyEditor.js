@@ -12,6 +12,41 @@ import styles from './ArticleBodyEditor.module.css';
 
 const EMPTY_CONTENT = '<p></p>';
 
+const BOX_BACKGROUNDS = {
+  default: {
+    background: null,
+    color: null,
+    titleColor: null,
+  },
+  cream: {
+    background: '#fff9f2',
+    color: '#5b4a4d',
+    titleColor: '#7a1428',
+  },
+  burgundy: {
+    background: '#6b1020',
+    color: '#fff3e8',
+    titleColor: '#ffffff',
+  },
+  gold: {
+    background: '#f4e3c3',
+    color: '#4f3b2d',
+    titleColor: '#6b1020',
+  },
+  gradient: {
+    background: 'linear-gradient(135deg, #5d1022 0%, #8b263d 58%, #b77942 100%)',
+    color: '#fff3e8',
+    titleColor: '#ffffff',
+  },
+};
+
+const BOX_WIDTHS = {
+  compact: '300px',
+  half: '50%',
+  wide: '75%',
+  full: 'calc(100% - 1.5rem)',
+};
+
 const ArticleImage = ImageExtension.extend({
   addAttributes() {
     return {
@@ -312,6 +347,50 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
     editor.chain().focus().setTextAlign(alignment).run();
   }
 
+  function setBoxBackground(themeName) {
+    if (!editor || disabled || !editor.isActive('articleBox')) return;
+
+    const theme = BOX_BACKGROUNDS[themeName];
+    if (!theme) return;
+
+    const style = document.createElement('div').style;
+    style.cssText = editor.getAttributes('articleBox').style || '';
+
+    const properties = {
+      '--article-box-bg': theme.background,
+      '--article-box-color': theme.color,
+      '--article-box-title-color': theme.titleColor,
+    };
+
+    Object.entries(properties).forEach(([property, value]) => {
+      if (value) style.setProperty(property, value);
+      else style.removeProperty(property);
+    });
+
+    editor
+      .chain()
+      .focus()
+      .updateAttributes('articleBox', { style: style.cssText || null })
+      .run();
+  }
+
+  function setBoxWidth(widthName) {
+    if (!editor || disabled || !editor.isActive('articleBox')) return;
+
+    const width = BOX_WIDTHS[widthName];
+    if (!width) return;
+
+    const style = document.createElement('div').style;
+    style.cssText = editor.getAttributes('articleBox').style || '';
+    style.setProperty('--article-box-width', width);
+
+    editor
+      .chain()
+      .focus()
+      .updateAttributes('articleBox', { style: style.cssText })
+      .run();
+  }
+
   function openHtmlEditor() {
     setHtmlDraft(initialHtml || EMPTY_CONTENT);
     setHtmlEditorOpen(true);
@@ -555,6 +634,35 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
           >
             Box
           </button>
+          <select
+            className={styles.toolbarSelect}
+            aria-label="Box background"
+            title={editor.isActive('articleBox') ? 'Choose box background' : 'Select text inside a box first'}
+            value=""
+            onChange={(event) => setBoxBackground(event.target.value)}
+            disabled={disabled || !editor.isActive('articleBox')}
+          >
+            <option value="" disabled>Box background</option>
+            <option value="default">Default white</option>
+            <option value="cream">Light cream</option>
+            <option value="burgundy">Burgundy</option>
+            <option value="gold">Soft gold</option>
+            <option value="gradient">Burgundy–gold gradient</option>
+          </select>
+          <select
+            className={styles.toolbarSelect}
+            aria-label="Box width"
+            title={editor.isActive('articleBox') ? 'Choose box width' : 'Select text inside a box first'}
+            value=""
+            onChange={(event) => setBoxWidth(event.target.value)}
+            disabled={disabled || !editor.isActive('articleBox')}
+          >
+            <option value="" disabled>Box width</option>
+            <option value="compact">Compact (300px)</option>
+            <option value="half">Half page (50%)</option>
+            <option value="wide">Wide (75%)</option>
+            <option value="full">Full page (100%)</option>
+          </select>
           <span className={styles.separator} />
           <button type="button" onClick={() => setAlignment('right')} disabled={disabled}>
             Right
