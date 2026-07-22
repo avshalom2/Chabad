@@ -787,7 +787,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 601px) and (max-width: 768px) {
   .articlesGrid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -804,4 +804,8 @@
   .bannerTitle {
     font-size: 1.2rem;
   }
+}
+
+.articlesGrid.singleColumnGrid {
+  grid-template-columns: 1fr;
 }

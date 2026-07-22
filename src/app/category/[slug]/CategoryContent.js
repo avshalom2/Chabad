@@ -140,7 +140,11 @@ export default function CategoryContent({ category, mainArticle, articles, total
         <div className={styles.empty}>אין פריטים בקטגוריה זו עדיין.</div>
       ) : (
         <div
-          className={category.type_slug === 'products' ? productStyles.productsGrid : styles.articlesGrid}
+          className={
+            category.type_slug === 'products'
+              ? productStyles.productsGrid
+              : `${styles.articlesGrid} ${defaultColumns === 1 ? styles.singleColumnGrid : ''}`
+          }
           style={{ '--grid-columns': defaultColumns }}
         >
           {articles.map((article) => (
