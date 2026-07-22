@@ -57,28 +57,64 @@
   font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
 }
 
-/* DONATE BUTTON (left side) */
+/* Hebrew date and donation action (left side) */
+.headerInfo {
+  min-width: 150px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 1.15rem 0;
+  box-sizing: border-box;
+  direction: rtl;
+}
+
+.hebrewDate {
+  color: #4b4143;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .donateBtn {
   background: #5a0e1a;
   color: #fff;
-  border: 2px solid #a04060;
-  border-radius: 8px;
-  padding: 0.42rem 1.05rem;
-  font-size: 0.92rem;
+  border: 1px solid #a04060;
+  border-radius: 7px;
+  padding: 0.3rem 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-decoration: none;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.2s;
   font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
 }
 
 .donateBtn:hover {
   background: #7a1428;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 600px) {
   .topBar {
     padding: 0 0 0 1rem;
+  }
+
+  .headerInfo {
+    min-width: 105px;
+    height: 100px;
+    padding: 1rem 0;
+  }
+
+  .hebrewDate {
+    font-size: 0.74rem;
+  }
+
+  .donateBtn {
+    padding: 0.26rem 0.58rem;
+    font-size: 0.72rem;
   }
 
 }

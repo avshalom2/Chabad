@@ -97,6 +97,49 @@ const ArticleBox = Node.create({
   },
 });
 
+const ArticleMap = Node.create({
+  name: 'articleMap',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      class: {
+        default: 'article-map',
+        parseHTML: (element) => element.getAttribute('class') || 'article-map',
+        renderHTML: (attributes) => ({ class: attributes.class || 'article-map' }),
+      },
+      src: {
+        default: '',
+        parseHTML: (element) => element.querySelector('iframe')?.getAttribute('src') || '',
+      },
+      title: {
+        default: 'Location map',
+        parseHTML: (element) => element.querySelector('iframe')?.getAttribute('title') || 'Location map',
+      },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'div.article-map' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    const { src, title, ...containerAttributes } = HTMLAttributes;
+    return [
+      'div',
+      mergeAttributes(containerAttributes, { class: 'article-map' }),
+      ['iframe', {
+        src,
+        title,
+        loading: 'lazy',
+        referrerpolicy: 'no-referrer-when-downgrade',
+        allowfullscreen: 'true',
+      }],
+    ];
+  },
+});
+
 function isMeaningfulHtml(html) {
   if (!html) return false;
   const withoutTags = html
@@ -225,6 +268,7 @@ const ArticleBodyEditor = forwardRef(function ArticleBodyEditor(
         types: ['heading', 'paragraph'],
       }),
       ArticleBox,
+      ArticleMap,
     ],
     content: initialHtml || EMPTY_CONTENT,
     editorProps: {

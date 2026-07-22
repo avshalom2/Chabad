@@ -415,6 +415,22 @@
   margin-right: 0;
 }
 
+.editor :global(.article-map) {
+  width: 100%;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid #eadfd7;
+  border-radius: 18px;
+  background: #f8fafc;
+}
+
+.editor :global(.article-map iframe) {
+  display: block;
+  width: 100%;
+  height: 340px;
+  border: 0;
+}
+
 .loading {
   padding: 2rem;
   border: 1px solid #d1d5db;
