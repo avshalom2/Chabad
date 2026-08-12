@@ -1,0 +1,86 @@
+name: Database backup
+
+on:
+  schedule:
+    # 01:15 UTC is 03:15 in Israel Standard Time and 04:15 during daylight time.
+    - cron: '15 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-database-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PGCONNECT_TIMEOUT: '20'
+      PGSSLMODE: verify-full
+
+    steps:
+      - name: Check required secrets
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.DB_BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          test -n "$DATABASE_URL" || { echo 'NEON_DATABASE_URL is missing'; exit 1; }
+          test -n "$BACKUP_PASSPHRASE" || { echo 'DB_BACKUP_PASSPHRASE is missing'; exit 1; }
+          test "${#BACKUP_PASSPHRASE}" -ge 24 || { echo 'DB_BACKUP_PASSPHRASE must be at least 24 characters'; exit 1; }
+
+      - name: Install PostgreSQL 17 client
+        run: |
+          set -euo pipefail
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSLo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo "$VERSION_CODENAME")-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client-17
+
+      - name: Create and verify backup
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          mkdir -p backup
+          stamp="$(date -u +'%Y-%m-%dT%H-%M-%SZ')"
+          dump_file="backup/chabad-${stamp}.dump"
+          /usr/lib/postgresql/17/bin/pg_dump \
+            --dbname="$DATABASE_URL" \
+            --format=custom \
+            --compress=9 \
+            --no-owner \
+            --no-privileges \
+            --file="$dump_file"
+          test -s "$dump_file"
+          /usr/lib/postgresql/17/bin/pg_restore --list "$dump_file" > /dev/null
+          echo "DUMP_FILE=$dump_file" >> "$GITHUB_ENV"
+
+      - name: Encrypt backup
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.DB_BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          encrypted_file="${DUMP_FILE}.enc"
+          openssl enc -aes-256-cbc -salt -pbkdf2 -iter 200000 \
+            -in "$DUMP_FILE" \
+            -out "$encrypted_file" \
+            -pass env:BACKUP_PASSPHRASE
+          sha256sum "$encrypted_file" > "${encrypted_file}.sha256"
+          rm -f "$DUMP_FILE"
+          echo "ENCRYPTED_FILE=$encrypted_file" >> "$GITHUB_ENV"
+
+      - name: Upload encrypted backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup-${{ github.run_id }}
+          path: |
+            ${{ env.ENCRYPTED_FILE }}
+            ${{ env.ENCRYPTED_FILE }}.sha256
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
