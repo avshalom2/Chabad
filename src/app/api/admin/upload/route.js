@@ -1,6 +1,5 @@
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 import { getCurrentUserSession } from '@/lib/auth-session.js';
+import { uploadImageToCloudinary } from '@/lib/cloudinary.js';
 
 export async function POST(request) {
   try {
@@ -34,31 +33,14 @@ export async function POST(request) {
       );
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads');
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (err) {
-      // Directory already exists
-    }
+    const result = await uploadImageToCloudinary(file);
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 8);
-    const ext = file.name.split('.').pop();
-    const filename = `${timestamp}-${random}.${ext}`;
-
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const filepath = join(uploadDir, filename);
-    
-    await writeFile(filepath, buffer);
-
-    // Return the public URL
-    const imageUrl = `/uploads/${filename}`;
-
-    return Response.json({ success: true, url: imageUrl, filename });
+    return Response.json({
+      success: true,
+      url: result.secure_url,
+      filename: result.display_name || result.public_id.split('/').pop(),
+      publicId: result.public_id,
+    });
   } catch (error) {
     console.error('Upload error:', error);
     return Response.json({ error: 'Failed to upload image' }, { status: 500 });

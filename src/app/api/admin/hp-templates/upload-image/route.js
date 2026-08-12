@@ -1,8 +1,13 @@
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { getCurrentUserSession } from '@/lib/auth-session.js';
+import { uploadImageToCloudinary } from '@/lib/cloudinary.js';
 
 export async function POST(request) {
   try {
+    const user = await getCurrentUserSession();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file');
 
@@ -16,32 +21,18 @@ export async function POST(request) {
       return Response.json({ error: 'Invalid file type. Only JPG, PNG, GIF, WEBP allowed' }, { status: 400 });
     }
 
-    // Use filename with timestamp to avoid duplicates
-    const fileExt = file.name.split('.').pop();
-    const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.name}`;
-
-    // Save to public folder
-    const publicDir = join(process.cwd(), 'public', 'uploads');
-    
-    // Create uploads directory if it doesn't exist
-    try {
-      await mkdir(publicDir, { recursive: true });
-    } catch (err) {
-      // Directory might already exist
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return Response.json({ error: 'File size must be less than 5MB' }, { status: 400 });
     }
 
-    const filePath = join(publicDir, fileName);
-    const bytes = await file.arrayBuffer();
-    await writeFile(filePath, Buffer.from(bytes));
-
-    // Return the public URL
-    const publicUrl = `/uploads/${fileName}`;
+    const result = await uploadImageToCloudinary(file);
 
     return Response.json({
       success: true,
-      url: publicUrl,
-      fileName: fileName
+      url: result.secure_url,
+      fileName: result.display_name || result.public_id.split('/').pop(),
+      publicId: result.public_id,
     });
   } catch (error) {
     console.error('Error uploading image:', error);

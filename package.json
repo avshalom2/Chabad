@@ -1,5 +1,5 @@
 {
-    "name": "chabadhnextjs",
+  "name": "chabadhnextjs",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -23,6 +23,7 @@
     "@tiptap/pm": "^3.20.6",
     "@tiptap/react": "^3.20.6",
     "@tiptap/starter-kit": "^3.20.6",
+    "cloudinary": "^2.10.0",
     "dotenv": "^17.3.1",
     "grapesjs": "^0.22.14",
     "grapesjs-preset-webpage": "^1.0.3",
