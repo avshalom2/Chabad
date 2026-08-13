@@ -1,9 +1,15 @@
 import { getPool } from './db.js';
-import { createHash } from 'crypto';
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 
 // Simple SHA-256 hash — replace with bcrypt in production for stronger security
 function hashPassword(password) {
-  return createHash('sha256').update(password).digest('hex');
+  const salt = randomBytes(16);
+  const derivedKey = scryptSync(password, salt, 64);
+  return `scrypt$${salt.toString('hex')}$${derivedKey.toString('hex')}`;
+}
+
+export function passwordNeedsUpgrade(storedHash) {
+  return !String(storedHash || '').startsWith('scrypt$');
 }
 
 // ── GET ALL USERS ────────────────────────────────────────────
@@ -99,7 +105,25 @@ export async function changePassword(id, newPassword) {
 
 // ── VERIFY PASSWORD (for login) ──────────────────────────────
 export async function verifyPassword(plainPassword, storedHash) {
-  return hashPassword(plainPassword) === storedHash;
+  const normalizedHash = String(storedHash || '');
+
+  if (normalizedHash.startsWith('scrypt$')) {
+    const [, saltHex, expectedHex] = normalizedHash.split('$');
+    if (!saltHex || !expectedHex) return false;
+
+    try {
+      const expected = Buffer.from(expectedHex, 'hex');
+      const actual = scryptSync(plainPassword, Buffer.from(saltHex, 'hex'), expected.length);
+      return expected.length === actual.length && timingSafeEqual(expected, actual);
+    } catch {
+      return false;
+    }
+  }
+
+  const legacyHash = createHash('sha256').update(plainPassword).digest('hex');
+  const expected = Buffer.from(normalizedHash, 'utf8');
+  const actual = Buffer.from(legacyHash, 'utf8');
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 
 // ── DEACTIVATE USER (soft delete) ────────────────────────────

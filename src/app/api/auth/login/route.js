@@ -1,4 +1,4 @@
-import { getUserByEmail, verifyPassword } from '@/lib/users.js';
+import { changePassword, getUserByEmail, passwordNeedsUpgrade, verifyPassword } from '@/lib/users.js';
 import { createSession } from '@/lib/sessions.js';
 import { headers, cookies } from 'next/headers';
 
@@ -7,11 +7,8 @@ export async function POST(request) {
     const body = await request.json();
     const { email, password } = body;
 
-    console.log('🔐 Login attempt:', { email, password: '***' });
-
     // Validate input
     if (!email || !password) {
-      console.log('❌ Missing email or password');
       return Response.json(
         { error: 'Email and password required' },
         { status: 400 }
@@ -21,17 +18,14 @@ export async function POST(request) {
     // Find user by email
     const user = await getUserByEmail(email);
     if (!user) {
-      console.log('❌ User not found:', email);
       return Response.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
-    console.log('✅ User found:', { id: user.id, email: user.email });
-    console.log('User object:', user);
     if (!user.password_hash) {
-      console.error('❌ User has no password_hash field!');
+      console.error('Login failed: user has no password hash');
       return Response.json(
         { error: 'User has no password set' },
         { status: 500 }
@@ -40,15 +34,15 @@ export async function POST(request) {
 
     // Verify password
     const passwordValid = await verifyPassword(password, user.password_hash);
-    console.log('🔑 Password valid:', passwordValid);
     if (!passwordValid) {
-      console.log('❌ Password verification failed');
-      console.log('   Provided:', password);
-      console.log('   Hash stored:', user.password_hash.substring(0, 20) + '...');
       return Response.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
+    }
+
+    if (passwordNeedsUpgrade(user.password_hash)) {
+      await changePassword(user.id, password);
     }
 
     // Get client IP
@@ -58,7 +52,6 @@ export async function POST(request) {
 
     // Create server-side session
     const sessionId = await createSession(user.id, ipAddress, userAgent);
-    console.log('✅ Session created:', sessionId.substring(0, 20) + '...');
 
     // Set session cookie
     const cookieStore = await cookies();
@@ -69,9 +62,6 @@ export async function POST(request) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
-
-    console.log('✅ Session cookie set');
-    console.log('✅ Login successful for:', email);
 
     // Create response with user data
     return Response.json({
