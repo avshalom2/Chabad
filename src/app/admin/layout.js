@@ -38,6 +38,9 @@ export default async function AdminLayout({ children }) {
           <Link href="/admin/banner-slots" className={styles.navLink}>
             חריצות בנרים
           </Link>
+          <Link href="/admin/media" className={styles.navLink}>
+            ניהול תמונות
+          </Link>
           <Link href="/admin/forms" className={styles.navLink}>
             טפסים
           </Link>

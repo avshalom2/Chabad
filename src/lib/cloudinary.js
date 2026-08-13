@@ -61,3 +61,34 @@ export async function listCloudinaryImages() {
     storage: 'cloudinary',
   }));
 }
+
+export async function listCloudinaryAssets({ nextCursor, maxResults = 60 } = {}) {
+  configureCloudinary();
+  const result = await cloudinary.api.resources({
+    type: 'upload', resource_type: 'image', prefix: `${CLOUDINARY_FOLDER}/`,
+    max_results: Math.min(Math.max(Number(maxResults) || 60, 1), 100),
+    ...(nextCursor ? { next_cursor: nextCursor } : {}),
+  });
+  return {
+    assets: result.resources.map((asset) => ({
+      publicId: asset.public_id, name: asset.display_name || asset.public_id.split('/').pop(),
+      src: asset.secure_url, format: asset.format, width: asset.width, height: asset.height,
+      bytes: asset.bytes, createdAt: asset.created_at,
+    })),
+    nextCursor: result.next_cursor || null,
+  };
+}
+
+export async function deleteCloudinaryImages(publicIds) {
+  configureCloudinary();
+  const folderPrefix = `${CLOUDINARY_FOLDER}/`;
+  const uniqueIds = [...new Set(publicIds.map((id) => String(id || '').trim()))];
+  if (!uniqueIds.length || uniqueIds.some((id) => !id.startsWith(folderPrefix))) {
+    throw new Error('Only images from the configured upload folder can be deleted');
+  }
+  if (uniqueIds.length > 100) throw new Error('A maximum of 100 images can be deleted at once');
+  const result = await cloudinary.api.delete_resources(uniqueIds, {
+    type: 'upload', resource_type: 'image', invalidate: true,
+  });
+  return result.deleted || {};
+}
