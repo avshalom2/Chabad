@@ -10,12 +10,16 @@
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; }
 .card { position: relative; overflow: hidden; text-align: left; padding: 0; border: 2px solid transparent; border-radius: 9px; background: white; box-shadow: 0 1px 4px rgba(15, 23, 42, .12); cursor: pointer; }
 .card.selected { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, .18); }
+.card.inUse { cursor: not-allowed; opacity: .82; }
 .card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #e2e8f0; }
 .checkbox { position: absolute; top: .5rem; right: .5rem; z-index: 1; width: 24px; height: 24px; display: grid; place-items: center; border: 2px solid white; border-radius: 5px; background: rgba(15, 23, 42, .65); color: white; font-weight: 800; }
 .selected .checkbox { background: #2563eb; }
 .details { display: grid; gap: .3rem; padding: .75rem; }
 .details strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .details small { color: #64748b; }
+.usage { display: block; margin: 0 .75rem .75rem; padding: .3rem .5rem; border-radius: 999px; text-align: center; font-size: .75rem; font-weight: 700; }
+.used { color: #166534; background: #dcfce7; }
+.unused { color: #92400e; background: #fef3c7; }
 .message { text-align: center; padding: 3rem; color: #64748b; }
 .loadMore { display: block; margin: 1.5rem auto; padding: .75rem 1.4rem; border: 1px solid #94a3b8; border-radius: 7px; background: white; cursor: pointer; }
 @media (max-width: 640px) { .header { align-items: stretch; flex-direction: column; } .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

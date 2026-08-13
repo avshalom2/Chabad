@@ -42,6 +42,7 @@ export default function MediaPage() {
   }, [assets, search]);
 
   function toggle(publicId) {
+    if (assets.find((asset) => asset.publicId === publicId)?.usageCount) return;
     setSelected((current) => {
       const next = new Set(current);
       if (next.has(publicId)) next.delete(publicId); else next.add(publicId);
@@ -65,7 +66,10 @@ export default function MediaPage() {
         body: JSON.stringify({ publicIds }),
       });
       const data = await response.json();
-      if (!response.ok && response.status !== 207) throw new Error(data.error || 'Delete failed');
+      if (!response.ok && response.status !== 207) {
+        const suffix = data.inUse?.length ? ` (${data.inUse.length} selected image(s) are in use)` : '';
+        throw new Error(`${data.error || 'Delete failed'}${suffix}`);
+      }
       const removed = publicIds.filter((id) => !data.failed?.includes(id));
       setAssets((current) => current.filter((asset) => !removed.includes(asset.publicId)));
       setSelected(new Set(data.failed || []));
@@ -88,19 +92,20 @@ export default function MediaPage() {
       <div className={styles.toolbar}>
         <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by file ID" />
         <span>{assets.length} loaded</span>
-        <button type="button" onClick={() => setSelected(new Set(visibleAssets.map((asset) => asset.publicId)))} disabled={!visibleAssets.length}>Select visible</button>
+        <button type="button" onClick={() => setSelected(new Set(visibleAssets.filter((asset) => !asset.usageCount).map((asset) => asset.publicId)))} disabled={!visibleAssets.length}>Select unused</button>
         <button type="button" onClick={() => setSelected(new Set())} disabled={!selected.size}>Clear</button>
       </div>
       {loading && !assets.length ? <p className={styles.message}>Loading images…</p> : null}
       {!loading && !visibleAssets.length ? <p className={styles.message}>No images found.</p> : null}
       <div className={styles.grid}>
         {visibleAssets.map((asset) => (
-          <button type="button" key={asset.publicId} className={`${styles.card} ${selected.has(asset.publicId) ? styles.selected : ''}`} onClick={() => toggle(asset.publicId)}>
+          <button type="button" key={asset.publicId} disabled={Boolean(asset.usageCount)} title={asset.usageCount ? `Used in ${asset.usageCount} place(s)` : 'Unused image'} className={`${styles.card} ${selected.has(asset.publicId) ? styles.selected : ''} ${asset.usageCount ? styles.inUse : ''}`} onClick={() => toggle(asset.publicId)}>
             <span className={styles.checkbox}>{selected.has(asset.publicId) ? '✓' : ''}</span>
             <img src={asset.src} alt={asset.name} loading="lazy" />
             <span className={styles.details}><strong title={asset.publicId}>{asset.name}</strong>
               <small>{asset.width} × {asset.height} · {formatBytes(asset.bytes)}</small>
               <small>{new Date(asset.createdAt).toLocaleDateString()}</small></span>
+            <span className={`${styles.usage} ${asset.usageCount ? styles.used : styles.unused}`}>{asset.usageCount ? `In use (${asset.usageCount})` : 'Unused'}</span>
           </button>
         ))}
       </div>

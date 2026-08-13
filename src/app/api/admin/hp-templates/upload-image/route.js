@@ -1,5 +1,6 @@
 import { getCurrentUserSession } from '@/lib/auth-session.js';
 import { uploadImageToCloudinary } from '@/lib/cloudinary.js';
+import { upsertMediaAsset } from '@/lib/media-assets.js';
 
 export async function POST(request) {
   try {
@@ -27,12 +28,14 @@ export async function POST(request) {
     }
 
     const result = await uploadImageToCloudinary(file);
+    const asset = await upsertMediaAsset(result);
 
     return Response.json({
       success: true,
       url: result.secure_url,
       fileName: result.display_name || result.public_id.split('/').pop(),
       publicId: result.public_id,
+      assetId: asset.id,
     });
   } catch (error) {
     console.error('Error uploading image:', error);
