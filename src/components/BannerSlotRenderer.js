@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './BannerSlotRenderer.module.css';
 
-export default function BannerSlotRenderer({ slotSlug, slotId, className = '' }) {
+export default function BannerSlotRenderer({ slotSlug, slotId, className = '', onVisibilityChange }) {
   const [slot, setSlot] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoSlideTransition, setAutoSlideTransition] = useState(true);
@@ -19,18 +19,31 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '' })
   const fetchSlot = async () => {
     try {
       setLoading(true);
+      setSlot(null);
       const identifier = slotId || slotSlug;
       if (!identifier) return;
 
-      const response = await fetch(`/api/admin/banner-slots/${identifier}?activeOnly=true`);
+      const response = await fetch(`/api/admin/banner-slots/${identifier}?activeOnly=true`, {
+        cache: 'no-store',
+      });
       if (response.ok) {
         const data = await response.json();
+        const isActive = data.is_active === true || data.is_active === 1 || data.is_active === '1';
+        if (!isActive || !data.banners?.length) {
+          onVisibilityChange?.(false);
+          return;
+        }
+
         setSlot(data);
+        onVisibilityChange?.(true);
         setCurrentIndex(0);
         setAutoSlideTransition(true);
+      } else {
+        onVisibilityChange?.(false);
       }
     } catch (err) {
       console.error('Error fetching slot:', err);
+      onVisibilityChange?.(false);
     } finally {
       setLoading(false);
     }

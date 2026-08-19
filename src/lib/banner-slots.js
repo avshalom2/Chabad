@@ -4,6 +4,7 @@
 export async function getBannerSlotWithBanners(identifier, activeOnly = false) {
   const slot = await getBannerSlot(identifier);
   if (!slot) return null;
+  if (activeOnly && !slot.is_active) return null;
   const banners = await getBannersBySlot(slot.id, activeOnly);
   return { ...slot, banners };
 }

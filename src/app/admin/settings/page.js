@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import TemplateEditor from '@/components/TemplateEditor';
+import SmartGridTemplateEditor from '@/components/SmartGridTemplateEditor';
+import { createDefaultSmartGridConfig, parseSmartGridTemplate, serializeSmartGridTemplate } from '@/lib/smart-grid-template';
 import styles from './settings.module.css';
 
 const MOBILE_CONTROL_ORDER_SETTING = 'control_mobile_order';
@@ -209,6 +211,28 @@ export default function SettingsPage() {
     }
   };
 
+  const handleCreateSmartGridTemplate = async () => {
+    try {
+      const templateHtml = serializeSmartGridTemplate(createDefaultSmartGridConfig());
+      const response = await fetch('/api/admin/hp-templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template_name: 'Smart Grid Homepage',
+          template_html: templateHtml,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to create Smart Grid template');
+      setMessage({ type: 'success', text: 'Smart Grid template created. Your active template was not changed.' });
+      await loadTemplates();
+      setSelectedTemplate(data.templateId);
+    } catch (error) {
+      console.error('Error creating Smart Grid template:', error);
+      setMessage({ type: 'error', text: error.message });
+    }
+  };
+
   const handleSetActive = async (templateId) => {
     try {
       const response = await fetch(`/api/admin/hp-templates/${templateId}`, {
@@ -253,6 +277,7 @@ export default function SettingsPage() {
 
   const currentTemplate = templates?.find(t => t.id === selectedTemplate);
   const templateHtml = currentTemplate?.homepage_html || currentTemplate?.template_html;
+  const smartGridConfig = parseSmartGridTemplate(templateHtml);
   const availableMobileControls = extractTemplateControlIds(templateHtml);
 
   return (
@@ -323,12 +348,10 @@ export default function SettingsPage() {
           <div className={styles.templatesPanel}>
             <div className={styles.panelHeader}>
               <h2>Templates</h2>
-              <button
-                className={styles.addBtn}
-               onClick={() => setShowNewTemplateForm(!showNewTemplateForm)}
-              >
-                + New Template
-              </button>
+              <div className={styles.headerActions}>
+                <button className={styles.addBtn} onClick={handleCreateSmartGridTemplate}>+ Smart Grid Template</button>
+                <button className={styles.addBtn} onClick={() => setShowNewTemplateForm(!showNewTemplateForm)}>+ New HTML Template</button>
+              </div>
             </div>
 
             {showNewTemplateForm && (
@@ -420,10 +443,11 @@ export default function SettingsPage() {
           {/* Editor Panel */}
           {currentTemplate && templateHtml && (
             <div className={styles.editorPanel}>
-              <TemplateEditor
-                templateId={currentTemplate.id}
-                initialHtml={templateHtml}
-              />
+              {smartGridConfig ? (
+                <SmartGridTemplateEditor templateId={currentTemplate.id} initialHtml={templateHtml} />
+              ) : (
+                <TemplateEditor templateId={currentTemplate.id} initialHtml={templateHtml} />
+              )}
             </div>
           )}
 

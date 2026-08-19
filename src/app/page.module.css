@@ -1,6 +1,7 @@
 .main {
   direction: rtl;
   font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
+  padding-top: 20px;
 }
 
 .main :global(.card)::before,

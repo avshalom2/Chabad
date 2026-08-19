@@ -8,6 +8,8 @@ import NewsBox from '@/components/NewsBox';
 import ArticlesSlider from '@/components/ArticlesSlider';
 import ArticlesCube from '@/components/ArticlesCube';
 import BannerSlotRenderer from '@/components/BannerSlotRenderer';
+import SmartGridRenderer from '@/components/SmartGridRenderer';
+import { parseSmartGridTemplate } from '@/lib/smart-grid-template';
 import StoreHoursBar from '@/components/StoreHoursBar';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -19,8 +21,10 @@ import styles from './TemplateRenderer.module.css';
 export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
   const containerRef = useRef(null);
   const [portalsMap, setPortalsMap] = useState({});
+  const smartGridConfig = useMemo(() => parseSmartGridTemplate(html), [html]);
 
   useEffect(() => {
+    if (smartGridConfig) return;
     if (!html || !containerRef.current) return;
 
     console.log('TemplateRenderer: Setting HTML content, length:', html.length);
@@ -140,7 +144,11 @@ export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
     }, 0);
 
     return () => window.clearTimeout(portalUpdate);
-  }, [html, mobileControlOrder]);
+  }, [html, mobileControlOrder, smartGridConfig]);
+
+  if (smartGridConfig) {
+    return <SmartGridRenderer config={smartGridConfig} />;
+  }
 
   // Render React components into their placeholder divs using createPortal
   const portals = Object.entries(portalsMap).map(([portalId, config]) => {
