@@ -589,55 +589,63 @@
 /* Standard template when featured (full width) */
 .standardFeatured {
   display: grid;
-  grid-template-columns: minmax(220px, 38%) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 42%) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   direction: rtl;
-  border: 1px solid #f0f0f0;
-  border-radius: 10px;
+  min-height: 300px;
   overflow: hidden;
   background: white;
 }
 
 .standardFeaturedImageLink {
   display: block;
+  grid-row: 1 / 3;
   height: 100%;
-  min-height: 240px;
+  min-height: 300px;
   overflow: hidden;
-  background: #f2f2f2;
+  background: #eef1f4;
 }
 
 .standardFeaturedImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
+  transition: transform 0.45s ease;
+}
+
+.standardFeaturedImageLink:hover .standardFeaturedImage {
+  transform: scale(1.025);
 }
 
 .standardFeatured .articleBody {
-  align-items: center;
-  justify-content: center;
-  padding: 1.45rem 2rem 1rem;
-  text-align: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 2.25rem 2.5rem 1rem;
+  text-align: right;
 }
 
 .standardFeatured .articleTitle {
   max-height: none;
-  margin: 0 0 0.6rem !important;
-  font-size: clamp(1.2rem, 1.9vw, 1.55rem) !important;
-  line-height: 1.25;
+  margin: 0 0 0.85rem !important;
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem) !important;
+  line-height: 1.3;
 }
 
 .standardFeatured .articleDesc {
-  max-width: 460px;
+  max-width: 620px;
   max-height: none !important;
-  line-height: 1.55;
-  color: #333;
+  margin: 0;
+  line-height: 1.7;
+  color: #475569;
 }
 
 .standardFeatured .articleFooter {
   grid-column: 2;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
-  padding: 0 2rem 1.45rem;
+  padding: 0 2.5rem 2rem;
   border-top: none;
   background: white;
 }
@@ -775,15 +783,16 @@
     display: flex;
     flex-direction: column;
     direction: rtl;
+    min-height: 0;
   }
 
   .standardFeatured .articleBody {
-    padding: 1.2rem 1.1rem 0.8rem;
+    padding: 1.35rem 1.25rem 0.8rem;
   }
 
   .standardFeatured .articleFooter {
     grid-column: auto;
-    padding: 0 1.1rem 1.2rem;
+    padding: 0 1.25rem 1.35rem;
   }
 }
 
