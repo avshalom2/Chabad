@@ -32,6 +32,13 @@ export async function PUT(request, { params }) {
     const { bannerId } = await params;
     const body = await request.json();
 
+    if (body.start_date && body.end_date && body.start_date > body.end_date) {
+      return Response.json(
+        { error: 'Start date cannot be after end date' },
+        { status: 400 }
+      );
+    }
+
     const banner = await getBanner(bannerId);
     if (!banner) {
       return Response.json({ error: 'Banner not found' }, { status: 404 });

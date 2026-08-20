@@ -18,6 +18,8 @@ function BannerManager({ slot, onClose }) {
     description: '',
     is_active: true,
     sort_order: 0,
+    start_date: '',
+    end_date: '',
   });
   const [uploading, setUploading] = useState(false);
   const [uploadImages, setUploadImages] = useState([]);
@@ -25,6 +27,11 @@ function BannerManager({ slot, onClose }) {
   const [uploadSearchTerm, setUploadSearchTerm] = useState('');
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+  const hasChanges = useRef(false);
+
+  const closeManager = () => {
+    onClose(hasChanges.current);
+  };
 
   const showToast = (message, type = 'success') => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -123,6 +130,8 @@ function BannerManager({ slot, onClose }) {
       description: '',
       is_active: true,
       sort_order: 0,
+      start_date: '',
+      end_date: '',
     });
     setEditingBannerId(null);
     setShowForm(false);
@@ -131,6 +140,11 @@ function BannerManager({ slot, onClose }) {
   const handleSaveBanner = async () => {
     if (!formData.image_url) {
       showToast('Image URL is required', 'error');
+      return;
+    }
+
+    if (formData.start_date && formData.end_date && formData.start_date > formData.end_date) {
+      showToast('Start date cannot be after end date', 'error');
       return;
     }
 
@@ -147,6 +161,7 @@ function BannerManager({ slot, onClose }) {
         );
 
         if (!response.ok) throw new Error('Failed to update banner');
+        hasChanges.current = true;
         showToast('Banner updated successfully');
       } else {
         // Create new banner
@@ -160,6 +175,7 @@ function BannerManager({ slot, onClose }) {
         );
 
         if (!response.ok) throw new Error('Failed to create banner');
+        hasChanges.current = true;
         showToast('Banner created successfully');
       }
 
@@ -180,6 +196,8 @@ function BannerManager({ slot, onClose }) {
       description: banner.description || '',
       is_active: banner.is_active === 1,
       sort_order: banner.sort_order,
+      start_date: banner.start_date ? String(banner.start_date).slice(0, 10) : '',
+      end_date: banner.end_date ? String(banner.end_date).slice(0, 10) : '',
     });
     setShowForm(true);
   };
@@ -194,6 +212,7 @@ function BannerManager({ slot, onClose }) {
       );
 
       if (!response.ok) throw new Error('Failed to delete banner');
+      hasChanges.current = true;
       showToast('Banner deleted successfully');
       fetchBanners();
     } catch (error) {
@@ -213,6 +232,7 @@ function BannerManager({ slot, onClose }) {
       );
 
       if (!response.ok) throw new Error('Failed to update banner');
+      hasChanges.current = true;
       showToast('Banner status updated');
       fetchBanners();
     } catch (error) {
@@ -221,12 +241,12 @@ function BannerManager({ slot, onClose }) {
   };
 
   return (
-    <div className={styles.managerOverlay} onClick={onClose}>
-      <div className={styles.managerModal} onClick={(e) => e.stopPropagation()}>
+    <section className={styles.managerPage}>
+      <div className={styles.managerPanel}>
         <div className={styles.managerHeader}>
           <h3>Manage Banners: {slot.name}</h3>
-          <button onClick={onClose} className={styles.closeBtn}>
-            ✕
+          <button type="button" onClick={closeManager} className={styles.closeBtn}>
+            ← Back to banner slots
           </button>
         </div>
 
@@ -253,6 +273,13 @@ function BannerManager({ slot, onClose }) {
                   <h4>{banner.title || 'Untitled'}</h4>
                   {banner.link_url && <p className={styles.url}>{banner.link_url}</p>}
                   <p className={styles.description}>{banner.description}</p>
+                  {(banner.start_date || banner.end_date) && (
+                    <p className={styles.description}>
+                      Display: {banner.start_date ? String(banner.start_date).slice(0, 10) : 'always'}
+                      {' – '}
+                      {banner.end_date ? String(banner.end_date).slice(0, 10) : 'always'}
+                    </p>
+                  )}
                 </div>
                 <div className={styles.bannerActions}>
                   <button
@@ -348,6 +375,7 @@ function BannerManager({ slot, onClose }) {
               </div>
             </div>
 
+            <div className={styles.bannerDetailsGrid}>
             <div className={styles.formGroup}>
               <label>
                 Title (optional)
@@ -387,7 +415,7 @@ function BannerManager({ slot, onClose }) {
               </label>
             </div>
 
-            <div className={styles.formGroup}>
+            <div className={`${styles.formGroup} ${styles.fullWidthField}`}>
               <label>
                 Description (optional)
                 <textarea
@@ -401,6 +429,32 @@ function BannerManager({ slot, onClose }) {
 
             <div className={styles.formGroup}>
               <label>
+                Show from (optional)
+                <input
+                  type="date"
+                  name="start_date"
+                  value={formData.start_date}
+                  onChange={handleInputChange}
+                  max={formData.end_date || undefined}
+                />
+              </label>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                Show until (optional)
+                <input
+                  type="date"
+                  name="end_date"
+                  value={formData.end_date}
+                  onChange={handleInputChange}
+                  min={formData.start_date || undefined}
+                />
+              </label>
+            </div>
+
+            <div className={`${styles.formGroup} ${styles.activeField}`}>
+              <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   name="is_active"
@@ -409,6 +463,7 @@ function BannerManager({ slot, onClose }) {
                 />
                 Active
               </label>
+            </div>
             </div>
 
             <div className={styles.formActions}>
@@ -431,7 +486,7 @@ function BannerManager({ slot, onClose }) {
           </button>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -583,7 +638,7 @@ export default function AdminBannerSlotsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Banner Slots Management</h1>
-        {!showForm && (
+        {!showForm && !selectedSlot && (
           <button
             onClick={() => setShowForm(true)}
             className={styles.createBtn}
@@ -719,7 +774,7 @@ export default function AdminBannerSlotsPage() {
 
             {/* RIGHT COLUMN */}
             <div className={styles.formGroup}>
-              <label>
+              <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   name="is_active"
@@ -771,7 +826,7 @@ export default function AdminBannerSlotsPage() {
       )}
 
       {/* Slots list */}
-      <div className={styles.slotsList}>
+      {!selectedSlot && <div className={styles.slotsList}>
         {slots.length === 0 ? (
           <p className={styles.emptyMessage}>No banner slots yet. Create one to start.</p>
         ) : (
@@ -826,15 +881,15 @@ export default function AdminBannerSlotsPage() {
             </div>
           ))
         )}
-      </div>
+      </div>}
 
-      {/* Banner manager modal */}
+      {/* Inline banner manager */}
       {selectedSlot && (
         <BannerManager
           slot={selectedSlot}
-          onClose={() => {
+          onClose={(hasChanges) => {
             setSelectedSlot(null);
-            fetchSlots();
+            if (hasChanges) fetchSlots();
           }}
         />
       )}

@@ -183,6 +183,7 @@
 .formGroup input[type="url"],
 .formGroup input[type="number"],
 .formGroup input[type="email"],
+.formGroup input[type="date"],
 .formGroup textarea,
 .formGroup select {
   padding: 0.6rem 0.8rem;
@@ -197,6 +198,7 @@
 .formGroup input[type="text"]:focus,
 .formGroup input[type="url"]:focus,
 .formGroup input[type="number"]:focus,
+.formGroup input[type="date"]:focus,
 .formGroup textarea:focus,
 .formGroup select:focus {
   outline: none;
@@ -215,13 +217,15 @@
   cursor: pointer;
 }
 
-.formGroup > label {
-  flex-direction: row;
+.checkboxLabel {
+  flex-direction: row !important;
   align-items: center;
+  gap: 0.65rem !important;
+  cursor: pointer;
 }
 
-.formGroup > label input[type="checkbox"] {
-  margin-right: 0.5rem;
+.checkboxLabel input[type="checkbox"] {
+  margin: 0;
 }
 
 .formActions {
@@ -358,31 +362,20 @@
   transition: all 0.3s ease;
 }
 
-/* Manager Modal */
-.managerOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  padding: 1rem;
+/* Inline banner manager */
+.managerPage {
+  width: 100%;
 }
 
-.managerModal {
+.managerPanel {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
-  max-width: 900px;
+  border: 1px solid #dfe5ec;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(20, 35, 55, 0.08);
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .managerHeader {
@@ -400,24 +393,26 @@
 }
 
 .closeBtn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  background: #f4f7fa;
+  border: 1px solid #d8e0e8;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  color: #999;
-  padding: 0;
-  width: 32px;
-  height: 32px;
+  color: #344054;
+  padding: 0.6rem 0.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 7px;
+  width: auto;
+  height: auto;
   transition: all 0.3s ease;
 }
 
 .closeBtn:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: #e9eef4;
+  border-color: #b9c5d2;
+  color: #172033;
 }
 
 .bannersList {
@@ -493,15 +488,51 @@
 
 /* Banner Form */
 .bannerForm {
-  background-color: #f9f9f9;
+  background-color: #f6f8fb;
   border-top: 1px solid #e0e0e0;
-  padding: 1.5rem;
+  padding: 1.75rem;
   flex-shrink: 0;
+  direction: ltr;
+  text-align: left;
 }
 
 .bannerForm h4 {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
+  margin: 0 0 1.25rem 0;
+  font-size: 1.2rem;
+  color: #172033;
+}
+
+.bannerDetailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.fullWidthField,
+.activeField {
+  grid-column: 1 / -1;
+}
+
+.activeField {
+  padding: 0.85rem 1rem;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.bannerForm .formGroup input:not([type="checkbox"]),
+.bannerForm .formGroup textarea,
+.bannerForm .formGroup select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  border-color: #cfd8e3;
+  border-radius: 8px;
+}
+
+.bannerForm .formGroup textarea {
+  min-height: 96px;
 }
 
 .previewBox {
@@ -677,10 +708,6 @@
     grid-template-columns: 1fr;
   }
 
-  .managerModal {
-    max-height: 95vh;
-  }
-
   .slotActions {
     flex-direction: column;
   }
@@ -700,5 +727,14 @@
 
   .bannerActions {
     flex-direction: row;
+  }
+
+  .bannerDetailsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidthField,
+  .activeField {
+    grid-column: auto;
   }
 }

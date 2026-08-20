@@ -137,7 +137,9 @@ export async function getBannersBySlot(slotId, activeOnly = false) {
     const pool = await getPool();
     let query = 'SELECT * FROM banners WHERE banner_slot_id = $1';
     if (activeOnly) {
-      query += ' AND is_active = TRUE';
+      query += ` AND is_active = TRUE
+        AND (start_date IS NULL OR start_date <= CURRENT_DATE)
+        AND (end_date IS NULL OR end_date >= CURRENT_DATE)`;
     }
     query += ' ORDER BY sort_order ASC, created_at DESC';
     const result = await pool.query(query, [slotId]);
@@ -170,21 +172,21 @@ export async function createBanner(data, userId) {
     const pool = await getPool();
     const {
       banner_slot_id, title, image_url, link_url, alt_text,
-      description, is_active, sort_order,
+      description, is_active, sort_order, start_date, end_date,
     } = data;
 
     const query = `
       INSERT INTO banners (
         banner_slot_id, title, image_url, link_url, alt_text,
-        description, is_active, sort_order, created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        description, is_active, sort_order, start_date, end_date, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING id
     `;
 
     const result = await pool.query(query, [
       banner_slot_id, title || null, image_url, link_url || null,
       alt_text || null, description || null, is_active !== false,
-      sort_order || 0, userId,
+      sort_order || 0, start_date || null, end_date || null, userId,
     ]);
     return { id: result.rows[0].id, ...data, created_by: userId };
   } catch (error) {
@@ -207,6 +209,8 @@ export async function updateBanner(id, data) {
       description,
       is_active,
       sort_order,
+      start_date,
+      end_date,
     } = data;
 
     const query = `
@@ -217,8 +221,10 @@ export async function updateBanner(id, data) {
         alt_text = $4,
         description = $5,
         is_active = $6,
-        sort_order = $7
-      WHERE id = $8
+        sort_order = $7,
+        start_date = $8,
+        end_date = $9
+      WHERE id = $10
     `;
 
     await pool.query(query, [
@@ -229,6 +235,8 @@ export async function updateBanner(id, data) {
       description || null,
       is_active !== undefined ? is_active : true,
       sort_order ?? 0,
+      start_date || null,
+      end_date || null,
       id,
     ]);
 

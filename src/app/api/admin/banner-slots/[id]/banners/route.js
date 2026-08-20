@@ -39,12 +39,22 @@ export async function POST(request, { params }) {
       return Response.json({ error: 'Banner slot not found' }, { status: 404 });
     }
 
-    const { title, image_url, link_url, alt_text, description, is_active, sort_order } = body;
+    const {
+      title, image_url, link_url, alt_text, description, is_active, sort_order,
+      start_date, end_date,
+    } = body;
 
     // Validate required fields
     if (!image_url) {
       return Response.json(
         { error: 'image_url is required' },
+        { status: 400 }
+      );
+    }
+
+    if (start_date && end_date && start_date > end_date) {
+      return Response.json(
+        { error: 'Start date cannot be after end date' },
         { status: 400 }
       );
     }
@@ -62,6 +72,8 @@ export async function POST(request, { params }) {
         description,
         is_active,
         sort_order,
+        start_date,
+        end_date,
       },
       userId
     );

@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS banners (
   description     TEXT          DEFAULT NULL,
   is_active       TINYINT(1)    NOT NULL DEFAULT 1,
   sort_order      INT           NOT NULL DEFAULT 0,
+  start_date      DATE          DEFAULT NULL,
+  end_date        DATE          DEFAULT NULL,
   click_count     INT           NOT NULL DEFAULT 0,
   created_by      INT UNSIGNED  DEFAULT NULL,
   created_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,

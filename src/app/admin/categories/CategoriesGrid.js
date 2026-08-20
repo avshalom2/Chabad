@@ -98,6 +98,7 @@ export default function CategoriesGrid({ categories }) {
   return (
     <>
       {error && <div className={styles.gridError}>{error}</div>}
+      <div className={styles.tableShell}>
       <table className={styles.table}>
         <thead>
           <tr>
@@ -117,6 +118,7 @@ export default function CategoriesGrid({ categories }) {
               key={cat.id}
               cat={cat}
               level={0}
+              parentName={null}
               savingIds={savingIds}
               onMenuChange={updateMenuFlag}
               onDelete={deleteCategoryItem}
@@ -124,20 +126,24 @@ export default function CategoriesGrid({ categories }) {
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 }
 
-function TreeItem({ cat, level, savingIds, onMenuChange, onDelete }) {
+function TreeItem({ cat, level, parentName, savingIds, onMenuChange, onDelete }) {
   const indent = level * 30;
   const isSaving = savingIds.includes(cat.id);
 
   return (
     <>
-      <tr style={{ backgroundColor: level > 0 ? '#f9fafb' : 'transparent' }}>
+      <tr className={level === 0 ? styles.parentRow : styles.childRow}>
         <td style={{ paddingLeft: `${indent + 16}px` }}>
           {level > 0 && <span className={styles.treeIcon}>└ </span>}
-          {cat.name}
+          <span className={styles.categoryName}>{cat.name}</span>
+          <span className={level === 0 && cat.children.length > 0 ? styles.parentBadge : level > 0 ? styles.childBadge : styles.rootBadge}>
+            {level === 0 && cat.children.length > 0 ? 'Parent' : level > 0 ? `Child of ${parentName}` : 'Root'}
+          </span>
         </td>
         <td><code>{cat.slug}</code></td>
         <td>{cat.type_name}</td>
@@ -180,6 +186,7 @@ function TreeItem({ cat, level, savingIds, onMenuChange, onDelete }) {
           key={child.id}
           cat={child}
           level={level + 1}
+          parentName={cat.name}
           savingIds={savingIds}
           onMenuChange={onMenuChange}
           onDelete={onDelete}
