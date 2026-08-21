@@ -3,6 +3,121 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './BannerSlotRenderer.module.css';
 
+const MAX_BANNER_FILE_SIZE = 500 * 1024;
+
+function InlineBannerEditor({ banner, onSaved }) {
+  const inputRef = useRef(null);
+  const [canEdit, setCanEdit] = useState(false);
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [editingBannerId, setEditingBannerId] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetch('/api/auth/admin-status', { cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => setCanEdit(data?.canEditBanner === true))
+      .catch(() => setCanEdit(false));
+  }, []);
+
+  useEffect(() => () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+
+  const resetSelection = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(null);
+    setPreviewUrl('');
+    setEditingBannerId(null);
+    setMessage('');
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  const chooseFile = (event) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(selectedFile.type)) {
+      setMessage('יש לבחור תמונת JPEG, PNG או WebP');
+      event.target.value = '';
+      return;
+    }
+
+    if (selectedFile.size > MAX_BANNER_FILE_SIZE) {
+      setMessage('התמונה גדולה מדי. הגודל המרבי הוא 500 KB');
+      event.target.value = '';
+      return;
+    }
+
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(selectedFile);
+    setEditingBannerId(banner.id);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
+    setMessage('');
+  };
+
+  const save = async () => {
+    if (!file || !editingBannerId) return;
+    setSaving(true);
+    setMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`/api/admin/banners/${editingBannerId}/image`, {
+        method: 'PUT',
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'שמירת הבאנר נכשלה');
+
+      onSaved(editingBannerId, data.url);
+      resetSelection();
+    } catch (error) {
+      setMessage(error.message || 'שמירת הבאנר נכשלה');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!canEdit || !banner) return null;
+
+  return (
+    <div className={styles.inlineEditor} onPointerDown={(event) => event.stopPropagation()}>
+      <input
+        ref={inputRef}
+        className={styles.fileInput}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={chooseFile}
+      />
+
+      {!previewUrl ? (
+        <button type="button" className={styles.editButton} onClick={() => inputRef.current?.click()}>
+          עריכת באנר
+        </button>
+      ) : (
+        <>
+          <div className={styles.previewOverlay}>
+            <img src={previewUrl} alt="תצוגה מקדימה של הבאנר" />
+          </div>
+          <div className={styles.editActions}>
+            <button type="button" className={styles.saveButton} onClick={save} disabled={saving}>
+              {saving ? 'שומר...' : 'שמירה'}
+            </button>
+            <button type="button" className={styles.cancelButton} onClick={resetSelection} disabled={saving}>
+              ביטול
+            </button>
+          </div>
+        </>
+      )}
+
+      {message && <div className={styles.editorMessage} role="alert">{message}</div>}
+    </div>
+  );
+}
+
 export default function BannerSlotRenderer({ slotSlug, slotId, className = '', onVisibilityChange }) {
   const [slot, setSlot] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -23,7 +138,7 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '', o
       const identifier = slotId || slotSlug;
       if (!identifier) return;
 
-      const response = await fetch(`/api/admin/banner-slots/${identifier}?activeOnly=true`, {
+      const response = await fetch(`/api/banner-slots/${identifier}`, {
         cache: 'no-store',
       });
       if (response.ok) {
@@ -137,6 +252,7 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '', o
       ? [...slot.banners, slot.banners[0]]
       : slot.banners;
     const activeDotIndex = currentIndex % slot.banners.length;
+    const activeBanner = slot.banners[activeDotIndex];
 
     return (
       <div
@@ -187,12 +303,24 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '', o
             </div>
           )}
         </div>
+        {slot.slug === 'homepage-1' && (
+          <InlineBannerEditor
+            banner={activeBanner}
+            onSaved={(bannerId, imageUrl) => setSlot((current) => ({
+              ...current,
+              banners: current.banners.map((banner) => (
+                banner.id === bannerId ? { ...banner, image_url: imageUrl } : banner
+              )),
+            }))}
+          />
+        )}
       </div>
     );
   }
 
   // ===== CAROUSEL (dots/arrows): Push/slide transition effect =====
   if (isCarousel) {
+    const activeBanner = slot.banners[currentIndex];
     return (
       <div
         className={`${styles.container} ${className}`}
@@ -260,6 +388,17 @@ export default function BannerSlotRenderer({ slotSlug, slotId, className = '', o
             </div>
           )}
         </div>
+        {slot.slug === 'homepage-1' && (
+          <InlineBannerEditor
+            banner={activeBanner}
+            onSaved={(bannerId, imageUrl) => setSlot((current) => ({
+              ...current,
+              banners: current.banners.map((banner) => (
+                banner.id === bannerId ? { ...banner, image_url: imageUrl } : banner
+              )),
+            }))}
+          />
+        )}
       </div>
     );
   }
