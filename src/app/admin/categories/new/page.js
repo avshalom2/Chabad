@@ -233,13 +233,14 @@ export default function NewCategoryPage() {
             onChange={handleChange}
             disabled={loading}
           >
+            <option value="-1">Full width (fit automatically)</option>
             <option value="1">1 column</option>
             <option value="2">2 columns</option>
             <option value="3">3 columns</option>
             <option value="4">4 columns</option>
             <option value="5">5 columns</option>
           </select>
-          <small>Default layout when viewing this category</small>
+          <small>Full width adds as many boxes as fit and stretches them to fill the row</small>
         </div>
 
         <div className={styles.formActions}>

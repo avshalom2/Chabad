@@ -84,6 +84,13 @@ export default function EditCategoryPage() {
     loadData();
   }, [categoryId]);
 
+  useEffect(() => {
+    if (!success) return undefined;
+
+    const dismissTimer = window.setTimeout(() => setSuccess(false), 3000);
+    return () => window.clearTimeout(dismissTimer);
+  }, [success]);
+
   // Auto-generate slug from name
   function handleNameChange(e) {
     const name = e.target.value;
@@ -116,7 +123,6 @@ export default function EditCategoryPage() {
 
       if (!res.ok) {
         setError(data.error || 'Failed to update category');
-        setLoading(false);
         return;
       }
 
@@ -124,6 +130,7 @@ export default function EditCategoryPage() {
       // Stay on page - don't redirect
     } catch (err) {
       setError('An error occurred. Please try again.');
+    } finally {
       setLoading(false);
     }
   }
@@ -149,7 +156,11 @@ export default function EditCategoryPage() {
 
       <form onSubmit={handleSubmit} className={styles.form}>
         {error && <div className={styles.error}>{error}</div>}
-        {success && <div className={styles.success}>✓ Category updated successfully!</div>}
+        {success && (
+          <div className={styles.success} role="status" aria-live="polite">
+            ✓ Category updated successfully!
+          </div>
+        )}
 
         <div className={styles.formGroup}>
           <label htmlFor="name">Name *</label>
@@ -296,13 +307,14 @@ export default function EditCategoryPage() {
             onChange={handleChange}
             disabled={loading}
           >
+            <option value="-1">Full width (fit automatically)</option>
             <option value="1">1 column</option>
             <option value="2">2 columns</option>
             <option value="3">3 columns</option>
             <option value="4">4 columns</option>
             <option value="5">5 columns</option>
           </select>
-          <small>Default layout when viewing this category</small>
+          <small>Full width adds as many boxes as fit and stretches them to fill the row</small>
         </div>
 
         <div className={styles.formActions}>

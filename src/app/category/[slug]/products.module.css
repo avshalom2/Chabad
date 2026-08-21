@@ -50,6 +50,10 @@
   gap: 1.25rem;
 }
 
+.productsGrid.autoFitGrid {
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+}
+
 /* Responsive fallback for very small screens */
 @media (max-width: 480px) {
   .productsGrid {

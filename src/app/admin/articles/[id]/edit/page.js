@@ -12,6 +12,7 @@ export default function EditArticlePage() {
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const articleBodyRef = useRef(null);
 
@@ -100,11 +101,18 @@ export default function EditArticlePage() {
 
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  useEffect(() => {
+    if (!saveSuccess) return undefined;
+
+    const dismissTimer = window.setTimeout(() => setSaveSuccess(false), 3000);
+    return () => window.clearTimeout(dismissTimer);
+  }, [saveSuccess]);
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setSaveSuccess(false);
-    setLoading(true);
+    setSaving(true);
 
     try {
       const articleHtml = articleBodyRef.current?.getHtml() || form.content;
@@ -127,20 +135,17 @@ export default function EditArticlePage() {
 
       if (!res.ok) {
         setError(data.error || 'Failed to update article');
-        setLoading(false);
         return;
       }
 
       setSaveSuccess(true);
-      setLoading(false);
       articleBodyRef.current?.clearDraft();
       // Update form.content with the saved HTML so subsequent saves don't revert
       setForm((prev) => ({ ...prev, content: articleHtml }));
-      // Scroll to top to show success message
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       setError('An error occurred. Please try again.');
-      setLoading(false);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -161,7 +166,11 @@ export default function EditArticlePage() {
 
       <form onSubmit={handleSubmit} className={styles.form}>
         {error && <div className={styles.error}>{error}</div>}
-        {saveSuccess && <div className={styles.success}>✓ Article saved successfully!</div>}
+        {saveSuccess && (
+          <div className={styles.success} role="status" aria-live="polite">
+            ✓ Article saved successfully!
+          </div>
+        )}
 
         {/* LEFT & RIGHT COLUMNS */}
         <div className={styles.mainLayout}>
@@ -421,8 +430,8 @@ export default function EditArticlePage() {
         {/* FORM ACTIONS */}
         <div className={styles.formActions}>
           <a href="/admin/articles" className={styles.cancelBtn}>ביטול</a>
-          <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? 'שומר...' : 'עדכן כתבה'}
+          <button type="submit" className={styles.submitBtn} disabled={saving}>
+            {saving ? 'שומר...' : 'עדכן כתבה'}
           </button>
         </div>
       </form>

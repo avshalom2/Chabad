@@ -32,7 +32,8 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
           : null;
 
         if (selectedCategory?.default_columns) {
-          setColumns(Math.max(1, Math.min(6, Number(selectedCategory.default_columns) || 3)));
+          const selectedColumns = Number(selectedCategory.default_columns);
+          setColumns(selectedColumns === -1 ? -1 : Math.max(1, Math.min(6, selectedColumns || 3)));
         }
 
         setArticles(Array.isArray(data) ? data : []);
@@ -68,11 +69,11 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
       className={styles.section}
       dir="rtl"
       aria-label={categoryName || 'Articles Cube'}
-      style={{ '--cube-columns': columns }}
+      style={columns === -1 ? undefined : { '--cube-columns': columns }}
     >
       <div
-        className={styles.grid}
-        style={{ '--cube-columns': columns }}
+        className={`${styles.grid} ${columns === -1 ? styles.autoFitGrid : ''}`}
+        style={columns === -1 ? undefined : { '--cube-columns': columns }}
       >
         {articles.map((article, index) => {
           const imageUrl = article.short_description_image_url || article.featured_image;

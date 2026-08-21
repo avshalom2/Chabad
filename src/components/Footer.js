@@ -2,6 +2,7 @@
 
 import styles from './Footer.module.css';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { siteConfig } from '@/lib/site-config';
 
 export default function Footer() {
@@ -27,10 +28,10 @@ export default function Footer() {
           <div className={styles.fCol}>
             <h4 className={styles.fHeader}>מרכז מידע</h4>
             <nav className={styles.fLinks}>
-              <a href="#">שיעורי תורה ומאמרים</a>
-              <a href="#">מבצעי המצוות</a>
-              <a href="#">לוח זמני היום</a>
-              <a href="#">חנות יודאיקה</a>
+              <Link href="/shiurim">שיעורי תורה</Link>
+              <Link href="/category/weekly-torah-portion">פרשת השבוע</Link>
+              <Link href="/shabbat-times">זמני שבת</Link>
+              <Link href="/category/store">חנות חב&quot;ד</Link>
             </nav>
           </div>
 
@@ -38,10 +39,10 @@ export default function Footer() {
           <div className={styles.fCol}>
             <h4 className={styles.fHeader}>פעילות וקהילה</h4>
             <nav className={styles.fLinks}>
-              <a href="#">עזרה למשפחות</a>
-              <a href="#">פעילות נוער</a>
-              <a href="#">בדיקת תפילין ומזוזות</a>
-              <a href="#">שותפות ותרומות</a>
+              <Link href="/category/קהילה-וחסד">קהילה וחסד</Link>
+              <Link href="/category/lifecycle">מעגל החיים</Link>
+              <Link href="/category/tefillin-mezuzah">תפילין ומזוזות</Link>
+              <Link href="/donate">שותפות ותרומות</Link>
             </nav>
           </div>
 

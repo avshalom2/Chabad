@@ -597,6 +597,11 @@
   background: white;
 }
 
+.articlesGrid.autoFitGrid,
+.parentOverviewGrid.autoFitGrid {
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+}
+
 .standardFeaturedImageLink {
   display: block;
   grid-row: 1 / 3;

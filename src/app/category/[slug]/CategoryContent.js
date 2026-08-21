@@ -16,6 +16,7 @@ function categoryHref(category) {
 export default function CategoryContent({ category, mainArticle, articles, total, subcategoryOverview }) {
   // Use default_columns from category if available, otherwise 3
   const defaultColumns = category.default_columns ? parseInt(category.default_columns) : 3;
+  const isAutoFit = defaultColumns === -1;
 
   // ── NEWS CATEGORY LAYOUT ──
   if (category.type_slug === 'news') {
@@ -24,11 +25,10 @@ export default function CategoryContent({ category, mainArticle, articles, total
 
   // ── PARENT CATEGORY OVERVIEW ──
   if (subcategoryOverview && subcategoryOverview.subcategories.length > 0) {
-    const cols = category.default_columns ? parseInt(category.default_columns) : 3;
     return (
       <div
-        className={styles.parentOverviewGrid}
-        style={{ '--grid-columns': cols }}
+        className={`${styles.parentOverviewGrid} ${isAutoFit ? styles.autoFitGrid : ''}`}
+        style={isAutoFit ? undefined : { '--grid-columns': defaultColumns }}
       >
         {subcategoryOverview.subcategories.map((sub) => (
           <div key={sub.id} className={styles.subcatCard}>
@@ -142,10 +142,10 @@ export default function CategoryContent({ category, mainArticle, articles, total
         <div
           className={
             category.type_slug === 'products'
-              ? productStyles.productsGrid
-              : `${styles.articlesGrid} ${defaultColumns === 1 ? styles.singleColumnGrid : ''}`
+              ? `${productStyles.productsGrid} ${isAutoFit ? productStyles.autoFitGrid : ''}`
+              : `${styles.articlesGrid} ${defaultColumns === 1 ? styles.singleColumnGrid : ''} ${isAutoFit ? styles.autoFitGrid : ''}`
           }
-          style={{ '--grid-columns': defaultColumns }}
+          style={isAutoFit ? undefined : { '--grid-columns': defaultColumns }}
         >
           {articles.map((article) => (
             <div

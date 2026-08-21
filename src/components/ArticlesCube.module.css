@@ -11,6 +11,10 @@
   width: 100%;
 }
 
+.grid.autoFitGrid {
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)) !important;
+}
+
 .card {
   min-height: 300px;
   display: flex;
