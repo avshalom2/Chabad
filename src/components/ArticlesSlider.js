@@ -11,6 +11,7 @@ const DRAG_THRESHOLD = 5;
 
 export default function ArticlesSlider({ categoryId, categorySlug, categoryName }) {
   const [articles, setArticles] = useState([]);
+  const [resolvedCategory, setResolvedCategory] = useState(null);
   const [scrollX, setScrollX] = useState(0);       // single persistent offset
   const [loading, setLoading] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
@@ -23,20 +24,46 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
   const wrapperRef = useRef(null);
 
   useEffect(() => {
-    if (!categoryId && !categorySlug) return;
+    let active = true;
+
     async function fetchArticles() {
       try {
-        const param = categoryId ? `categoryId=${categoryId}` : `categorySlug=${categorySlug}`;
+        let selectedCategory = {
+          id: categoryId,
+          slug: categorySlug,
+          name: categoryName,
+        };
+
+        if (!selectedCategory.id && !selectedCategory.slug) {
+          const categoriesResponse = await fetch('/api/categories?type=articles-slider');
+          if (!categoriesResponse.ok) throw new Error('Failed to load slider categories');
+          const categories = await categoriesResponse.json();
+          selectedCategory = Array.isArray(categories) ? categories[0] : null;
+        }
+
+        if (!selectedCategory) {
+          if (active) setResolvedCategory(null);
+          return;
+        }
+
+        if (active) setResolvedCategory(selectedCategory);
+        const param = selectedCategory.id
+          ? `categoryId=${selectedCategory.id}`
+          : `categorySlug=${encodeURIComponent(selectedCategory.slug)}`;
         const res = await fetch(`/api/articles/by-category?${param}&limit=20`);
+        if (!res.ok) throw new Error('Failed to load slider articles');
         const data = await res.json();
-        setArticles((Array.isArray(data) ? data : []).filter(a => a.short_description_image_url));
+        if (active) {
+          setArticles((Array.isArray(data) ? data : []).filter(a => a.short_description_image_url));
+        }
       } catch (e) {
         console.error('Failed to fetch articles for slider:', e);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
     fetchArticles();
+    return () => { active = false; };
   }, [categoryId, categorySlug]);
 
   useEffect(() => {
@@ -112,7 +139,7 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
     return (
       <div className={styles.sliderContainer}>
         <div className={styles.sliderHeader}>
-          <span className={styles.title}>{categoryName || 'כתבות'}</span>
+          <span className={styles.title}>{categoryName || resolvedCategory?.name || 'כתבות'}</span>
         </div>
         <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>טוען כתבות...</div>
       </div>
@@ -123,7 +150,7 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
     return (
       <div className={styles.sliderContainer}>
         <div className={styles.sliderHeader}>
-          <span className={styles.title}>{categoryName || 'כתבות'}</span>
+          <span className={styles.title}>{categoryName || resolvedCategory?.name || 'כתבות'}</span>
         </div>
         <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>אין כתבות להצגה</div>
       </div>
@@ -131,15 +158,17 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
   }
 
   const maxScroll = getMaxScroll(articles.length);
-  const categoryHref = categorySlug ? `/category/${categorySlug}` : '#';
+  const displayName = categoryName || resolvedCategory?.name || 'כתבות';
+  const displaySlug = categorySlug || resolvedCategory?.slug;
+  const categoryHref = displaySlug ? `/category/${displaySlug}` : '#';
 
   return (
     <div className={styles.sliderContainer}>
       {/* Header */}
       <div className={styles.sliderHeader}>
-        <span className={styles.title}>{categoryName}</span>
+        <span className={styles.title}>{displayName}</span>
         <Link href={categoryHref} className={styles.moreLink}>
-          עוד ב{categoryName}
+          עוד ב{displayName}
         </Link>
       </div>
 

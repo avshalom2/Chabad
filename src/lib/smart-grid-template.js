@@ -9,6 +9,7 @@ export const SMART_GRID_CONTROL_DEFINITIONS = [
   { id: 'articles-cube', label: 'קוביות מאמרים', defaultSpan: 2, categoryId: 8 },
   { id: 'articles-slider', label: 'סליידר כתבות', defaultSpan: 2 },
   { id: 'news', label: 'מבזקי חדשות', defaultSpan: 1 },
+  { id: 'torah-videos', label: 'סליידר שיעורי תורה', defaultSpan: 2 },
 ];
 
 export function createDefaultSmartGridConfig() {
@@ -44,12 +45,24 @@ export function parseSmartGridTemplate(html) {
   try {
     const parsed = JSON.parse(match[1]);
     if (parsed?.type !== SMART_GRID_TEMPLATE_TYPE) return null;
+    const parsedControls = (parsed.controls || []).map((control) => {
+      const definition = SMART_GRID_CONTROL_DEFINITIONS.find((item) => item.id === control.id);
+      return definition ? { ...control, label: definition.label } : control;
+    });
+    const existingIds = new Set(parsedControls.map((control) => control.id));
+    const missingControls = SMART_GRID_CONTROL_DEFINITIONS
+      .filter((definition) => !existingIds.has(definition.id))
+      .map((definition, index) => ({
+        ...definition,
+        active: true,
+        order: parsedControls.length + index + 1,
+        placement: 'auto',
+        span: definition.defaultSpan,
+      }));
+
     return {
       ...parsed,
-      controls: (parsed.controls || []).map((control) => {
-        const definition = SMART_GRID_CONTROL_DEFINITIONS.find((item) => item.id === control.id);
-        return definition ? { ...control, label: definition.label } : control;
-      }),
+      controls: [...parsedControls, ...missingControls],
     };
   } catch {
     return null;

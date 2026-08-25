@@ -5,7 +5,7 @@
       "name": "Next.js: dev server",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev",
+      "command": "npm.cmd run dev",
       "cwd": "${workspaceFolder}"
     }
   ]

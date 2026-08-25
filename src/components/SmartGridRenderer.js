@@ -9,6 +9,7 @@ import NewsBox from './NewsBox';
 import ArticlesSlider from './ArticlesSlider';
 import ArticlesCube from './ArticlesCube';
 import StoreHoursBar from './StoreHoursBar';
+import TorahVideosSlider from './TorahVideosSlider';
 import { calculateMasonryLayout, calculateSmartGridLayout } from '@/lib/smart-grid-template';
 import styles from './SmartGridRenderer.module.css';
 
@@ -65,6 +66,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
       case 'articles-slider': return <ArticlesSlider categoryId={control.categoryId} />;
       case 'articles-cube': return <ArticlesCube categoryId={control.categoryId} />;
       case 'store-hours': return <StoreHoursBar />;
+      case 'torah-videos': return <TorahVideosSlider onVisibilityChange={(visible) => setControlVisibility(control.id, visible)} />;
       default: return null;
     }
   };
