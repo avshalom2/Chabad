@@ -11,7 +11,7 @@ import BannerSlotRenderer from '@/components/BannerSlotRenderer';
 import SmartGridRenderer from '@/components/SmartGridRenderer';
 import { parseSmartGridTemplate } from '@/lib/smart-grid-template';
 import StoreHoursBar from '@/components/StoreHoursBar';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './TemplateRenderer.module.css';
 

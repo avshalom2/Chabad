@@ -12,9 +12,18 @@ export const SMART_GRID_CONTROL_DEFINITIONS = [
   { id: 'torah-videos', label: 'סליידר שיעורי תורה', defaultSpan: 2 },
 ];
 
+export function getSmartGridControlDefinition(type) {
+  return SMART_GRID_CONTROL_DEFINITIONS.find((item) => item.id === type);
+}
+
+export function getSmartGridControlType(control) {
+  return control?.type || control?.id;
+}
+
 export function createDefaultSmartGridConfig() {
   return {
     type: SMART_GRID_TEMPLATE_TYPE,
+    controlsVersion: 2,
     desktopColumns: 3,
     tabletColumns: 2,
     mobileColumns: 1,
@@ -23,6 +32,7 @@ export function createDefaultSmartGridConfig() {
     layoutMode: 'grid',
     controls: SMART_GRID_CONTROL_DEFINITIONS.map((definition, index) => ({
       ...definition,
+      type: definition.id,
       active: true,
       order: index + 1,
       placement: definition.id === 'store-hours' ? 'full' : 'auto',
@@ -46,14 +56,16 @@ export function parseSmartGridTemplate(html) {
     const parsed = JSON.parse(match[1]);
     if (parsed?.type !== SMART_GRID_TEMPLATE_TYPE) return null;
     const parsedControls = (parsed.controls || []).map((control) => {
-      const definition = SMART_GRID_CONTROL_DEFINITIONS.find((item) => item.id === control.id);
-      return definition ? { ...control, label: definition.label } : control;
+      const type = getSmartGridControlType(control);
+      const definition = getSmartGridControlDefinition(type);
+      return definition ? { ...control, type, label: definition.label } : control;
     });
-    const existingIds = new Set(parsedControls.map((control) => control.id));
-    const missingControls = SMART_GRID_CONTROL_DEFINITIONS
-      .filter((definition) => !existingIds.has(definition.id))
+    const existingTypes = new Set(parsedControls.map((control) => getSmartGridControlType(control)));
+    const missingControls = parsed.controlsVersion >= 2 ? [] : SMART_GRID_CONTROL_DEFINITIONS
+      .filter((definition) => !existingTypes.has(definition.id))
       .map((definition, index) => ({
         ...definition,
+        type: definition.id,
         active: true,
         order: parsedControls.length + index + 1,
         placement: 'auto',
@@ -62,6 +74,7 @@ export function parseSmartGridTemplate(html) {
 
     return {
       ...parsed,
+      controlsVersion: 2,
       controls: [...parsedControls, ...missingControls],
     };
   } catch {

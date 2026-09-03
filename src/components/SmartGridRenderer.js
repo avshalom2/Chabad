@@ -10,7 +10,7 @@ import ArticlesSlider from './ArticlesSlider';
 import ArticlesCube from './ArticlesCube';
 import StoreHoursBar from './StoreHoursBar';
 import TorahVideosSlider from './TorahVideosSlider';
-import { calculateMasonryLayout, calculateSmartGridLayout } from '@/lib/smart-grid-template';
+import { calculateMasonryLayout, calculateSmartGridLayout, getSmartGridControlType } from '@/lib/smart-grid-template';
 import styles from './SmartGridRenderer.module.css';
 
 export default function SmartGridRenderer({ config, previewWidth = null }) {
@@ -56,13 +56,13 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
   };
 
   const renderControl = (control) => {
-    switch (control.id) {
+    switch (getSmartGridControlType(control)) {
       case 'banner':
         return <BannerSlotRenderer slotId={control.bannerSlotId || 1} onVisibilityChange={(visible) => setControlVisibility(control.id, visible)} />;
       case 'weekly-prayers': return <WeeklyPrayerBox />;
       case 'events': return <EventsBox />;
       case 'contact-form': return <ContactForm />;
-      case 'news': return <NewsBox />;
+      case 'news': return <NewsBox categoryId={control.categoryId} />;
       case 'articles-slider': return <ArticlesSlider categoryId={control.categoryId} />;
       case 'articles-cube': return <ArticlesCube categoryId={control.categoryId} />;
       case 'store-hours': return <StoreHoursBar />;

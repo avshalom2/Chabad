@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Assistant, Frank_Ruhl_Libre } from 'next/font/google';
 import SmartGridRenderer from './SmartGridRenderer';
@@ -8,8 +8,11 @@ import {
   calculateMasonryLayout,
   calculateSmartGridLayout,
   createDefaultSmartGridConfig,
+  getSmartGridControlDefinition,
+  getSmartGridControlType,
   parseSmartGridTemplate,
   serializeSmartGridTemplate,
+  SMART_GRID_CONTROL_DEFINITIONS,
 } from '@/lib/smart-grid-template';
 import styles from './SmartGridTemplateEditor.module.css';
 
@@ -25,6 +28,12 @@ const PLACEMENTS = [
   ['full', 'רוחב מלא'],
 ];
 
+const CATEGORY_TYPES = {
+  'articles-slider': 'articles-slider',
+  'articles-cube': 'articles-cube',
+  news: 'news',
+};
+
 export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
   const router = useRouter();
   const initialConfig = useMemo(() => parseSmartGridTemplate(initialHtml) || createDefaultSmartGridConfig(), [initialHtml]);
@@ -33,6 +42,8 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
   const [saving, setSaving] = useState(false);
   const [savedHtml, setSavedHtml] = useState(initialHtml);
   const [saveNotice, setSaveNotice] = useState('');
+  const [newControlType, setNewControlType] = useState('articles-slider');
+  const [categoriesByType, setCategoriesByType] = useState({});
   const previewWidth = device === 'mobile' ? 385 : device === 'tablet' ? 768 : 1200;
   const columns = device === 'mobile' ? config.mobileColumns : device === 'tablet' ? config.tabletColumns : config.desktopColumns;
   const sortedActiveControls = [...config.controls].filter((control) => control.active).sort((a, b) => a.order - b.order);
@@ -40,6 +51,18 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
     ? calculateMasonryLayout(sortedActiveControls, columns)
     : calculateSmartGridLayout(sortedActiveControls, columns, config.autoFill);
   const currentHtml = serializeSmartGridTemplate(config);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all(Object.entries(CATEGORY_TYPES).map(async ([type, categoryType]) => {
+      const response = await fetch(`/api/categories?type=${categoryType}`);
+      if (!response.ok) throw new Error(`Failed to load ${categoryType} categories`);
+      return [type, await response.json()];
+    })).then((entries) => {
+      if (active) setCategoriesByType(Object.fromEntries(entries));
+    }).catch((error) => console.error('Failed to load Smart Grid categories:', error));
+    return () => { active = false; };
+  }, []);
 
   const updateConfig = (updates) => setConfig((current) => ({ ...current, ...updates }));
   const updateControl = (id, updates) => setConfig((current) => ({
@@ -54,6 +77,32 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
     [controls[index], controls[target]] = [controls[target], controls[index]];
     return { ...current, controls: controls.map((control, order) => ({ ...control, order: order + 1 })) };
   });
+
+  const addControl = () => setConfig((current) => {
+    const definition = getSmartGridControlDefinition(newControlType);
+    if (!definition) return current;
+    const categories = categoriesByType[newControlType] || [];
+    return {
+      ...current,
+      controls: [...current.controls, {
+        ...definition,
+        id: `${newControlType}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        type: newControlType,
+        categoryId: CATEGORY_TYPES[newControlType] ? (categories[0]?.id || null) : definition.categoryId,
+        active: true,
+        order: current.controls.length + 1,
+        placement: 'auto',
+        span: definition.defaultSpan,
+      }],
+    };
+  });
+
+  const removeControl = (id) => setConfig((current) => ({
+    ...current,
+    controls: current.controls
+      .filter((control) => control.id !== id)
+      .map((control, index) => ({ ...control, order: index + 1 })),
+  }));
 
   const save = async () => {
     setSaving(true);
@@ -109,6 +158,12 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
 
           <h3>🧩 ניהול רכיבים ומיקומים</h3>
           <p className={styles.helpText}>ניתן לגרור רכיבים כדי לשנות את סדר המיקום שלהם.</p>
+          <div className={styles.addControlRow}>
+            <select value={newControlType} onChange={(event) => setNewControlType(event.target.value)}>
+              {SMART_GRID_CONTROL_DEFINITIONS.map((definition) => <option key={definition.id} value={definition.id}>{definition.label}</option>)}
+            </select>
+            <button type="button" onClick={addControl}>+ הוסף רכיב</button>
+          </div>
           <div className={styles.controls}>
             {[...config.controls].sort((a, b) => a.order - b.order).map((control, index) => (
               <div key={control.id} className={styles.controlCard}>
@@ -119,12 +174,13 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
                 <div className={styles.controlFields}>
                   <label>מיקום (Placement):<select value={control.placement} onChange={(event) => updateControl(control.id, { placement: event.target.value })}>{PLACEMENTS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
                   <label>רוחב (Span):<select value={control.span} onChange={(event) => updateControl(control.id, { span: Number(event.target.value) })}>{[1,2,3,4].map((value) => <option key={value} value={value}>{value} {value === 1 ? 'עמודה' : 'עמודות'}</option>)}</select></label>
-                  {control.id === 'banner' && <label>מזהה משבצת באנר<input type="number" min="1" value={control.bannerSlotId || 1} onChange={(event) => updateControl(control.id, { bannerSlotId: Number(event.target.value) })} /></label>}
-                  {(control.id === 'articles-cube' || control.id === 'articles-slider' || control.id === 'news') && <label>מזהה קטגוריה<input type="number" min="1" value={control.categoryId || ''} onChange={(event) => updateControl(control.id, { categoryId: Number(event.target.value) || null })} /></label>}
+                  {getSmartGridControlType(control) === 'banner' && <label>מזהה משבצת באנר<input type="number" min="1" value={control.bannerSlotId || 1} onChange={(event) => updateControl(control.id, { bannerSlotId: Number(event.target.value) })} /></label>}
+                  {CATEGORY_TYPES[getSmartGridControlType(control)] && <label>קטגוריה<select value={control.categoryId || ''} onChange={(event) => updateControl(control.id, { categoryId: Number(event.target.value) || null })}><option value="">בחר קטגוריה</option>{(categoriesByType[getSmartGridControlType(control)] || []).map((category) => <option key={category.id} value={category.id}>{category.name}{category.parent_name ? ` — ${category.parent_name}` : ''}</option>)}</select></label>}
                 </div>
                 <div className={styles.moveButtons}>
                   <button disabled={index === 0} onClick={() => moveControl(control.id, -1)}>למעלה</button>
                   <button disabled={index === config.controls.length - 1} onClick={() => moveControl(control.id, 1)}>למטה</button>
+                  <button type="button" className={styles.removeButton} onClick={() => removeControl(control.id)}>הסר</button>
                 </div>
               </div>
             ))}
