@@ -1,3 +1,13 @@
+.classic .form { min-width: 0; border: 1px solid #e6dfd9; border-radius: 0; box-shadow: none; padding: 22px; }
+.classic .header { background: transparent; padding: 5px 0 20px; }
+.classic .header h2 { color: #38262b; font-size: 31px; }
+.classic .grid { padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.classic .form input, .classic .form textarea { background: #fbf9f5; border-color: #e6dfd9; border-radius: 0; padding: 14px; }
+.classic .form textarea { min-height: 120px; }
+.classic .messageField { margin: 14px 0 0; padding: 0; }
+.classic .footer { padding: 16px 0 0; background: transparent; }
+.classic .footer button { border-radius: 0; background: #591b2c; padding: 13px 30px; }
+@media (max-width: 500px) { .classic .grid { grid-template-columns: 1fr; } }
 .section {
   width: 100%;
 }

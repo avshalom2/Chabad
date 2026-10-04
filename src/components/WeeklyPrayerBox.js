@@ -185,7 +185,7 @@ async function downloadSharePng(imageUrl) {
   }
 }
 
-export default function WeeklyPrayerBox() {
+export default function WeeklyPrayerBox({ variant } = {}) {
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
   const [shareStatus, setShareStatus] = useState('');
@@ -282,7 +282,7 @@ export default function WeeklyPrayerBox() {
   };
 
   return (
-    <section className={styles.section} dir="rtl" aria-label="זמני תפילה לשבוע הקרוב">
+    <section className={`${styles.section} ${variant === 'classic' ? styles.classic : ''}`} dir="rtl" aria-label="זמני תפילה לשבוע הקרוב">
       <div className={styles.card}>
         <header className={styles.header}>
           <div className={styles.headerMeta}>

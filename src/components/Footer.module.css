@@ -144,3 +144,12 @@
   }
 }
 
+:global(body:has([data-homepage-design="classic"])) .elegantChabadFooter { margin-top: 0; padding: 54px 4% 25px; border-top: 1px solid #cfb78e; background: #501728; color: #f5ede2; }
+:global(body:has([data-homepage-design="classic"])) .footerWrap { max-width: 1440px; }
+:global(body:has([data-homepage-design="classic"])) .footerGrid { gap: 32px; }
+:global(body:has([data-homepage-design="classic"])) .fCol { background: transparent; padding: 12px; }
+:global(body:has([data-homepage-design="classic"])) .fLogo { color: #fff9ef; font-family: Georgia, 'Times New Roman', serif !important; font-size: 30px; }
+:global(body:has([data-homepage-design="classic"])) .fHeader { border: 0; padding: 0; color: #ceb383; }
+:global(body:has([data-homepage-design="classic"])) :is(.fDescription, .contactItem, .fLinks a) { color: #e6d8d1; line-height: 1.8; }
+:global(body:has([data-homepage-design="classic"])) .fLinks a:hover { color: #d4b87e; }
+:global(body:has([data-homepage-design="classic"])) :is(.mashiachBadge, .footerCopy) { border-color: #91646b; color: #c9b3ad; }

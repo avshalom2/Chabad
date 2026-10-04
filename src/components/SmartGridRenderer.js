@@ -12,6 +12,7 @@ import StoreHoursBar from './StoreHoursBar';
 import TorahVideosSlider from './TorahVideosSlider';
 import { calculateMasonryLayout, calculateSmartGridLayout, getSmartGridControlType } from '@/lib/smart-grid-template';
 import styles from './SmartGridRenderer.module.css';
+import ClassicHomepage from './ClassicHomepage';
 
 export default function SmartGridRenderer({ config, previewWidth = null }) {
   const gridRef = useRef(null);
@@ -70,6 +71,10 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
       default: return null;
     }
   };
+
+  if (config.design === 'classic') {
+    return <ClassicHomepage config={config} embedded={previewWidth !== null} />;
+  }
 
   if (config.layoutMode === 'masonry') {
     const sections = [];

@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styles from './ArticlesCube.module.css';
+import ClassicServiceIcon from './ClassicServiceIcon';
 
-export default function ArticlesCube({ categoryId, categorySlug, categoryName, categoryDefaultColumns }) {
+export default function ArticlesCube({ categoryId, categorySlug, categoryName, categoryDefaultColumns, variant }) {
   const [articles, setArticles] = useState([]);
   const [columns, setColumns] = useState(Number(categoryDefaultColumns) || 3);
   const [loading, setLoading] = useState(true);
@@ -66,7 +67,7 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
 
   return (
     <section
-      className={styles.section}
+      className={`${styles.section} ${variant === 'classic' ? styles.classic : ''}`}
       dir="rtl"
       aria-label={categoryName || 'Articles Cube'}
       style={columns === -1 ? undefined : { '--cube-columns': columns }}
@@ -80,8 +81,9 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
 
           return (
             <Link key={article.id} href={`/articles/${article.slug}`} className={styles.card}>
+              {variant === 'classic' && <span className={styles.number} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>}
               <div className={styles.media}>
-                {imageUrl ? (
+                {variant === 'classic' ? <ClassicServiceIcon slug={article.slug} /> : imageUrl ? (
                   <img src={imageUrl} alt={article.title} className={styles.image} />
                 ) : (
                   <span className={styles.fallbackIcon} aria-hidden="true">
@@ -97,7 +99,7 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
 
               <div className={styles.more}>
                 <span>←</span>
-                <span>לפרטים</span>
+                <span>{variant === 'classic' ? 'לקבלת פרטים' : 'לפרטים'}</span>
               </div>
             </Link>
           );

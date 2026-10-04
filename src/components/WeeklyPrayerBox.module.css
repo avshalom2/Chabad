@@ -1,3 +1,22 @@
+.classic .card { min-width: 0; height: 100%; border: 1px solid #e5ddd6; border-radius: 0; box-shadow: 0 16px 40px #442c2110; padding: 24px; display: flex; flex-direction: column; color: #38262b; }
+.classic .header { background: transparent; color: #38262b; padding: 6px 0 24px; gap: 12px; flex-wrap: wrap; }
+.classic .header h2 { color: #38262b; font-size: 31px; }
+.classic .dateLine { color: #827b72; font-size: 12px; margin-top: 9px; }
+.classic .badge { color: #82683e; background: #f8f5ef; border: 0; border-radius: 0; padding: 7px 10px; }
+.classic .star, .classic .prayerIcon { display: none; }
+.classic .prayers { padding: 20px 0; flex: 1; }
+.classic .prayerColumn { padding: 0 14px; }
+.classic .prayerColumn:first-child { padding-right: 0; }
+.classic .prayerColumn:last-child { padding-left: 0; }
+.classic .prayerColumn h3 { font-size: 21px; color: #591b2c; border-color: #bc9e6d; margin-bottom: 15px; padding-bottom: 12px; }
+.classic .timeItem strong { color: #38262b; font-size: 19px; }
+.classic .groupLabel { color: #867d73; font-size: 12px; }
+.classic .footer { background: transparent; border-top: 1px solid #e8e0d8; padding: 14px 0 0; gap: 10px; flex-wrap: wrap; }
+.classic .share { color: #591b2c; background: #f6f1eb; border: 1px solid #e8e0d8; border-radius: 0; font-size: 11px; }
+.classic .sunsetRow { background: #f8f5ef; border-radius: 0; color: #591b2c; }
+.classic .updated { color: #847b72; font-size: 11px; }
+@media (max-width: 600px) { .classic .card { padding: 20px 15px; } .classic .prayerColumn { padding-inline: 10px; } }
+
 .section {
   width: 100%;
   

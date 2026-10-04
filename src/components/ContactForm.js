@@ -12,7 +12,7 @@ const initialForm = {
   company: '',
 };
 
-export default function ContactForm({ articleTitle = '' }) {
+export default function ContactForm({ articleTitle = '', variant }) {
   const [form, setForm] = useState(initialForm);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
@@ -45,7 +45,7 @@ export default function ContactForm({ articleTitle = '' }) {
   };
 
   return (
-    <section className={styles.section} dir="rtl" aria-label="טופס יצירת קשר">
+    <section className={`${styles.section} ${variant === 'classic' ? styles.classic : ''}`} dir="rtl" aria-label="טופס יצירת קשר">
       <form className={styles.form} onSubmit={handleSubmit}>
         <header className={styles.header}>
           <h2>יצירת קשר</h2>

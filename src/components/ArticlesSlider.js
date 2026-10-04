@@ -9,7 +9,7 @@ const ITEM_GAP = 16;
 const ITEM_STEP = ITEM_WIDTH + ITEM_GAP;
 const DRAG_THRESHOLD = 5;
 
-export default function ArticlesSlider({ categoryId, categorySlug, categoryName }) {
+export default function ArticlesSlider({ categoryId, categorySlug, categoryName, variant }) {
   const [articles, setArticles] = useState([]);
   const [resolvedCategory, setResolvedCategory] = useState(null);
   const [scrollX, setScrollX] = useState(0);       // single persistent offset
@@ -64,7 +64,7 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
     }
     fetchArticles();
     return () => { active = false; };
-  }, [categoryId, categorySlug]);
+  }, [categoryId, categorySlug, categoryName]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 768px)');
@@ -161,6 +161,20 @@ export default function ArticlesSlider({ categoryId, categorySlug, categoryName 
   const displayName = categoryName || resolvedCategory?.name || 'כתבות';
   const displaySlug = categorySlug || resolvedCategory?.slug;
   const categoryHref = displaySlug ? `/category/${displaySlug}` : '#';
+
+  if (variant === 'classic') {
+    return <div className={styles.editorial}>
+      <div className={styles.editorialMeta}><span>{displayName}</span>{displaySlug && <Link href={categoryHref}>לכל המאמרים ←</Link>}</div>
+      <div className={styles.editorialCards}>
+        {articles.map(article => <Link key={article.id} className={styles.editorialCard} href={`/articles/${article.slug}`}>
+          <div className={styles.editorialImage}><img src={article.short_description_image_url || article.featured_image} alt={article.title} loading="lazy" /></div>
+          <small>{displayName}</small><h3>{article.title}</h3>
+          {(article.short_description || article.excerpt) && <p>{article.short_description || article.excerpt}</p>}
+          <span className={styles.editorialLink}>לקריאת המאמר <span aria-hidden="true">←</span></span>
+        </Link>)}
+      </div>
+    </div>;
+  }
 
   return (
     <div className={styles.sliderContainer}>

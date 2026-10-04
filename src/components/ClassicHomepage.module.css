@@ -1,0 +1,114 @@
+.page { --ink: #38262b; --wine: #591b2c; --gold: #a98a55; --paper: #fbf9f5; --line: #e6dfd9; --site-font: var(--classic-body-font), Arial, sans-serif; color: var(--ink); background: var(--paper); direction: rtl; container-type: inline-size; }
+.page, .page * { box-sizing: border-box; }
+.page :is(h1,h2,h3), .page :is(h1,h2,h3) *, .brand strong, .statement p, .statement em { font-family: var(--classic-heading-font), Georgia, serif !important; }
+.page :is(h1,h2,h3) { font-weight: 500; line-height: 1.15; }
+.page em { color: var(--gold); font-style: normal; }
+.page a { text-decoration: none; }
+.page :is(a,button,input,textarea):focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+.page section[id] { scroll-margin-top: 24px; }
+.announcement { min-height: 38px; background: #501728; color: #f2e8dd; padding: 9px 5.5%; position: relative; text-align: center; font-size: 12px; letter-spacing: 1.1px; }
+.announcement i { display: inline-block; height: 12px; border-left: 1px solid #aa7e7d; margin: 0 16px; vertical-align: middle; }
+.announcement time { position: absolute; left: 5.5%; letter-spacing: 0; }
+.navigation { min-height: 106px; display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 20px 5.5%; border-bottom: 1px solid var(--line); position: relative; }
+.brand { display: flex; align-items: center; gap: 13px; color: var(--ink); flex-shrink: 0; }
+.brand strong { display: block; font-size: 32px; font-weight: 600; line-height: 1.1; }
+.brand small { display: block; font-size: 12px; margin-top: 5px; }
+.brandMark { width: 48px; height: 48px; border: 1px solid var(--gold); color: var(--gold); border-radius: 50%; display: grid; place-items: center; font-size: 37px; }
+.desktopNav { display: flex; gap: clamp(18px, 2.5vw, 40px); }
+.desktopNav a { font-size: 15px; font-weight: 650; color: var(--ink); }
+.desktopNav a:hover, .textLink:hover { color: var(--gold); }
+.visit, .button { display: inline-flex; align-items: center; justify-content: space-between; gap: 32px; background: var(--wine); color: white; font-size: 15px; font-weight: 650; padding: 18px 27px; }
+.button:hover, .visit:hover { background: #72273c; }
+.menuButton { display: none; }
+.timesSection { display: grid; grid-template-columns: 0.95fr 1.8fr 0.95fr; gap: 24px; padding: 54px 6% 60px; background: #f3eeea; align-items: stretch; }
+.timesIntro { padding: 28px 0 8px 24px; display: flex; flex-direction: column; }
+.eyebrow { display: flex; align-items: center; gap: 16px; color: #8f754b; font-size: 14px; font-weight: 700; margin: 0 0 30px; }
+.eyebrow::before { content: ''; width: 32px; border-top: 1px solid var(--gold); flex-shrink: 0; }
+.timesIntro h1 { font-size: clamp(36px, 3.55vw, 57px); margin: 0 0 25px; }
+.timesIntro > p:not(.eyebrow), .heroCopy > p:not(.eyebrow), .communityCopy > p:not(.eyebrow), .contact > div > p:not(.eyebrow) { font-size: 19px; color: #77706b; line-height: 1.8; margin: 0 0 30px; }
+.address { color: var(--wine); margin-top: auto; font-weight: 650; font-size: 15px; }
+.address span { font-size: 24px; margin-left: 7px; }
+.prayers, .store { min-width: 0; }
+.prayers > section, .store > section { height: 100%; }
+.hero { display: grid; grid-template-columns: 1fr 1fr; background: #f1eae1; }
+.heroCopy { padding: 82px 15% 52px 13%; }
+.heroCopy h2 { font-size: clamp(58px, 6vw, 90px); margin: 0 0 35px; }
+.heroActions { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; margin-top: 40px; }
+.textLink { display: inline-flex; align-items: center; gap: 22px; color: var(--wine); padding: 8px 0; border-bottom: 1px solid #b6a49e; font-size: 15px; font-weight: 700; }
+.textLink span, .button span, .visit span { font-size: 23px; line-height: 1; font-weight: 400; }
+.heroCopy small { display: block; margin-top: 65px; color: #8d8171; font-size: 14px; }
+.heroMedia { min-height: 600px; position: relative; overflow: hidden; }
+.heroMedia > img { position: absolute; width: 100%; height: 100%; object-fit: cover; object-position: 80% center; }
+.heroMedia > div { position: absolute; inset: auto 0 0; padding: 64px 7% 40px; background: linear-gradient(transparent, #24130cb3); display: flex; align-items: center; gap: 20px; color: white; font-size: 12px; letter-spacing: 1.5px; }
+.heroMedia i { flex: 1; border-top: 1px solid #d8c5ac; }
+.statement { background: #641e32; color: #fff7ed; display: flex; align-items: center; gap: 24px; padding: 32px 6%; }
+.statement > span { font-size: 53px; color: #c4a571; }
+.statement p { font-size: 32px; margin: 0; }
+.statement em { color: #c9ad7f; }
+.statement small { margin-right: auto; color: #e1cac5; }
+.section { padding: 85px 6%; }
+.sectionHeading { display: flex; align-items: end; justify-content: space-between; gap: 45px; margin-bottom: 52px; }
+.sectionHeading h2, .contact h2 { font-size: clamp(36px, 4vw, 60px); margin: 0; }
+.sectionHeading .eyebrow { margin-bottom: 23px; }
+.description { max-width: 345px; font-size: 18px; color: #817a73; line-height: 1.8; margin: 0; }
+.community { background: #f3eeea; }
+.communityLayout { display: grid; grid-template-columns: 0.8fr 1.4fr; gap: 26px; }
+.communityCopy { padding: 48px; background: #e7dcd5; display: flex; flex-direction: column; align-items: flex-start; }
+.communityCopy h3 { font-size: 45px; margin: 15px 0 24px; }
+.communityCopy .textLink { margin-top: auto; }
+.banners { min-width: 0; display: flex; align-items: center; background: #fff; }
+.banners > * { width: 100%; }
+.learning { background: #f1ece5; }
+.learning > section { max-width: 980px; margin-inline: auto; border-radius: 0; }
+.learning > section > header { background: #591b2c; padding: 20px 24px; }
+.learning > section > header h2 { font-size: 28px; }
+.contact { display: grid; grid-template-columns: 1fr 1fr; gap: 10%; }
+.contact h2 { margin-bottom: 28px; }
+.mobileNav { display: none; }
+:global(body:has([data-homepage-design="classic"]) [data-site-header]) { display: none; }
+:global(body:has([data-homepage-design="classic"]) main) { padding-top: 0; }
+@container (max-width: 1100px) {
+  .timesSection { grid-template-columns: 1.8fr 1fr; padding: 35px 5%; }
+  .timesIntro { grid-column: 1 / -1; padding: 0; display: block; }
+  .timesIntro h1 br { display: none; }
+  .timesIntro .eyebrow { margin-bottom: 16px; }
+  .timesIntro h1 { font-size: 42px; }
+  .desktopNav { gap: 17px; }
+  .desktopNav a { font-size: 13px; }
+  .heroCopy { padding: 55px 10%; }
+  .heroCopy h2 { font-size: 64px; }
+  .section { padding: 64px 5%; }
+  .heroActions { gap: 16px; }
+  .heroMedia { min-height: 540px; }
+}
+@container (max-width: 760px) {
+  .announcement { font-size: 10px; letter-spacing: 0; }
+  .announcement time { display: none; }
+  .navigation { min-height: 86px; padding: 17px 5%; gap: 14px; flex-wrap: wrap; }
+  .brand strong { font-size: 28px; }
+  .brandMark { width: 40px; height: 40px; font-size: 29px; }
+  .desktopNav, .visit { display: none; }
+  .menuButton { display: block; border: 1px solid var(--line); background: transparent; color: var(--wine); font-size: 25px; padding: 3px 10px; }
+  .mobileNav { display: flex; flex-direction: column; gap: 0; width: 100%; }
+  .mobileNav a { padding: 12px; color: var(--wine); border-top: 1px solid var(--line); }
+  .timesSection { display: flex; flex-direction: column; gap: 24px; padding: 35px 5%; }
+  .timesIntro h1 { font-size: 42px; }
+  .timesIntro > p:not(.eyebrow) { font-size: 17px; margin-bottom: 18px; }
+  .hero { grid-template-columns: 1fr; }
+  .heroCopy { padding: 52px 7% 40px; }
+  .heroCopy h2 { font-size: 66px; }
+  .heroCopy small { margin-top: 35px; }
+  .heroMedia { min-height: 360px; }
+  .statement { gap: 15px; padding: 23px 5%; flex-wrap: wrap; }
+  .statement p { font-size: 25px; }
+  .statement > span { font-size: 37px; }
+  .statement small { margin-right: 52px; margin-top: -8px; }
+  .section { padding: 52px 5%; }
+  .sectionHeading { display: block; margin-bottom: 30px; }
+  .sectionHeading h2, .contact h2 { font-size: 39px; }
+  .sectionHeading .description { margin-top: 22px; font-size: 17px; }
+  .communityLayout, .contact { grid-template-columns: 1fr; gap: 30px; }
+  .communityCopy { padding: 30px; }
+  .eyebrow { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { .page * { scroll-behavior: auto !important; transition: none !important; } }

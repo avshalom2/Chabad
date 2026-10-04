@@ -51,6 +51,7 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
     ? calculateMasonryLayout(sortedActiveControls, columns)
     : calculateSmartGridLayout(sortedActiveControls, columns, config.autoFill);
   const currentHtml = serializeSmartGridTemplate(config);
+  const isClassic = config.design === 'classic';
 
   useEffect(() => {
     let active = true;
@@ -145,7 +146,8 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
 
       <div className={styles.workspace}>
         <aside className={styles.settings}>
-          <h3>⚙️ הגדרות גריד רשת</h3>
+          {isClassic && <p className={styles.helpText}>עיצוב קלאסי — ניתן להפעיל רכיבים ולבחור את התוכן בכל אזור. הפריסה מותאמת אוטומטית למסך. <a href="/homepage-preview" target="_blank" rel="noopener noreferrer">פתיחה בעמוד מלא ←</a></p>}
+          {!isClassic && <><h3>⚙️ הגדרות גריד רשת</h3>
           <div className={styles.gridSettings}>
             <label>מצב פריסה:<select value={config.layoutMode || 'grid'} onChange={(event) => updateConfig({ layoutMode: event.target.value })}><option value="grid">גריד רגיל</option><option value="masonry">בנייה חופשית (Masonry)</option></select></label>
             <label>עמודות בדסקטופ:<select value={config.desktopColumns} onChange={(event) => updateConfig({ desktopColumns: Number(event.target.value) })}>{[1,2,3,4].map((value) => <option key={value} value={value}>{value} {value === 1 ? 'עמודה' : 'עמודות'}</option>)}</select></label>
@@ -156,8 +158,9 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
           {config.layoutMode !== 'masonry' && <div className={styles.toggleRow}><span>מילוי חללים אוטומטי (Dense):</span><label className={styles.switch}><input type="checkbox" checked={config.autoFill} onChange={(event) => updateConfig({ autoFill: event.target.checked })} /><i /></label></div>}
           {config.layoutMode === 'masonry' && <p className={styles.masonryHint}>כדי להצמיד את האירועים מתחת לזמני התפילה: באנר — שמאל קבוע, זמני תפילה — ימין קבוע, אירועים — ימין קבוע.</p>}
 
-          <h3>🧩 ניהול רכיבים ומיקומים</h3>
-          <p className={styles.helpText}>ניתן לגרור רכיבים כדי לשנות את סדר המיקום שלהם.</p>
+          </>}
+          <h3>🧩 ניהול רכיבים ותוכן</h3>
+          {!isClassic && <p className={styles.helpText}>ניתן לגרור רכיבים כדי לשנות את סדר המיקום שלהם.</p>}
           <div className={styles.addControlRow}>
             <select value={newControlType} onChange={(event) => setNewControlType(event.target.value)}>
               {SMART_GRID_CONTROL_DEFINITIONS.map((definition) => <option key={definition.id} value={definition.id}>{definition.label}</option>)}
@@ -172,14 +175,14 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
                   <label className={styles.switch}><input type="checkbox" checked={control.active} onChange={(event) => updateControl(control.id, { active: event.target.checked })} /><i /></label>
                 </div>
                 <div className={styles.controlFields}>
-                  <label>מיקום (Placement):<select value={control.placement} onChange={(event) => updateControl(control.id, { placement: event.target.value })}>{PLACEMENTS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-                  <label>רוחב (Span):<select value={control.span} onChange={(event) => updateControl(control.id, { span: Number(event.target.value) })}>{[1,2,3,4].map((value) => <option key={value} value={value}>{value} {value === 1 ? 'עמודה' : 'עמודות'}</option>)}</select></label>
+                  {!isClassic && <label>מיקום (Placement):<select value={control.placement} onChange={(event) => updateControl(control.id, { placement: event.target.value })}>{PLACEMENTS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>}
+                  {!isClassic && <label>רוחב (Span):<select value={control.span} onChange={(event) => updateControl(control.id, { span: Number(event.target.value) })}>{[1,2,3,4].map((value) => <option key={value} value={value}>{value} {value === 1 ? 'עמודה' : 'עמודות'}</option>)}</select></label>}
                   {getSmartGridControlType(control) === 'banner' && <label>מזהה משבצת באנר<input type="number" min="1" value={control.bannerSlotId || 1} onChange={(event) => updateControl(control.id, { bannerSlotId: Number(event.target.value) })} /></label>}
                   {CATEGORY_TYPES[getSmartGridControlType(control)] && <label>קטגוריה<select value={control.categoryId || ''} onChange={(event) => updateControl(control.id, { categoryId: Number(event.target.value) || null })}><option value="">בחר קטגוריה</option>{(categoriesByType[getSmartGridControlType(control)] || []).map((category) => <option key={category.id} value={category.id}>{category.name}{category.parent_name ? ` — ${category.parent_name}` : ''}</option>)}</select></label>}
                 </div>
                 <div className={styles.moveButtons}>
-                  <button disabled={index === 0} onClick={() => moveControl(control.id, -1)}>למעלה</button>
-                  <button disabled={index === config.controls.length - 1} onClick={() => moveControl(control.id, 1)}>למטה</button>
+                  {!isClassic && <button disabled={index === 0} onClick={() => moveControl(control.id, -1)}>למעלה</button>}
+                  {!isClassic && <button disabled={index === config.controls.length - 1} onClick={() => moveControl(control.id, 1)}>למטה</button>}
                   <button type="button" className={styles.removeButton} onClick={() => removeControl(control.id)}>הסר</button>
                 </div>
               </div>
@@ -189,7 +192,7 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
 
         <main className={styles.previewArea}>
           <div className={styles.previewSummary}>
-            תצוגה מקדימה: {columns} {columns === 1 ? 'עמודה' : 'עמודות'} · מרווח {config.gap}px · {config.layoutMode === 'masonry' ? 'בנייה חופשית' : config.autoFill ? 'מילוי חללים פעיל' : 'מילוי חללים כבוי'}
+            {isClassic ? 'תצוגה מקדימה — עיצוב קלאסי' : <>תצוגה מקדימה: {columns} {columns === 1 ? 'עמודה' : 'עמודות'} · מרווח {config.gap}px · {config.layoutMode === 'masonry' ? 'בנייה חופשית' : config.autoFill ? 'מילוי חללים פעיל' : 'מילוי חללים כבוי'}</>}
           </div>
           <div className={styles.previewFrame} style={{ maxWidth: previewWidth }}>
             <SmartGridRenderer
@@ -197,12 +200,12 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
               previewWidth={previewWidth}
             />
           </div>
-          <div className={styles.diagnostics}>
+          {!isClassic && <div className={styles.diagnostics}>
             <h3>📊 אבחון מיקומי רכיבים</h3>
             <table><thead><tr><th>רכיב</th><th>סדר</th><th>מיקום</th><th>שורה</th><th>עמודה</th><th>רוחב</th></tr></thead>
               <tbody>{diagnostics.map((control) => <tr key={control.id}><td>{control.label}</td><td>{control.order}</td><td>{control.placement}</td><td>{config.layoutMode === 'masonry' ? `מקטע ${control.masonrySection + 1}` : control.actualRow}</td><td>{control.actualColumn}</td><td>{control.actualSpan}</td></tr>)}</tbody>
             </table>
-          </div>
+          </div>}
         </main>
       </div>
     </div>

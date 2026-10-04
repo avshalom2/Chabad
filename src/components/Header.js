@@ -25,7 +25,7 @@ export default function Header() {
   }
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-site-header>
       <div className={styles.topBar}>
         {/* RIGHT: Logo */}
         <Link href="/" className={styles.logo}>
