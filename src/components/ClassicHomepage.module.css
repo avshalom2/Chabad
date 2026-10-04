@@ -91,9 +91,11 @@
   .menuButton { display: block; border: 1px solid var(--line); background: transparent; color: var(--wine); font-size: 25px; padding: 3px 10px; }
   .mobileNav { display: flex; flex-direction: column; gap: 0; width: 100%; }
   .mobileNav a { padding: 12px; color: var(--wine); border-top: 1px solid var(--line); }
-  .timesSection { display: flex; flex-direction: column; gap: 24px; padding: 35px 5%; }
-  .timesIntro h1 { font-size: 42px; }
-  .timesIntro > p:not(.eyebrow) { font-size: 17px; margin-bottom: 18px; }
+  .timesSection { display: flex; flex-direction: column; gap: 22px; padding: 22px 5%; }
+  .timesIntro h1 { font-size: clamp(20px, 7cqi, 38px); line-height: 1.2; margin-bottom: 14px; }
+  .timesIntro > p { display: none; }
+  .timesIntro .address { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.4; }
+  .timesIntro .address span { margin-left: 0; }
   .hero { grid-template-columns: 1fr; }
   .heroCopy { padding: 52px 7% 40px; }
   .heroCopy h2 { font-size: 66px; }

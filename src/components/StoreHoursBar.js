@@ -24,6 +24,7 @@ export default function StoreHoursBar({ variant } = {}) {
         <h2>{details.title}</h2>
         <p>{details.days} · <bdi className={styles.hours}>{details.hours}</bdi></p>
       </div>
+      {variant === 'classic' && <p className={styles.storeDescription}>יודאיקה · תפילין · מזוזות<br />מתנות וספרי קודש</p>}
       {details.badge && <span className={styles.badge}><span aria-hidden="true">☀</span>{details.badge}</span>}
       {variant === 'classic' && <a className={styles.inquiry} href="#classic-contact">בירור לפני הגעה <span aria-hidden="true">←</span></a>}
     </section>
