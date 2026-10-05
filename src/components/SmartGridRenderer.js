@@ -99,7 +99,8 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
 
   if (config.design === 'body-refresh') {
     const opening = activeControls.filter(control => ['weekly-prayers', 'store-hours'].includes(getSmartGridControlType(control)));
-    const remaining = config.controls.filter(control => !['weekly-prayers', 'store-hours'].includes(getSmartGridControlType(control)));
+    const contacts = activeControls.filter(control => getSmartGridControlType(control) === 'contact-form');
+    const remaining = config.controls.filter(control => !['weekly-prayers', 'store-hours', 'contact-form'].includes(getSmartGridControlType(control)));
     return <div className={styles.bodyRefresh} data-homepage-body="body-refresh">
       <div className={styles.bodyOpening} data-body-opening>
         <BodyOpeningIntro />
@@ -108,6 +109,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
         </div>)}
       </div>
       <SmartGridRenderer config={{ ...config, design: undefined, joinArticleCards: true, controls: remaining }} previewWidth={previewWidth} />
+      {contacts.length > 0 && <ClassicContactSection className={styles.bodyContact} compactMobile copyFontClass={classicFontClasses}>{contacts.map(control => <ContactForm key={control.id} />)}</ClassicContactSection>}
     </div>;
   }
 

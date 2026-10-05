@@ -70,6 +70,14 @@ try {
     assert.equal(await evaluate(`getComputedStyle(document.querySelector('[data-homepage-body="body-refresh"]')).paddingTop`), '24px');
     assert.equal(await evaluate(`Array.from(document.querySelectorAll('[data-homepage-body="body-refresh"] *')).every(el => getComputedStyle(el).borderRadius === '0px')`), true, 'Rounded element in body');
     if(width>600){assert.ok(metrics.topDifference<1);assert.ok(Math.abs(metrics.prayerHeight-metrics.storeHeight)<1);}
+    const contact = await evaluate(`(()=>{const section=document.querySelector('#classic-contact');const copy=section.firstElementChild;const form=section.querySelector('form');const r=copy.getBoundingClientRect();const f=form.getBoundingClientRect();return {copyHeight:r.height,copyLeft:r.left,formLeft:f.left,formTop:f.top,copyTop:r.top,inputs:form.querySelectorAll('input').length,textarea:!!form.querySelector('textarea'),headerBackground:getComputedStyle(form.querySelector('header')).backgroundColor,headerFont:getComputedStyle(form.querySelector('h2')).fontSize,gridColumns:getComputedStyle(form.querySelector('header + div')).gridTemplateColumns};})()`);
+    assert.equal(contact.headerBackground, 'rgb(123, 16, 35)');
+    assert.equal(contact.headerFont,'20px');
+    assert.equal(contact.inputs,5);assert.ok(contact.textarea);
+    if(width===1600) assert.ok(contact.copyLeft>contact.formLeft && Math.abs(contact.copyTop-contact.formTop)<2);
+    if(width===390) assert.ok(contact.copyHeight<=65,'Mobile contact intro takes too much space');
+    assert.equal(await evaluate(`document.querySelector('#classic-contact form').checkValidity()`),false);
+    metrics.contact=contact;
     report.push(metrics);
     const size=await evaluate('({width:innerWidth,height:document.documentElement.scrollHeight})');
     const shot=await call('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip:{x:0,y:0,...size,scale:1}});
