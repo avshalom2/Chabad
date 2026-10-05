@@ -1,4 +1,6 @@
-﻿import styles from './page.module.css';
+import { getInitialStoreHours } from '@/lib/store-hours-cache';
+import { getInitialWeeklyPrayerSchedule } from '@/lib/weekly-prayers-cache';
+import styles from './page.module.css';
 import ShabbatCompactBox from '@/components/ShabbatCompactBox';
 import EventsBox from '@/components/EventsBox';
 import BannerSlotRenderer from '@/components/BannerSlotRenderer';
@@ -39,6 +41,9 @@ export default async function MainPage() {
     }
   }
 
+  const storeHoursPromise = activeTemplate?.html ? getInitialStoreHours() : Promise.resolve(undefined);
+  const prayerSchedulePromise = activeTemplate?.html ? getInitialWeeklyPrayerSchedule() : Promise.resolve(undefined);
+
   try {
     const settings = await getSettings(['control_mobile_order']);
     if (Array.isArray(settings.control_mobile_order)) {
@@ -52,11 +57,13 @@ export default async function MainPage() {
     mobileControlOrder = activeTemplate.mobileControlOrder;
   }
 
+  const [initialPrayerSchedule, initialStoreHours] = await Promise.all([prayerSchedulePromise, storeHoursPromise]);
+
   return (
     <main className={styles.main}>
       {/* ACTIVE TEMPLATE (from hp_templates) */}
       {activeTemplate && activeTemplate.html ? (
-        <TemplateRenderer html={activeTemplate.html} mobileControlOrder={mobileControlOrder} />
+        <TemplateRenderer initialPrayerSchedule={initialPrayerSchedule} initialStoreHours={initialStoreHours} html={activeTemplate.html} mobileControlOrder={mobileControlOrder} />
       ) : (
         /* LEGACY DYNAMIC PAGE CONTENT (from PageBuilder) */
         homepageContent ? (

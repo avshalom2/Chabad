@@ -1,3 +1,4 @@
+import { invalidateWeeklyPrayerSchedule } from '@/lib/weekly-prayers-cache';
 import {
   clearWeeklyPrayerSchedule,
   getWeeklyPrayerSchedule,
@@ -28,6 +29,7 @@ export async function PUT(request) {
   try {
     const body = await request.json();
     const schedule = await saveWeeklyPrayerSchedule(body);
+    invalidateWeeklyPrayerSchedule();
     return Response.json({ success: true, schedule });
   } catch (error) {
     console.error('Error saving weekly prayer schedule:', error);
@@ -38,6 +40,7 @@ export async function PUT(request) {
 export async function DELETE() {
   try {
     const schedule = await clearWeeklyPrayerSchedule();
+    invalidateWeeklyPrayerSchedule();
     return Response.json({ success: true, schedule });
   } catch (error) {
     console.error('Error clearing weekly prayer schedule:', error);

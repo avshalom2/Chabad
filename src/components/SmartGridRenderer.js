@@ -109,7 +109,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
         </div>)}
       </div>
       <SmartGridRenderer config={{ ...config, design: undefined, joinArticleCards: true, controls: remaining }} previewWidth={previewWidth} />
-      {contacts.length > 0 && <ClassicContactSection className={styles.bodyContact} compactMobile copyFontClass={classicFontClasses}>{contacts.map(control => <ContactForm key={control.id} />)}</ClassicContactSection>}
+      {contacts.length > 0 && <ClassicContactSection className={styles.bodyContact} compactMobile copyFontClass={classicFontClasses}>{contacts.map(control => <ContactForm key={control.id} variant="classic" />)}</ClassicContactSection>}
     </div>;
   }
 

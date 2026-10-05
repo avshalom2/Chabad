@@ -1,3 +1,5 @@
+import { getInitialStoreHours } from '@/lib/store-hours-cache';
+import { getInitialWeeklyPrayerSchedule } from '@/lib/weekly-prayers-cache';
 import { notFound } from 'next/navigation';
 import { getAllTemplates } from '@/lib/hp-templates';
 import TemplateRenderer from '@/components/TemplateRenderer';
@@ -12,5 +14,6 @@ export default async function HomepagePreview({ searchParams }) {
   const name = template === 'classic-shell' ? 'מעטפת קלאסית — גוף דף הבית הקיים' : 'דף בית חדש — טיוטה';
   const draft = template === 'body-refresh' ? templates.find(item => parseSmartGridTemplate(item.homepage_html || item.template_html)?.design === 'body-refresh') : templates.find(item => item.template_name === name);
   if (!draft) notFound();
-  return <main><TemplateRenderer html={draft.homepage_html || draft.template_html} mobileControlOrder={draft.mobile_control_order || []} /></main>;
+  const [initialPrayerSchedule, initialStoreHours] = await Promise.all([getInitialWeeklyPrayerSchedule(), getInitialStoreHours()]);
+  return <main><TemplateRenderer initialPrayerSchedule={initialPrayerSchedule} initialStoreHours={initialStoreHours} html={draft.homepage_html || draft.template_html} mobileControlOrder={draft.mobile_control_order || []} /></main>;
 }

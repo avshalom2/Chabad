@@ -14,11 +14,13 @@ import StoreHoursBar from '@/components/StoreHoursBar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './TemplateRenderer.module.css';
+import WeeklyPrayerScheduleProvider from './WeeklyPrayerScheduleProvider';
+import StoreHoursProvider from './StoreHoursProvider';
 
 /**
  * Render template HTML with component tags dynamically replaced with React components
  */
-export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
+function TemplateContent({ html, mobileControlOrder = [] }) {
   const containerRef = useRef(null);
   const [portalsMap, setPortalsMap] = useState({});
   const smartGridConfig = useMemo(() => parseSmartGridTemplate(html), [html]);
@@ -218,4 +220,8 @@ export default function TemplateRenderer({ html, mobileControlOrder = [] }) {
       {portals}
     </>
   );
+}
+
+export default function TemplateRenderer({ initialPrayerSchedule, initialStoreHours, ...props }) {
+  return <WeeklyPrayerScheduleProvider schedule={initialPrayerSchedule}><StoreHoursProvider details={initialStoreHours}><TemplateContent {...props} /></StoreHoursProvider></WeeklyPrayerScheduleProvider>;
 }

@@ -1,19 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styles from './StoreHoursBar.module.css';
+import { StoreHoursContext } from './StoreHoursProvider';
 
 const defaults = { title: 'שעות פתיחת החנות', days: "ימים א׳-ה׳", hours: '10:00–19:00', badge: '' };
 
 export default function StoreHoursBar({ variant, compact = false, mobileCompact = false } = {}) {
-  const [details, setDetails] = useState(null);
+  const initialDetails = useContext(StoreHoursContext);
+  const [fetchedDetails, setDetails] = useState(null);
+  const details = initialDetails !== undefined ? { ...defaults, ...initialDetails } : fetchedDetails;
 
   useEffect(() => {
+    if (initialDetails !== undefined) return;
+    let active = true;
     fetch('/api/store-hours', { cache: 'no-store' })
       .then((response) => response.json())
-      .then((data) => setDetails({ ...defaults, ...(data.storeHours || {}) }))
-      .catch(() => setDetails(defaults));
-  }, []);
+      .then((data) => { if (active) setDetails({ ...defaults, ...(data.storeHours || {}) }); })
+      .catch(() => { if (active) setDetails(defaults); });
+    return () => { active = false; };
+  }, [initialDetails]);
 
   if (!details) return null;
 

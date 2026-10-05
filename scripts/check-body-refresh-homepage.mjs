@@ -70,11 +70,11 @@ try {
     assert.equal(await evaluate(`getComputedStyle(document.querySelector('[data-homepage-body="body-refresh"]')).paddingTop`), '24px');
     assert.equal(await evaluate(`Array.from(document.querySelectorAll('[data-homepage-body="body-refresh"] *')).every(el => getComputedStyle(el).borderRadius === '0px')`), true, 'Rounded element in body');
     if(width>600){assert.ok(metrics.topDifference<1);assert.ok(Math.abs(metrics.prayerHeight-metrics.storeHeight)<1);}
-    const contact = await evaluate(`(()=>{const section=document.querySelector('#classic-contact');const copy=section.firstElementChild;const form=section.querySelector('form');const r=copy.getBoundingClientRect();const f=form.getBoundingClientRect();return {copyHeight:r.height,copyLeft:r.left,formLeft:f.left,formTop:f.top,copyTop:r.top,inputs:form.querySelectorAll('input').length,textarea:!!form.querySelector('textarea'),headerBackground:getComputedStyle(form.querySelector('header')).backgroundColor,headerFont:getComputedStyle(form.querySelector('h2')).fontSize,gridColumns:getComputedStyle(form.querySelector('header + div')).gridTemplateColumns};})()`);
-    assert.equal(contact.headerBackground, 'rgb(123, 16, 35)');
-    assert.equal(contact.headerFont,'20px');
+    const contact = await evaluate(`(()=>{const section=document.querySelector('#classic-contact');const copy=section.firstElementChild;const form=section.querySelector('form');const r=copy.getBoundingClientRect();const f=form.getBoundingClientRect();const title=copy.querySelector('h2');const titleStyle=getComputedStyle(title);return {headingLines:title.getBoundingClientRect().height/parseFloat(titleStyle.lineHeight),formWidth:f.width,copyHeight:r.height,copyLeft:r.left,formLeft:f.left,formTop:f.top,copyTop:r.top,inputs:form.querySelectorAll('input').length,textarea:!!form.querySelector('textarea'),headerBackground:getComputedStyle(form.querySelector('header')).backgroundColor,headerFont:getComputedStyle(form.querySelector('h2')).fontSize,headerFontFamily:getComputedStyle(form.querySelector('h2')).fontFamily,inputFontFamily:getComputedStyle(form.querySelector('input')).fontFamily,gridColumns:getComputedStyle(form.querySelector('header + div')).gridTemplateColumns};})()`);
+    assert.equal(contact.headerBackground, 'rgba(0, 0, 0, 0)');
+    assert.equal(contact.headerFont,'31px');
     assert.equal(contact.inputs,5);assert.ok(contact.textarea);
-    if(width===1600) assert.ok(contact.copyLeft>contact.formLeft && Math.abs(contact.copyTop-contact.formTop)<2);
+    if(width===1600) { assert.ok(contact.copyLeft>contact.formLeft && Math.abs(contact.copyTop-contact.formTop)<2); assert.ok(contact.headingLines<2.1, 'Desktop heading wraps beyond two lines'); assert.ok(contact.formWidth>600, 'Contact form is too narrow'); }
     if(width===390) assert.ok(contact.copyHeight<=65,'Mobile contact intro takes too much space');
     assert.equal(await evaluate(`document.querySelector('#classic-contact form').checkValidity()`),false);
     metrics.contact=contact;
@@ -86,6 +86,9 @@ try {
   await call('Page.navigate',{url:'http://localhost:3000/'});
   for(let i=0;i<120;i++){if(await evaluate(`!!document.querySelector('a[href="/articles/mezuzah-installation"]')`))break;await new Promise(r=>setTimeout(r,500));}
   const active=await evaluate(`(()=>{const card=document.querySelector('a[href="/articles/mezuzah-installation"]');return {radius:getComputedStyle(card).borderRadius,gap:getComputedStyle(card.parentElement).gap,titleFont:getComputedStyle(card.querySelector('h3')).fontFamily,titleSize:getComputedStyle(card.querySelector('h3')).fontSize,mediaRadius:getComputedStyle(card.querySelector('div')).borderRadius,cardPadding:getComputedStyle(card).padding,bodyRefresh:!!document.querySelector('[data-homepage-body="body-refresh"]')};})()`);
+  const originalFormFonts=await evaluate(`(()=>{const form=document.querySelector('form');return {header:getComputedStyle(form.querySelector('h2')).fontFamily,input:getComputedStyle(form.querySelector('input')).fontFamily};})()`);
+  assert.equal(report[2].contact.headerFontFamily,originalFormFonts.header);
+  assert.equal(report[2].contact.inputFontFamily,originalFormFonts.input);
   assert.equal(active.radius,'20px');assert.equal(active.bodyRefresh,false);
   for(const key of ['titleFont','titleSize','cardPadding']) assert.equal(report[2][key],active[key],key+' changed');
   assert.equal(errors.length,0);console.log(JSON.stringify({report,active,errors},null,2));

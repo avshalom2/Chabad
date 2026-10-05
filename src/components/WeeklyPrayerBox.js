@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styles from './WeeklyPrayerBox.module.css';
+import { WeeklyPrayerScheduleContext } from './WeeklyPrayerScheduleProvider';
 
 const SHARE_IMAGE_WIDTH = 864;
 const SHARE_IMAGE_HEIGHT = 1212;
@@ -186,21 +187,26 @@ async function downloadSharePng(imageUrl) {
 }
 
 export default function WeeklyPrayerBox({ variant } = {}) {
-  const [schedule, setSchedule] = useState(null);
+  const initialSchedule = useContext(WeeklyPrayerScheduleContext);
+  const [fetchedSchedule, setSchedule] = useState(null);
+  const schedule = initialSchedule ?? fetchedSchedule;
   const [loading, setLoading] = useState(true);
   const [shareStatus, setShareStatus] = useState('');
   const [isMobileDevice, setIsMobileDevice] = useState(true);
 
   useEffect(() => {
+    if (initialSchedule) return;
+    let active = true;
     fetch('/api/weekly-prayers', { cache: 'no-store' })
       .then((res) => res.json())
-      .then((data) => setSchedule(data.schedule || null))
+      .then((data) => { if (active) setSchedule(data.schedule || null); })
       .catch((error) => {
         console.error('Error rendering weekly prayer box:', error);
-        setSchedule(null);
+        if (active) setSchedule(null);
       })
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [initialSchedule]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(pointer: coarse), (max-width: 767px)');
@@ -212,7 +218,7 @@ export default function WeeklyPrayerBox({ variant } = {}) {
     return () => mediaQuery.removeEventListener('change', updateDeviceMode);
   }, []);
 
-  if (loading) return null;
+  if (loading && !initialSchedule) return null;
   if (!schedule) return null;
 
   const grouped = groupTimes(schedule.times);

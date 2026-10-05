@@ -3,6 +3,7 @@
  * Update a specific site setting
  */
 import { setSetting } from '@/lib/settings';
+import { invalidateStoreHours } from '@/lib/store-hours-cache';
 import { getCurrentUserSession } from '@/lib/auth-session';
 
 export async function PUT(request, { params }) {
@@ -21,6 +22,7 @@ export async function PUT(request, { params }) {
     }
 
     await setSetting(key, value);
+    if (key === 'store_hours') invalidateStoreHours();
     return Response.json({ success: true, message: `Setting "${key}" updated` });
   } catch (err) {
     console.error('Error updating setting:', err);
