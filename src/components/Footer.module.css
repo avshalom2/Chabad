@@ -153,3 +153,5 @@
 :global(body:has([data-homepage-design="classic"])) :is(.fDescription, .contactItem, .fLinks a) { color: #e6d8d1; line-height: 1.8; }
 :global(body:has([data-homepage-design="classic"])) .fLinks a:hover { color: #d4b87e; }
 :global(body:has([data-homepage-design="classic"])) :is(.mashiachBadge, .footerCopy) { border-color: #91646b; color: #c9b3ad; }
+:global(body:has([data-homepage-body="original"])) .elegantChabadFooter,
+:global(body:has([data-homepage-body="original"])) .elegantChabadFooter * { border-radius: 0 !important; }

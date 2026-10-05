@@ -35,3 +35,7 @@
   width: 100%;
   align-items: start;
 }
+.classicServices { container-type: inline-size; --site-font: var(--classic-body-font), Arial, sans-serif; }
+.classicServices h3 { font-family: var(--classic-heading-font), Georgia, serif !important; font-weight: 500; }
+.classicStore { --site-font: var(--classic-body-font), Arial, sans-serif; }
+.classicStore h2 { font-family: var(--classic-heading-font), Georgia, serif !important; }

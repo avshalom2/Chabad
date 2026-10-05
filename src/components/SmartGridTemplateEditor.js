@@ -146,6 +146,7 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
 
       <div className={styles.workspace}>
         <aside className={styles.settings}>
+          {config.design === 'classic-shell' && <p className={styles.helpText}>מעטפת קלאסית עם גוף דף הבית הקיים. <a href="/homepage-preview?template=classic-shell" target="_blank" rel="noopener noreferrer">פתיחה בעמוד מלא ←</a></p>}
           {isClassic && <p className={styles.helpText}>עיצוב קלאסי — ניתן להפעיל רכיבים ולבחור את התוכן בכל אזור. הפריסה מותאמת אוטומטית למסך. <a href="/homepage-preview" target="_blank" rel="noopener noreferrer">פתיחה בעמוד מלא ←</a></p>}
           {!isClassic && <><h3>⚙️ הגדרות גריד רשת</h3>
           <div className={styles.gridSettings}>

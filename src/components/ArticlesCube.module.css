@@ -8,6 +8,12 @@
 .classic .card p { font-size: 17px; line-height: 1.8; color: #837b73; min-height: 0; font-weight: 400; }
 .classic .more { flex-direction: row-reverse; justify-content: flex-end; width: auto; border-top: 0; border-bottom: 1px solid #cbbab1; padding-top: 30px; padding-bottom: 6px; font-size: 14px; gap: 20px; color: #7e344a; }
 .number { position: absolute; left: 28px; top: 32px; font-size: 12px; color: #b8aca1; }
+.classic.compact .card { min-height: 0; padding: 22px 24px; }
+.classic.compact .media { width: 48px; height: 48px; margin-bottom: 16px; }
+.classic.compact .media svg { width: 27px; height: 27px; }
+.classic.compact .card h3 { font-size: 25px; margin-bottom: 10px; }
+.classic.compact .card p { font-size: 16px; line-height: 1.65; }
+.classic.compact .more { padding-top: 18px; padding-bottom: 4px; }
 @container (max-width: 1000px) { .classic .grid, .classic .grid.autoFitGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
 @container (max-width: 560px) { .classic .grid, .classic .grid.autoFitGrid { grid-template-columns: 1fr !important; } .classic .card { min-height: 300px; padding: 28px; } }
 .section {

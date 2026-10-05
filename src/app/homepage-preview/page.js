@@ -5,9 +5,11 @@ import TemplateRenderer from '@/components/TemplateRenderer';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'דף הבית החדש — תצוגה מקדימה', robots: { index: false, follow: false } };
 
-export default async function HomepagePreview() {
+export default async function HomepagePreview({ searchParams }) {
+  const { template } = await searchParams;
   const templates = await getAllTemplates();
-  const draft = templates.find(template => template.template_name === 'דף בית חדש — טיוטה');
+  const name = template === 'classic-shell' ? 'מעטפת קלאסית — גוף דף הבית הקיים' : 'דף בית חדש — טיוטה';
+  const draft = templates.find(item => item.template_name === name);
   if (!draft) notFound();
   return <main><TemplateRenderer html={draft.homepage_html || draft.template_html} mobileControlOrder={draft.mobile_control_order || []} /></main>;
 }

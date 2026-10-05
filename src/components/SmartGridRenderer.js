@@ -13,6 +13,12 @@ import TorahVideosSlider from './TorahVideosSlider';
 import { calculateMasonryLayout, calculateSmartGridLayout, getSmartGridControlType } from '@/lib/smart-grid-template';
 import styles from './SmartGridRenderer.module.css';
 import ClassicHomepage from './ClassicHomepage';
+import ClassicHomepageShell from './ClassicHomepageShell';
+import ClassicServicesIntro from './ClassicServicesIntro';
+import ClassicContactSection from './ClassicContactSection';
+import ClassicOpeningSection from './ClassicOpeningSection';
+import ClassicLearningSection from './ClassicLearningSection';
+import classicStyles from './ClassicHomepage.module.css';
 
 export default function SmartGridRenderer({ config, previewWidth = null }) {
   const gridRef = useRef(null);
@@ -56,6 +62,13 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
     });
   };
 
+  const controlAnchor = (control) => {
+    if (!config.shellAnchors) return undefined;
+    const type = getSmartGridControlType(control);
+    if (activeControls.find(c => getSmartGridControlType(c) === type)?.id !== control.id) return undefined;
+    return { 'weekly-prayers': 'classic-times', 'articles-cube': 'classic-services', 'articles-slider': 'classic-articles', 'contact-form': 'classic-contact' }[type];
+  };
+
   const renderControl = (control) => {
     switch (getSmartGridControlType(control)) {
       case 'banner':
@@ -65,8 +78,12 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
       case 'contact-form': return <ContactForm />;
       case 'news': return <NewsBox categoryId={control.categoryId} />;
       case 'articles-slider': return <ArticlesSlider categoryId={control.categoryId} />;
-      case 'articles-cube': return <ArticlesCube categoryId={control.categoryId} />;
-      case 'store-hours': return <StoreHoursBar />;
+      case 'articles-cube': return config.shellAnchors
+        ? <div className={styles.classicServices}><ArticlesCube categoryId={control.categoryId} variant="classic" compact /></div>
+        : <ArticlesCube categoryId={control.categoryId} />;
+      case 'store-hours': return config.shellAnchors
+        ? <div className={styles.classicStore} data-store-hours><StoreHoursBar variant="classic" compact /></div>
+        : <StoreHoursBar />;
       case 'torah-videos': return <TorahVideosSlider onVisibilityChange={(visible) => setControlVisibility(control.id, visible)} />;
       default: return null;
     }
@@ -74,6 +91,22 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
 
   if (config.design === 'classic') {
     return <ClassicHomepage config={config} embedded={previewWidth !== null} />;
+  }
+
+  if (config.design === 'classic-shell') {
+    const isOpeningControl = control => ['weekly-prayers', 'store-hours'].includes(getSmartGridControlType(control));
+    const bodyConfig = { ...config, design: undefined, shellAnchors: true };
+    const openingControls = activeControls.filter(isOpeningControl);
+    const contactControls = activeControls.filter(control => getSmartGridControlType(control) === 'contact-form');
+    const learningControls = [...(config.controls || [])].filter(control => control.active && getSmartGridControlType(control) === 'torah-videos').sort((a, b) => a.order - b.order);
+    const remainingControls = config.controls.filter(control => !isOpeningControl(control) && !['contact-form', 'torah-videos'].includes(getSmartGridControlType(control)));
+    return <ClassicHomepageShell embedded={previewWidth !== null}>
+      <div className={classicStyles.page}><ClassicOpeningSection prayers={openingControls.filter(control => getSmartGridControlType(control) === 'weekly-prayers').map(control => <WeeklyPrayerBox key={control.id} variant="classic" />)} store={openingControls.filter(control => getSmartGridControlType(control) === 'store-hours').map(control => <StoreHoursBar key={control.id} variant="classic" />)} /></div>
+      {remainingControls.some(control => control.active && getSmartGridControlType(control) === 'articles-cube') && <ClassicServicesIntro />}
+      <SmartGridRenderer config={{ ...bodyConfig, controls: remainingControls }} previewWidth={previewWidth} />
+      {learningControls.length > 0 && <div className={classicStyles.page} hidden={learningControls.every(control => hiddenControls.has(control.id))}><ClassicLearningSection>{learningControls.map(control => <TorahVideosSlider key={control.id} onVisibilityChange={visible => setControlVisibility(control.id, visible)} />)}</ClassicLearningSection></div>}
+      {contactControls.length > 0 && <div className={classicStyles.page}><ClassicContactSection>{contactControls.map(control => <ContactForm key={control.id} variant="classic" />)}</ClassicContactSection></div>}
+    </ClassicHomepageShell>;
   }
 
   if (config.layoutMode === 'masonry') {
@@ -94,12 +127,12 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
               <div className={styles.masonryColumns} style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: `${config.gap}px` }}>
                 {section.columns.map((column, columnIndex) => (
                   <div key={columnIndex} className={styles.masonryColumn} style={{ gap: `${config.gap}px` }}>
-                    {column.map((control) => <div key={control.id} className={styles.control}>{renderControl(control)}</div>)}
+                    {column.map((control) => <div key={control.id} id={controlAnchor(control)} className={styles.control}>{renderControl(control)}</div>)}
                   </div>
                 ))}
               </div>
             )}
-            {section.full && <div className={styles.control}>{renderControl(section.full)}</div>}
+            {section.full && <div id={controlAnchor(section.full)} className={styles.control}>{renderControl(section.full)}</div>}
           </div>
         ))}
       </div>
@@ -117,6 +150,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
           key={control.id}
           className={styles.control}
           data-smart-control={control.id}
+          id={controlAnchor(control)}
           style={{
             gridColumn: `${control.actualColumn} / span ${control.actualSpan}`,
             gridRow: control.actualRow,

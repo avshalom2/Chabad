@@ -5,7 +5,7 @@ import Link from 'next/link';
 import styles from './ArticlesCube.module.css';
 import ClassicServiceIcon from './ClassicServiceIcon';
 
-export default function ArticlesCube({ categoryId, categorySlug, categoryName, categoryDefaultColumns, variant }) {
+export default function ArticlesCube({ categoryId, categorySlug, categoryName, categoryDefaultColumns, variant, compact = false }) {
   const [articles, setArticles] = useState([]);
   const [columns, setColumns] = useState(Number(categoryDefaultColumns) || 3);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,7 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
 
   return (
     <section
-      className={`${styles.section} ${variant === 'classic' ? styles.classic : ''}`}
+      className={`${styles.section} ${variant === 'classic' ? styles.classic : ''} ${compact ? styles.compact : ''}`}
       dir="rtl"
       aria-label={categoryName || 'Articles Cube'}
       style={columns === -1 ? undefined : { '--cube-columns': columns }}
@@ -81,7 +81,7 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
 
           return (
             <Link key={article.id} href={`/articles/${article.slug}`} className={styles.card}>
-              {variant === 'classic' && <span className={styles.number} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>}
+              {variant === 'classic' && !compact && <span className={styles.number} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>}
               <div className={styles.media}>
                 {variant === 'classic' ? <ClassicServiceIcon slug={article.slug} /> : imageUrl ? (
                   <img src={imageUrl} alt={article.title} className={styles.image} />
