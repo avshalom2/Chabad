@@ -64,6 +64,7 @@ try {
     await evaluate('document.fonts.ready.then(()=>true)');
     const metrics=await evaluate(`(()=>{const a=document.querySelector('[data-opening-type="weekly-prayers"] section').getBoundingClientRect();const b=document.querySelector('[data-opening-type="store-hours"] section').getBoundingClientRect();const card=document.querySelector('[class*="joined"] a');return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,prayerHeight:a.height,storeHeight:b.height,topDifference:Math.abs(a.top-b.top),radius:getComputedStyle(card).borderRadius,gap:getComputedStyle(card.parentElement).gap,headerVisible:getComputedStyle(document.querySelector('[data-site-header]')).display!=='none',shell:!!document.querySelector('[data-homepage-design]'),titleFont:getComputedStyle(card.querySelector('h3')).fontFamily,titleSize:getComputedStyle(card.querySelector('h3')).fontSize,mediaRadius:getComputedStyle(card.querySelector('div')).borderRadius,cardPadding:getComputedStyle(card).padding};})()`);
     assert.ok(metrics.scrollWidth<=width,'Horizontal overflow');
+    assert.equal(await evaluate(`getComputedStyle(document.querySelector('[data-body-opening-intro]')).display !== 'none'`), width > 1100, 'Intro visibility must match desktop');
     assert.ok(metrics.headerVisible&&!metrics.shell,'Unexpected shell');
     assert.equal(metrics.radius,'0px');assert.equal(metrics.gap,'0px');assert.equal(metrics.mediaRadius,'0px');
     assert.equal(await evaluate(`getComputedStyle(document.querySelector('[data-homepage-body="body-refresh"]')).paddingTop`), '24px');

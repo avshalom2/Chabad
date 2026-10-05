@@ -17,6 +17,7 @@ import ClassicHomepageShell from './ClassicHomepageShell';
 import ClassicServicesIntro from './ClassicServicesIntro';
 import ClassicContactSection from './ClassicContactSection';
 import ClassicOpeningSection from './ClassicOpeningSection';
+import BodyOpeningIntro from './BodyOpeningIntro';
 import ClassicLearningSection from './ClassicLearningSection';
 import classicStyles from './ClassicHomepage.module.css';
 import { classicFontClasses } from './ClassicHomepageHeader';
@@ -101,6 +102,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
     const remaining = config.controls.filter(control => !['weekly-prayers', 'store-hours'].includes(getSmartGridControlType(control)));
     return <div className={styles.bodyRefresh} data-homepage-body="body-refresh">
       <div className={styles.bodyOpening} data-body-opening>
+        <BodyOpeningIntro />
         {opening.map(control => <div key={control.id} data-opening-type={getSmartGridControlType(control)} className={getSmartGridControlType(control) === 'store-hours' ? classicFontClasses + ' ' + styles.classicStore : undefined}>
           {getSmartGridControlType(control) === 'weekly-prayers' ? <WeeklyPrayerBox /> : <StoreHoursBar variant="classic" mobileCompact />}
         </div>)}
