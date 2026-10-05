@@ -102,7 +102,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
     return <div className={styles.bodyRefresh} data-homepage-body="body-refresh">
       <div className={styles.bodyOpening} data-body-opening>
         {opening.map(control => <div key={control.id} data-opening-type={getSmartGridControlType(control)} className={getSmartGridControlType(control) === 'store-hours' ? classicFontClasses + ' ' + styles.classicStore : undefined}>
-          {getSmartGridControlType(control) === 'weekly-prayers' ? <WeeklyPrayerBox /> : <StoreHoursBar variant="classic" />}
+          {getSmartGridControlType(control) === 'weekly-prayers' ? <WeeklyPrayerBox /> : <StoreHoursBar variant="classic" mobileCompact />}
         </div>)}
       </div>
       <SmartGridRenderer config={{ ...config, design: undefined, joinArticleCards: true, controls: remaining }} previewWidth={previewWidth} />

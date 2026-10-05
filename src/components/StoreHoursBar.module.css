@@ -37,3 +37,13 @@
   .copy p { font-size: 11px; }
   .badge { padding: 4px 8px; font-size: 10px; }
 }
+
+@container (max-width: 600px) {
+  .bar.classic.mobileCompact { min-height: 0; height: auto; padding: 20px; gap: 14px; }
+  .mobileCompact.classic .clock { width: 24px; height: 24px; flex-basis: 24px; margin: 0; }
+  .mobileCompact.classic .copy h2 { font-size: 26px; }
+  .mobileCompact.classic .copy p { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 14px; margin-top: 12px; padding-block: 12px; font-size: 14px; }
+  .mobileCompact.classic .hours { font-size: 25px; }
+  .mobileCompact.classic .storeDescription { line-height: 1.6; }
+  .mobileCompact .inquiry { margin-top: 0; }
+}
