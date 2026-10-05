@@ -5,7 +5,7 @@ import Link from 'next/link';
 import styles from './ArticlesCube.module.css';
 import ClassicServiceIcon from './ClassicServiceIcon';
 
-export default function ArticlesCube({ categoryId, categorySlug, categoryName, categoryDefaultColumns, variant, compact = false }) {
+export default function ArticlesCube({ categoryId, categorySlug, categoryName, categoryDefaultColumns, variant, compact = false, joined = false }) {
   const [articles, setArticles] = useState([]);
   const [columns, setColumns] = useState(Number(categoryDefaultColumns) || 3);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,7 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
 
   return (
     <section
-      className={`${styles.section} ${variant === 'classic' ? styles.classic : ''} ${compact ? styles.compact : ''}`}
+      className={`${styles.section} ${variant === 'classic' ? styles.classic : ''} ${compact ? styles.compact : ''} ${joined ? styles.joined : ''}`}
       dir="rtl"
       aria-label={categoryName || 'Articles Cube'}
       style={columns === -1 ? undefined : { '--cube-columns': columns }}

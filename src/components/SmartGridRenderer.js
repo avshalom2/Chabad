@@ -19,6 +19,7 @@ import ClassicContactSection from './ClassicContactSection';
 import ClassicOpeningSection from './ClassicOpeningSection';
 import ClassicLearningSection from './ClassicLearningSection';
 import classicStyles from './ClassicHomepage.module.css';
+import { classicFontClasses } from './ClassicHomepageHeader';
 
 export default function SmartGridRenderer({ config, previewWidth = null }) {
   const gridRef = useRef(null);
@@ -78,7 +79,9 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
       case 'contact-form': return <ContactForm />;
       case 'news': return <NewsBox categoryId={control.categoryId} />;
       case 'articles-slider': return <ArticlesSlider categoryId={control.categoryId} />;
-      case 'articles-cube': return config.shellAnchors
+      case 'articles-cube': return config.joinArticleCards
+        ? <ArticlesCube categoryId={control.categoryId} joined />
+        : config.shellAnchors
         ? <div className={styles.classicServices}><ArticlesCube categoryId={control.categoryId} variant="classic" compact /></div>
         : <ArticlesCube categoryId={control.categoryId} />;
       case 'store-hours': return config.shellAnchors
@@ -91,6 +94,19 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
 
   if (config.design === 'classic') {
     return <ClassicHomepage config={config} embedded={previewWidth !== null} />;
+  }
+
+  if (config.design === 'body-refresh') {
+    const opening = activeControls.filter(control => ['weekly-prayers', 'store-hours'].includes(getSmartGridControlType(control)));
+    const remaining = config.controls.filter(control => !['weekly-prayers', 'store-hours'].includes(getSmartGridControlType(control)));
+    return <div className={styles.bodyRefresh} data-homepage-body="body-refresh">
+      <div className={styles.bodyOpening} data-body-opening>
+        {opening.map(control => <div key={control.id} data-opening-type={getSmartGridControlType(control)} className={getSmartGridControlType(control) === 'store-hours' ? classicFontClasses + ' ' + styles.classicStore : undefined}>
+          {getSmartGridControlType(control) === 'weekly-prayers' ? <WeeklyPrayerBox /> : <StoreHoursBar variant="classic" />}
+        </div>)}
+      </div>
+      <SmartGridRenderer config={{ ...config, design: undefined, joinArticleCards: true, controls: remaining }} previewWidth={previewWidth} />
+    </div>;
   }
 
   if (config.design === 'classic-shell') {
