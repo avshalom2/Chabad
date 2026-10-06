@@ -47,3 +47,19 @@
   .mobileCompact.classic .storeDescription { line-height: 1.6; }
   .mobileCompact .inquiry { margin-top: 0; }
 }
+
+/* The header has its own RTL grid, so the clock never takes text space. */
+.bar.classic,
+.bar.classic.compact,
+.bar.classic.mobileCompact { container-type: inline-size; padding: 24px 18px; gap: 24px; }
+.storeHeader { display: grid; grid-template-columns: clamp(32px, 14cqw, 56px) minmax(0, 1fr); align-items: center; gap: clamp(10px, 4cqw, 22px); }
+.clockBox { color: #cdb079; display: flex; align-items: center; justify-content: center; }
+.clockBox svg { display: block; width: 100%; height: auto; }
+.storeHeading { min-width: 0; text-align: right; }
+.classic .storeLabel { display: block; color: #cdb079; font-size: clamp(13px, 4cqw, 18px); font-weight: 600; line-height: 1.5; white-space: nowrap; }
+.bar.classic .copy h2 { padding: 0; margin: 6px 0 0; font-size: clamp(22px, 9cqw, 38px); line-height: 1.3; white-space: nowrap; }
+.bar.classic .copy p { display: flex; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 8px; margin-top: 26px; padding-block: 24px; font-size: clamp(11px, 3.5cqw, 16px); }
+.bar.classic .copy p > span { white-space: nowrap; }
+.bar.classic .hours { font-size: clamp(20px, 7.5cqw, 32px); white-space: nowrap; }
+.bar.classic .storeDescription { font-size: clamp(13px, 4cqw, 16px); line-height: 1.8; }
+.bar.classic .inquiry { font-size: clamp(13px, 4cqw, 16px); }

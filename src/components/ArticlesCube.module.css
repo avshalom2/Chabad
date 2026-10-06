@@ -143,3 +143,28 @@
 
 .joined .grid { gap: 0 !important; }
 .joined .card { border-radius: 0; }
+
+/* Flat service cards, sharing the classic icons and typography. */
+.classic.joined { font-family: var(--classic-body-font), Arial, sans-serif; }
+.classic.joined .grid { border-color: #e9e3df; }
+.classic.joined .card { box-sizing: border-box; min-width: 0; min-height: 320px; padding: 32px; background: #fff; border-color: #e9e3df; box-shadow: none; }
+.classic.joined .card:nth-child(2n),
+.classic.joined .card:hover { background: #fff; box-shadow: none; transform: none; }
+.classic.joined .media { width: 54px; height: 54px; margin-bottom: 28px; background: #faeeea; color: #8f2843; box-shadow: none; }
+.classic.joined .media svg { width: 28px; height: 28px; }
+.classic.joined .card h3 { font-family: var(--classic-heading-font), Georgia, serif; font-size: 26px; font-weight: 500; margin-bottom: 16px; }
+.classic.joined .card p { font-size: 15px; line-height: 1.8; }
+.classic.joined .number { font-size: 11px; color: #cbbdb5; }
+.classic.joined .more { font-size: 13px; padding-top: 28px; gap: 16px; border-color: #cbbab1; }
+.classic.joined .card:hover .more { color: #591b2c; border-color: #8f2843; }
+@container (max-width: 560px) {
+  .classic.joined .grid,
+  .classic.joined .grid.autoFitGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .classic.joined .card { min-height: 260px; padding: 22px 14px 18px; }
+  .classic.joined .card h3 { font-size: 20px; margin-bottom: 12px; }
+  .classic.joined .card p { font-size: 13px; line-height: 1.65; }
+  .classic.joined .media { width: 42px; height: 42px; margin-bottom: 20px; }
+  .classic.joined .media svg { width: 24px; height: 24px; }
+  .classic.joined .number { top: 18px; left: 12px; font-size: 10px; }
+  .classic.joined .more { gap: 8px; font-size: 12px; padding-top: 20px; }
+}

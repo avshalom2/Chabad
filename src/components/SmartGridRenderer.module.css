@@ -41,6 +41,13 @@
 .classicStore h2 { font-family: var(--classic-heading-font), Georgia, serif !important; }
 
 .bodyRefresh { container-type: inline-size; direction: rtl; padding-top: 24px; }
+.bodyLearning { margin-top: 32px; font-family: var(--classic-body-font), Arial, sans-serif; }
+.bodyLearning[hidden] { display: none; }
+@container (max-width: 600px) {
+  .bodyLearning > section { padding: 32px 18px; }
+  .bodyLearning > section > div:first-child { margin-bottom: 28px; }
+  .bodyLearning > section > div:first-child h2 { font-size: clamp(24px, 6.5cqi, 36px); white-space: nowrap; }
+}
 .bodyRefresh *, .bodyRefresh *::before, .bodyRefresh *::after { border-radius: 0 !important; }
 .bodyOpening { width: min(1200px, 100%); margin: 0 auto 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
 .bodyOpening > div { min-width: 0; }

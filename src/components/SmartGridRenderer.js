@@ -15,6 +15,7 @@ import styles from './SmartGridRenderer.module.css';
 import ClassicHomepage from './ClassicHomepage';
 import ClassicHomepageShell from './ClassicHomepageShell';
 import ClassicServicesIntro from './ClassicServicesIntro';
+import ServicesHeading from './ServicesHeading';
 import ClassicContactSection from './ClassicContactSection';
 import ClassicOpeningSection from './ClassicOpeningSection';
 import BodyOpeningIntro from './BodyOpeningIntro';
@@ -81,7 +82,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
       case 'news': return <NewsBox categoryId={control.categoryId} />;
       case 'articles-slider': return <ArticlesSlider categoryId={control.categoryId} />;
       case 'articles-cube': return config.joinArticleCards
-        ? <ArticlesCube categoryId={control.categoryId} joined />
+        ? <div className={`${styles.classicServices} ${classicFontClasses}`}><ServicesHeading /><ArticlesCube categoryId={control.categoryId} variant="classic" joined /></div>
         : config.shellAnchors
         ? <div className={styles.classicServices}><ArticlesCube categoryId={control.categoryId} variant="classic" compact /></div>
         : <ArticlesCube categoryId={control.categoryId} />;
@@ -100,7 +101,8 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
   if (config.design === 'body-refresh') {
     const opening = activeControls.filter(control => ['weekly-prayers', 'store-hours'].includes(getSmartGridControlType(control)));
     const contacts = activeControls.filter(control => getSmartGridControlType(control) === 'contact-form');
-    const remaining = config.controls.filter(control => !['weekly-prayers', 'store-hours', 'contact-form'].includes(getSmartGridControlType(control)));
+    const learningControls = [...(config.controls || [])].filter(control => control.active && getSmartGridControlType(control) === 'torah-videos').sort((a, b) => a.order - b.order);
+    const remaining = config.controls.filter(control => !['weekly-prayers', 'store-hours', 'contact-form', 'torah-videos'].includes(getSmartGridControlType(control)));
     return <div className={styles.bodyRefresh} data-homepage-body="body-refresh">
       <div className={styles.bodyOpening} data-body-opening>
         <BodyOpeningIntro />
@@ -109,6 +111,9 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
         </div>)}
       </div>
       <SmartGridRenderer config={{ ...config, design: undefined, joinArticleCards: true, controls: remaining }} previewWidth={previewWidth} />
+      {learningControls.length > 0 && <div className={`${classicStyles.page} ${classicFontClasses} ${styles.bodyLearning}`} data-body-learning hidden={learningControls.every(control => hiddenControls.has(control.id))}>
+        <ClassicLearningSection>{learningControls.map(control => <TorahVideosSlider key={control.id} onVisibilityChange={visible => setControlVisibility(control.id, visible)} />)}</ClassicLearningSection>
+      </div>}
       {contacts.length > 0 && <ClassicContactSection className={styles.bodyContact} compactMobile copyFontClass={classicFontClasses}>{contacts.map(control => <ContactForm key={control.id} variant="classic" />)}</ClassicContactSection>}
     </div>;
   }
