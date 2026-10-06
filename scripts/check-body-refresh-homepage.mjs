@@ -61,11 +61,23 @@ try {
       if(ready) break; await new Promise(r=>setTimeout(r,500));
     }
     assert.ok(ready,'Body content did not load');
+    assert.equal(await evaluate(`document.querySelectorAll('a[href="/articles/tefillin-mezuzot-services"]').length`), 1, 'One combined service card');
+    assert.equal(await evaluate(`(async()=>{const articles=await (await fetch('/api/articles/by-category?categoryId=8&limit=12')).json();return articles.every(article=>document.querySelector('a[href="/articles/'+article.slug+'"]'));})()`), true, 'All published category articles must remain visible');
+    assert.equal(await evaluate(`!!document.querySelector('a[href="/articles/tefillin-mezuzot-services"] svg rect')`), true, 'Combined icon must render');
     await evaluate('document.fonts.ready.then(()=>true)');
     const metrics=await evaluate(`(()=>{const a=document.querySelector('[data-opening-type="weekly-prayers"] section').getBoundingClientRect();const b=document.querySelector('[data-opening-type="store-hours"] section').getBoundingClientRect();const card=document.querySelector('[class*="joined"] a');return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,prayerHeight:a.height,storeHeight:b.height,topDifference:Math.abs(a.top-b.top),radius:getComputedStyle(card).borderRadius,gap:getComputedStyle(card.parentElement).gap,headerVisible:getComputedStyle(document.querySelector('[data-site-header]')).display!=='none',shell:!!document.querySelector('[data-homepage-design]'),titleFont:getComputedStyle(card.querySelector('h3')).fontFamily,titleSize:getComputedStyle(card.querySelector('h3')).fontSize,mediaRadius:getComputedStyle(card.querySelector('div')).borderRadius,cardPadding:getComputedStyle(card).padding};})()`);
     assert.ok(metrics.scrollWidth<=width,'Horizontal overflow');
     assert.equal(await evaluate(`getComputedStyle(document.querySelector('[data-body-opening-intro]')).display !== 'none'`), width > 1100, 'Intro visibility must match desktop');
-    assert.ok(metrics.headerVisible&&!metrics.shell,'Unexpected shell');
+    assert.ok(!metrics.headerVisible && metrics.shell, 'Classic header must replace the site header');
+    assert.equal(await evaluate(`document.querySelector('[data-homepage-design="body-refresh"] header nav').textContent.includes('זמני שבת')`), true);
+    assert.equal(await evaluate(`Array.from(document.querySelectorAll('[data-homepage-design="body-refresh"] header a[href^="#"]')).every(link => document.querySelector(link.getAttribute('href')))`), true, 'Header links must have targets');
+    if (width === 390) {
+      await evaluate(`document.querySelector('[data-homepage-design="body-refresh"] header button').click()`);
+      assert.equal(await evaluate(`document.querySelector('[data-homepage-design="body-refresh"] header button').getAttribute('aria-expanded')`), 'true');
+      await evaluate(`document.querySelector('[data-homepage-design="body-refresh"] header nav:last-child a').click()`);
+      assert.equal(await evaluate(`document.querySelector('[data-homepage-design="body-refresh"] header button').getAttribute('aria-expanded')`), 'false');
+      await evaluate('window.scrollTo(0, 0)');
+    }
     assert.equal(metrics.radius,'0px');assert.equal(metrics.gap,'0px');assert.equal(metrics.mediaRadius,'0px');
     assert.equal(await evaluate(`getComputedStyle(document.querySelector('[data-homepage-body="body-refresh"]')).paddingTop`), '24px');
     assert.equal(await evaluate(`Array.from(document.querySelectorAll('[data-homepage-body="body-refresh"] *')).every(el => getComputedStyle(el).borderRadius === '0px')`), true, 'Rounded element in body');
@@ -84,13 +96,14 @@ try {
     await writeFile('tmp/homepage-redesign/body-refresh-'+width+'.png',Buffer.from(shot.data,'base64'));
   }
   await call('Page.navigate',{url:'http://localhost:3000/'});
-  for(let i=0;i<120;i++){if(await evaluate(`!!document.querySelector('a[href="/articles/mezuzah-installation"]')`))break;await new Promise(r=>setTimeout(r,500));}
-  const active=await evaluate(`(()=>{const card=document.querySelector('a[href="/articles/mezuzah-installation"]');return {radius:getComputedStyle(card).borderRadius,gap:getComputedStyle(card.parentElement).gap,titleFont:getComputedStyle(card.querySelector('h3')).fontFamily,titleSize:getComputedStyle(card.querySelector('h3')).fontSize,mediaRadius:getComputedStyle(card.querySelector('div')).borderRadius,cardPadding:getComputedStyle(card).padding,bodyRefresh:!!document.querySelector('[data-homepage-body="body-refresh"]')};})()`);
+  for(let i=0;i<120;i++){if(await evaluate(`!!document.querySelector('a[href="/articles/tefillin-mezuzot-services"]')`))break;await new Promise(r=>setTimeout(r,500));}
+  const active=await evaluate(`(()=>{const card=document.querySelector('a[href="/articles/tefillin-mezuzot-services"]');return {radius:getComputedStyle(card).borderRadius,gap:getComputedStyle(card.parentElement).gap,titleFont:getComputedStyle(card.querySelector('h3')).fontFamily,titleSize:getComputedStyle(card.querySelector('h3')).fontSize,mediaRadius:getComputedStyle(card.querySelector('div')).borderRadius,cardPadding:getComputedStyle(card).padding,bodyRefresh:!!document.querySelector('[data-homepage-body="body-refresh"]')};})()`);
   const originalFormFonts=await evaluate(`(()=>{const form=document.querySelector('form');return {header:getComputedStyle(form.querySelector('h2')).fontFamily,input:getComputedStyle(form.querySelector('input')).fontFamily};})()`);
   assert.equal(report[2].contact.headerFontFamily,originalFormFonts.header);
   assert.equal(report[2].contact.inputFontFamily,originalFormFonts.input);
   assert.equal(active.radius,'20px');assert.equal(active.bodyRefresh,false);
-  for(const key of ['titleFont','titleSize','cardPadding']) assert.equal(report[2][key],active[key],key+' changed');
+  assert.ok(report[2].titleFont.includes('Frank Ruhl Libre'), 'Refresh cards must use their classic heading font');
+  assert.equal(report[2].titleSize, '20px');
   assert.equal(errors.length,0);console.log(JSON.stringify({report,active,errors},null,2));
   await writeFile('tmp/homepage-redesign/body-refresh-report.json',JSON.stringify({report,active,errors},null,2));
   await call('Browser.close').catch(()=>{});

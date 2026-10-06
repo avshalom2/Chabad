@@ -1,4 +1,5 @@
 const paths = {
+  'tefillin-mezuzot-services': <><rect x="3" y="3" width="6" height="26" rx="2" /><path d="M5 8h2M5 13h2M5 23h2M14 11l7-5 7 5-7 5zM14 11v8l7 5 7-5v-8M21 16v8M17 22l-4 6M26 22l3 6" /></>,
   'mezuzah-installation': <><rect x="9" y="3" width="7" height="26" rx="2" /><path d="M11.5 8h2M11.5 13h2M11.5 23h2" /></>,
   'tefillin-checking-and-sales': <><path d="m7 5 6 6-5 5-6-6zM21 3l7 7-6 6-7-7zM10 18l-5 5 4 4 10-10M22 17l-9 12" /></>,
   'hachanah-lebar-mitzvah': <><path d="M5 15h22v14H5zM5 21h22M10 15V9M16 15V9M22 15V9M10 6V3M16 6V3M22 6V3" /></>,

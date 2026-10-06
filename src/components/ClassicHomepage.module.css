@@ -74,6 +74,8 @@
 .servicesIntroHeading h2 { font-size: clamp(34px, 3.6cqi, 52px); }
 :global(body:has([data-homepage-design="classic"]) [data-site-header]) { display: none; }
 :global(body:has([data-homepage-design="classic"]) main) { padding-top: 0; }
+:global(body:has([data-homepage-design="body-refresh"]) [data-site-header]) { display: none; }
+:global(body:has([data-homepage-design="body-refresh"]) main) { padding-top: 0; }
 @container (max-width: 1100px) {
   .timesSection { grid-template-columns: 1.8fr 1fr; padding: 35px 5%; }
   .timesIntro { grid-column: 1 / -1; padding: 0; display: block; }

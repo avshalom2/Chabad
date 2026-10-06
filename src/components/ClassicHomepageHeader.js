@@ -10,7 +10,7 @@ const assistant = Assistant({ subsets: ['hebrew'], display: 'swap', variable: '-
 const frank = Frank_Ruhl_Libre({ subsets: ['hebrew'], display: 'swap', variable: '--classic-heading-font' });
 export const classicFontClasses = `${assistant.variable} ${frank.variable}`;
 
-export default function ClassicHomepageHeader() {
+export default function ClassicHomepageHeader({ articlesHref = '#classic-articles' }) {
   const [date, setDate] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function ClassicHomepageHeader() {
     const timer = setInterval(update, 60 * 60 * 1000);
     return () => clearInterval(timer);
   }, []);
-  const nav = <><a href="#classic-times">שעות ותפילות</a><a href="#classic-services">השירותים שלנו</a><Link href="/shabbat-times">זמני שבת</Link><a href="#classic-articles">חגים ומאמרים</a></>;
+  const nav = <><a href="#classic-times">שעות ותפילות</a><a href="#classic-services">השירותים שלנו</a><Link href="/shabbat-times">זמני שבת</Link><Link href={articlesHref}>חגים ומאמרים</Link></>;
   return <>
     <div className={styles.announcement}><span>בית חב״ד הרצליה פיתוח <i /> פותחים את הדלת. פותחים את הלב.</span><time>{date}</time></div>
     <header className={styles.navigation}>

@@ -77,7 +77,9 @@ export default function ArticlesCube({ categoryId, categorySlug, categoryName, c
         style={columns === -1 ? undefined : { '--cube-columns': columns }}
       >
         {articles.map((article, index) => {
-          const imageUrl = article.short_description_image_url || article.featured_image;
+          const imageUrl = article.slug === 'tefillin-mezuzot-services'
+            ? '/icons/tefillin-mezuzot.svg'
+            : article.short_description_image_url || article.featured_image;
 
           return (
             <Link key={article.id} href={`/articles/${article.slug}`} className={styles.card}>
