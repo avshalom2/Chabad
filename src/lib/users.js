@@ -23,25 +23,26 @@ export async function getUsers({ activeOnly = true } = {}) {
   `;
   const params = [];
   if (activeOnly) {
-    sql += ' WHERE u.is_active = 1';
+    sql += ` WHERE u.is_active = ${isPostgres() ? 'TRUE' : '1'}`;
   }
   sql += ' ORDER BY u.created_at DESC';
 
-  const [rows] = await pool.query(sql, params);
-  return rows;
+  const result = await pool.query(sql, params);
+  return queryRows(result);
 }
 
 // ── GET SINGLE USER BY ID ────────────────────────────────────
 export async function getUserById(id) {
   const pool = await getPool();
-  const [rows] = await pool.query(
+  const result = await pool.query(
     `SELECT u.id, u.username, u.email, u.display_name, u.is_active, u.created_at,
             al.name AS access_level, al.can_create, al.can_update, al.can_delete, al.can_publish
      FROM users u
      JOIN access_levels al ON al.id = u.access_level_id
-     WHERE u.id = ?`,
+     WHERE u.id = ${isPostgres() ? '$1' : '?'}`,
     [id]
   );
+  const rows = queryRows(result);
   return rows[0] || null;
 }
 
@@ -73,6 +74,14 @@ export async function getUserByEmail(email) {
 export async function createUser({ username, email, password, display_name = null, access_level_id = 4 }) {
   const pool = await getPool();
   const password_hash = hashPassword(password);
+  if (isPostgres()) {
+    const result = await pool.query(
+      `INSERT INTO users (username, email, password_hash, display_name, access_level_id)
+       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+      [username, email, password_hash, display_name, access_level_id]
+    );
+    return result.rows[0].id;
+  }
   const [result] = await pool.query(
     `INSERT INTO users (username, email, password_hash, display_name, access_level_id)
      VALUES (?, ?, ?, ?, ?)`,
@@ -83,11 +92,14 @@ export async function createUser({ username, email, password, display_name = nul
 
 // ── UPDATE USER ──────────────────────────────────────────────
 export async function updateUser(id, fields) {
+  const pool = await getPool();
   const allowed = ['username', 'email', 'display_name', 'access_level_id', 'is_active'];
   const updates = Object.keys(fields).filter(k => allowed.includes(k));
   if (updates.length === 0) throw new Error('No valid fields to update');
 
-  const sql = `UPDATE users SET ${updates.map(k => `${k} = ?`).join(', ')} WHERE id = ?`;
+  const sql = isPostgres()
+    ? `UPDATE users SET ${updates.map((k, index) => `${k} = $${index + 1}`).join(', ')} WHERE id = $${updates.length + 1}`
+    : `UPDATE users SET ${updates.map(k => `${k} = ?`).join(', ')} WHERE id = ?`;
   const values = [...updates.map(k => fields[k]), id];
   await pool.query(sql, values);
 }
@@ -128,11 +140,24 @@ export async function verifyPassword(plainPassword, storedHash) {
 
 // ── DEACTIVATE USER (soft delete) ────────────────────────────
 export async function deactivateUser(id) {
-  await pool.query('UPDATE users SET is_active = 0 WHERE id = ?', [id]);
+  const pool = await getPool();
+  await pool.query(
+    isPostgres() ? 'UPDATE users SET is_active = FALSE WHERE id = $1' : 'UPDATE users SET is_active = 0 WHERE id = ?',
+    [id]
+  );
 }
 
 // ── GET ALL ACCESS LEVELS ────────────────────────────────────
 export async function getAccessLevels() {
-  const [rows] = await pool.query('SELECT * FROM access_levels ORDER BY id ASC');
-  return rows;
+  const pool = await getPool();
+  const result = await pool.query('SELECT * FROM access_levels ORDER BY id ASC');
+  return queryRows(result);
+}
+
+function isPostgres() {
+  return process.env.DB_TYPE === 'postgres' || process.env.DB_TYPE === 'pg';
+}
+
+function queryRows(result) {
+  return isPostgres() ? result.rows : result[0];
 }

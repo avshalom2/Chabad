@@ -14,11 +14,13 @@
 .brand strong { display: block; font-size: 32px; font-weight: 600; line-height: 1.1; }
 .brand small { display: block; font-size: 12px; margin-top: 5px; }
 .brandMark { width: 48px; height: 48px; border: 1px solid var(--gold); color: var(--gold); border-radius: 50%; display: grid; place-items: center; font-size: 37px; }
-.desktopNav { display: flex; gap: clamp(18px, 2.5vw, 40px); }
+.desktopNav { display: flex; align-items: center; gap: clamp(18px, 2.5vw, 40px); }
 .desktopNav a { font-size: 15px; font-weight: 650; color: var(--ink); }
 .desktopNav a:hover, .textLink:hover { color: var(--gold); }
+.storeMenu > a { padding-block: 10px; white-space: nowrap; }
 .visit, .button { display: inline-flex; align-items: center; justify-content: space-between; gap: 32px; background: var(--wine); color: white; font-size: 15px; font-weight: 650; padding: 18px 27px; }
 .button:hover, .visit:hover { background: #72273c; }
+.donateButton { padding-block: 12px; }
 .menuButton { display: none; }
 .timesSection { display: grid; grid-template-columns: 0.95fr 1.8fr 0.8fr; gap: 24px; padding: 54px 6% 60px; background: #f3eeea; align-items: stretch; }
 .timesIntro { padding: 28px 0 8px 24px; display: flex; flex-direction: column; }

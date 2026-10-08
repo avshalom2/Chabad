@@ -25,7 +25,7 @@ const categories = [
     slug: 'chagim',
     description: 'מידע והנושאות הקשורות לחגי ישראל ומועדים',
     subs: [
-      { name: 'חגי תשרי', slug: 'tishrei-holidays' },
+      { name: 'ראש השנה', slug: 'tishrei-holidays' },
       { name: 'חנוכה', slug: 'hanukkah' },
       { name: 'פורים', slug: 'purim' },
       { name: 'פסח', slug: 'passover' },

@@ -1,0 +1,6 @@
+interface:
+  display_name: "מדריכי חג מעוצבים בעברית"
+  short_description: "מדריכי PDF בעברית בסגנון מדריך סוכות המאושר"
+  default_prompt: "השתמש ב־$hebrew-holiday-guides להכנת מדריך חג להדפסה לפי המבנה והעיצוב המאושרים."
+policy:
+  allow_implicit_invocation: true

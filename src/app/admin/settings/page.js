@@ -444,9 +444,9 @@ export default function SettingsPage() {
           {currentTemplate && templateHtml && (
             <div className={styles.editorPanel}>
               {smartGridConfig ? (
-                <SmartGridTemplateEditor templateId={currentTemplate.id} initialHtml={templateHtml} />
+                <SmartGridTemplateEditor key={currentTemplate.id} templateId={currentTemplate.id} initialHtml={templateHtml} />
               ) : (
-                <TemplateEditor templateId={currentTemplate.id} initialHtml={templateHtml} />
+                <TemplateEditor key={currentTemplate.id} templateId={currentTemplate.id} initialHtml={templateHtml} />
               )}
             </div>
           )}

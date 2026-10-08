@@ -1,0 +1,40 @@
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+:root { --dark: #1d4f2c; --accent: #2e7d32; --light: #c8e6c9; --prayer: #f1f8e8; --paper: #faf9f6; --ink: #33485d; --conditional: #006de5; }
+html, body { margin: 0; padding: 0; }
+body { direction: rtl; color: var(--ink); background: var(--paper); font: 11pt/1.5 "Noto Sans Hebrew", "DejaVu Sans", Arial, sans-serif; }
+.page { width: 210mm; min-height: 297mm; position: relative; padding: 12mm 15mm 22mm; background: var(--paper); break-after: page; }
+.page:last-child { break-after: auto; }
+.masthead { margin: -12mm -15mm 6mm; padding: 7mm 12mm 5mm; color: white; text-align: center; background: linear-gradient(110deg,var(--dark),var(--accent)); border-bottom: 3px solid var(--light); }
+h1 { margin: 0 0 2mm; font-size: 26pt; line-height: 1.35; font-weight: 700; }
+.subtitle { margin: 0 0 2mm; font-size: 12pt; }
+.badge { display: inline-block; background: var(--light); color: var(--dark); padding: 1mm 5mm; border-radius: 15px; font-weight: 700; font-size: 10pt; }
+h2 { color: var(--dark); font-size: 16pt; line-height: 1.4; border-right: 3px solid var(--accent); padding-right: 3mm; margin: 4mm 0 2mm; break-after: avoid; }
+h3 { color: var(--accent); font-size: 12pt; margin: 3mm 0 1mm; break-after: avoid; }
+.card { background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 3mm 4mm; }
+p { margin: 0 0 2.5mm; orphans: 3; widows: 3; }
+p:last-child { margin-bottom: 0; }
+.prayer { background: var(--prayer); border-right: 3px solid #558b2f; border-radius: 2px; padding: 3mm 4mm; margin: 3mm 0; break-inside: avoid; }
+.prayer-label { color: var(--dark); font-weight: 700; display: block; margin-bottom: 1mm; }
+.prayer p { font-size: 12pt; line-height: 1.8; }
+.conditional { color: var(--conditional); font-weight: 700; }
+.note { background: #eef7ed; border: 1px solid #a5d6a7; border-right: 3px solid var(--accent); border-radius: 4px; padding: 3mm 4mm; margin: 3mm 0; break-inside: avoid; }
+.caution { background: #fffde7; border-right: 3px solid #ffca28; padding: 3mm 4mm; margin: 3mm 0; break-inside: avoid; }
+.caution strong { color: #b71c1c; }
+ul, ol { margin: 2mm 0; padding-right: 6mm; }
+li { margin: 1mm 0; }
+table { width: 100%; border-collapse: collapse; margin: 3mm 0; font-size: 10.5pt; }
+caption { background: var(--dark); color: white; font-weight: 700; padding: 2mm; }
+thead { display: table-header-group; }
+th { background: var(--accent); color: white; }
+th, td { border: 1px solid var(--light); padding: 2mm 3mm; text-align: right; }
+tr { break-inside: avoid; }
+tbody tr:nth-child(even) { background: #f8fbe8; }
+footer { position: absolute; bottom: 6mm; left: 15mm; right: 15mm; display: flex; justify-content: space-between; color: #849496; font-size: 8pt; }
+.continuation { font-size: 10pt; color: #738177; margin-bottom: 3mm; }
+body.rosh-hashanah { --dark: #1c3a60; --accent: #2b69aa; --light: #e1a62c; --prayer: #fff9ed; }
+.rosh-hashanah .masthead { margin: 0 0 5mm; border-radius: 14px; border-bottom: 4px solid var(--light); }
+.rosh-hashanah h2 { border-right-color: var(--light); }
+.rosh-hashanah .prayer { border: 1px dashed #f07428; border-radius: 7px; }
+@media screen { body { background: #ddd; } .page { margin: 8mm auto; box-shadow: 0 1mm 4mm #0002; } }
+@media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }

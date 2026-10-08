@@ -64,7 +64,7 @@ export default async function CategoryPage({ params }) {
           <p className={styles.categoryDesc}>{category.description}</p>
         )}
         <span className={styles.articleCount}>
-          {total} {
+          {total + (mainArticle ? 1 : 0)} {
             category.type_slug === 'products' ? 'מוצרים' : 
             category.type_slug === 'news' ? 'חדשות' : 
             'כתבות'

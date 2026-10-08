@@ -20,8 +20,8 @@ export default async function AdminLayout({ children }) {
           <h2>ממשק ניהול</h2>
         </div>
         <nav className={styles.nav}>
-          <Link href="/admin" className={styles.navLink}>
-            לוח בקרה
+          <Link href="/admin/settings" className={styles.navLink}>
+            הגדרות אתר
           </Link>
           <Link href="/admin/categories" className={styles.navLink}>
             קטגוריות
@@ -32,29 +32,17 @@ export default async function AdminLayout({ children }) {
           <Link href="/admin/events" className={styles.navLink}>
             אירועים
           </Link>
+          <Link href="/admin/banner-slots" className={styles.navLink}>
+            חריצות באנרים
+          </Link>
           <Link href="/admin/weekly-prayers" className={styles.navLink}>
             זמני תפילה
-          </Link>
-          <Link href="/admin/banner-slots" className={styles.navLink}>
-            חריצות בנרים
           </Link>
           <Link href="/admin/media" className={styles.navLink}>
             ניהול תמונות
           </Link>
-          <Link href="/admin/forms" className={styles.navLink}>
-            טפסים
-          </Link>
-          <Link href="/admin/qna" className={styles.navLink}>
-            שאלות ותשובות
-          </Link>
-          <Link href="/admin/products" className={styles.navLink}>
-            מוצרים
-          </Link>
           <Link href="/admin/users" className={styles.navLink}>
             משתמשים
-          </Link>
-          <Link href="/admin/settings" className={styles.navLink}>
-            הגדרות אתר
           </Link>
         </nav>
         <AdminSidebarFooter userEmail={user.email} />

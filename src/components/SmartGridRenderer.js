@@ -104,7 +104,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
     const learningControls = [...(config.controls || [])].filter(control => control.active && getSmartGridControlType(control) === 'torah-videos').sort((a, b) => a.order - b.order);
     const remaining = config.controls.filter(control => !['weekly-prayers', 'store-hours', 'contact-form', 'torah-videos'].includes(getSmartGridControlType(control)));
     return <div data-homepage-design={previewWidth !== null ? 'body-refresh-embedded' : 'body-refresh'}>
-      <div className={`${classicStyles.page} ${classicStyles.shellHeader} ${classicFontClasses}`}><ClassicHomepageHeader articlesHref={activeControls.some(control => getSmartGridControlType(control) === 'articles-slider') ? '#classic-articles' : '/category/chagim'} /></div>
+      <div className={`${classicStyles.page} ${classicStyles.shellHeader} ${classicFontClasses}`}><ClassicHomepageHeader showStoreMenu articlesHref={activeControls.some(control => getSmartGridControlType(control) === 'articles-slider') ? '#classic-articles' : '/category/chagim'} /></div>
       <div className={styles.bodyRefresh} data-homepage-body="body-refresh">
       <div className={styles.bodyOpening} data-body-opening id="classic-times">
         <BodyOpeningIntro />

@@ -21,14 +21,6 @@ export default async function AdminDashboard() {
         </div>
 
         <div className={styles.card}>
-          <h3>📦 Products</h3>
-          <p>Manage your product catalog</p>
-          <a href="/admin/products" className={styles.cardLink}>
-            Go to Products →
-          </a>
-        </div>
-
-        <div className={styles.card}>
           <h3>📂 Categories</h3>
           <p>Organize your content with categories</p>
           <a href="/admin/categories" className={styles.cardLink}>
