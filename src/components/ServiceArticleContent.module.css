@@ -1,0 +1,16 @@
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: 32px;
+  margin-block: 16px;
+  border-radius: 18px;
+  background: #f5ede7;
+  color: #803349;
+}
+
+.icon svg {
+  width: 80px;
+  height: 80px;
+}

@@ -64,6 +64,14 @@
   display: block;
 }
 
+.serviceIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5ede7;
+  color: #803349;
+}
+
 .itemContent {
   flex: 1;
   min-width: 0;

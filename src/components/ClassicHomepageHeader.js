@@ -17,30 +17,66 @@ function categoryHref(category) {
   return /^(https?:|mailto:|tel:|#|\/)/i.test(customUrl) ? customUrl : `/${customUrl}`;
 }
 
-export default function ClassicHomepageHeader({ articlesHref = '#classic-articles', showStoreMenu = false }) {
+export default function ClassicHomepageHeader({ showStoreMenu = false }) {
   const [date, setDate] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [store, setStore] = useState(null);
   const [storeExpanded, setStoreExpanded] = useState(false);
+  const [services, setServices] = useState([]);
+  const [servicesExpanded, setServicesExpanded] = useState(false);
+  const [learning, setLearning] = useState(null);
+  const [learningExpanded, setLearningExpanded] = useState(false);
   useEffect(() => {
-    if (!showStoreMenu) return;
+    const controller = new AbortController();
+    fetch('/api/articles/by-category?categoryId=8&limit=12', { signal: controller.signal })
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch service navigation');
+        return response.json();
+      })
+      .then(data => setServices(Array.isArray(data) ? data : []))
+      .catch(error => { if (error.name !== 'AbortError') console.error(error); });
+    return () => controller.abort();
+  }, []);
+  useEffect(() => {
     const controller = new AbortController();
     fetch('/api/categories/navigate', { signal: controller.signal })
       .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch store navigation');
+        if (!response.ok) throw new Error('Failed to fetch category navigation');
         return response.json();
       })
-      .then(data => setStore(data.categories?.find(category => category.slug === 'store') || null))
+      .then(data => {
+        setStore(data.categories?.find(category => category.slug === 'store') || null);
+        setLearning(data.categories?.find(category => category.slug === 'לימוד-ויהדות') || null);
+      })
       .catch(error => { if (error.name !== 'AbortError') console.error(error); });
     return () => controller.abort();
-  }, [showStoreMenu]);
+  }, []);
   useEffect(() => {
     const update = () => setDate(formatHebrewDate(new Date()));
     update();
     const timer = setInterval(update, 60 * 60 * 1000);
     return () => clearInterval(timer);
   }, []);
-  const nav = <><a href="#classic-times">שעות ותפילות</a><a href="#classic-services">השירותים שלנו</a><Link href="/shabbat-times">זמני שבת</Link><Link href={articlesHref}>חגים ומאמרים</Link>{showStoreMenu && <a href="#classic-contact">צור קשר</a>}</>;
+  const serviceLinks = (className) => services.map(service => <Link key={service.id} href={`/articles/${service.slug}`} className={className}>{service.title}</Link>);
+  const learningHref = learning ? categoryHref(learning) : '/category/לימוד-ויהדות';
+  const learningLinks = (className) => learning?.subs?.map(sub => <Link key={sub.id} href={categoryHref(sub)} className={className}>{sub.name}</Link>);
+  const nav = (mobile = false) => <>
+    {mobile ? <div>
+      {services.length ? <button className={navigationStyles.mobileParentButton} aria-expanded={servicesExpanded} onClick={() => { setServicesExpanded(!servicesExpanded); setStoreExpanded(false); setLearningExpanded(false); }}>השירותים שלנו</button> : <a href="#classic-services">השירותים שלנו</a>}
+      {servicesExpanded && <div className={navigationStyles.mobileSubmenu}>{serviceLinks(navigationStyles.mobileSubLink)}</div>}
+    </div> : <div className={`${navigationStyles.menuItem} ${styles.storeMenu}`}>
+      <a href="#classic-services">השירותים שלנו</a>
+      {!!services.length && <div className={navigationStyles.dropdown}>{serviceLinks(navigationStyles.subLink)}</div>}
+    </div>}
+    <Link href="/shabbat-times">זמני שבת</Link>
+    {mobile ? <div>
+      {learning?.subs?.length ? <button className={navigationStyles.mobileParentButton} aria-expanded={learningExpanded} onClick={() => { setLearningExpanded(!learningExpanded); setStoreExpanded(false); setServicesExpanded(false); }}>לימוד יהדות</button> : <Link href={learningHref}>לימוד יהדות</Link>}
+      {learningExpanded && <div className={navigationStyles.mobileSubmenu}>{learningLinks(navigationStyles.mobileSubLink)}</div>}
+    </div> : <div className={`${navigationStyles.menuItem} ${styles.storeMenu}`}>
+      <Link href={learningHref}>לימוד יהדות</Link>
+      {!!learning?.subs?.length && <div className={navigationStyles.dropdown}>{learningLinks(navigationStyles.subLink)}</div>}
+    </div>}
+    {showStoreMenu && <a href="#classic-contact">צור קשר</a>}</>;
   const storeHref = store ? categoryHref(store) : '/category/store';
   const storeLinks = store?.subs?.map(sub => <Link key={sub.id} href={categoryHref(sub)} className={navigationStyles.subLink}>{sub.name}</Link>);
   return <>
@@ -52,16 +88,16 @@ export default function ClassicHomepageHeader({ articlesHref = '#classic-article
           <Link href={storeHref}>חנות חב״ד</Link>
           {!!store?.subs?.length && <div className={navigationStyles.dropdown}>{storeLinks}</div>}
         </div>}
-        {nav}
+        {nav()}
       </nav>
       {showStoreMenu ? <Link className={`${styles.visit} ${styles.donateButton}`} href="/donate">לתרומה</Link> : <a className={styles.visit} href="#classic-contact">בואו להכיר <span aria-hidden="true">←</span></a>}
-      <button className={styles.menuButton} aria-label="תפריט ניווט" aria-expanded={menuOpen} onClick={() => { setMenuOpen(!menuOpen); setStoreExpanded(false); }}>☰</button>
-      {menuOpen && <nav className={styles.mobileNav} aria-label="ניווט בנייד" onClick={event => { if (event.target.closest('a')) { setMenuOpen(false); setStoreExpanded(false); } }}>
+      <button className={styles.menuButton} aria-label="תפריט ניווט" aria-expanded={menuOpen} onClick={() => { setMenuOpen(!menuOpen); setStoreExpanded(false); setServicesExpanded(false); setLearningExpanded(false); }}>☰</button>
+      {menuOpen && <nav className={styles.mobileNav} aria-label="ניווט בנייד" onClick={event => { if (event.target.closest('a')) { setMenuOpen(false); setStoreExpanded(false); setServicesExpanded(false); setLearningExpanded(false); } }}>
         {showStoreMenu && <div>
-          {store?.subs?.length ? <button className={navigationStyles.mobileParentButton} aria-expanded={storeExpanded} onClick={() => setStoreExpanded(!storeExpanded)}>חנות חב״ד</button> : <Link href={storeHref}>חנות חב״ד</Link>}
+          {store?.subs?.length ? <button className={navigationStyles.mobileParentButton} aria-expanded={storeExpanded} onClick={() => { setStoreExpanded(!storeExpanded); setServicesExpanded(false); setLearningExpanded(false); }}>חנות חב״ד</button> : <Link href={storeHref}>חנות חב״ד</Link>}
           {storeExpanded && <div className={navigationStyles.mobileSubmenu}>{store.subs.map(sub => <Link key={sub.id} href={categoryHref(sub)} className={navigationStyles.mobileSubLink}>{sub.name}</Link>)}</div>}
         </div>}
-        {nav}
+        {nav(true)}
       </nav>}
     </header>
   </>;

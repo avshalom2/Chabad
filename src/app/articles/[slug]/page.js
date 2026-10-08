@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getArticleBySlug, getRelatedArticles } from '@/lib/articles';
 import RelatedArticles from '@/components/RelatedArticles';
+import ServiceArticleContent from '@/components/ServiceArticleContent';
 import ContactForm from '@/components/ContactForm';
 import { siteConfig } from '@/lib/site-config';
 import styles from './article.module.css';
@@ -20,6 +21,7 @@ export default async function ArticlePage({ params }) {
   if (!article) notFound();
 
   const related = await getRelatedArticles(article.category_id, article.id, 5);
+  const isPublicService = Number(article.category_id) === 8;
   const whatsappMessage = encodeURIComponent(`שלום, אשמח לקבל מידע נוסף בנושא: ${article.title}`);
   const whatsappHref = `https://wa.me/${siteConfig.contact.whatsappPhone}?text=${whatsappMessage}`;
 
@@ -62,7 +64,9 @@ export default async function ArticlePage({ params }) {
 
         {/* Page Content (from PageBuilder) */}
         {article.content && (
-          <div
+          isPublicService ? <div className={styles.content}>
+            <ServiceArticleContent content={article.content} slug={article.slug} />
+          </div> : <div
             className={styles.content}
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
@@ -98,6 +102,7 @@ export default async function ArticlePage({ params }) {
         articles={related}
         categoryName={article.category_name}
         categorySlug={article.category_slug}
+        serviceIcons={isPublicService}
       />
       </div>
     </main>

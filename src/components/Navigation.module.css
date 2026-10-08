@@ -85,7 +85,8 @@
   z-index: 1000;
 }
 
-.menuItem:hover .dropdown {
+.menuItem:hover .dropdown,
+.menuItem:focus-within .dropdown {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);

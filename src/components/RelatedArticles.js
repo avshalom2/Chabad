@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import styles from './RelatedArticles.module.css';
+import ClassicServiceIcon from './ClassicServiceIcon';
 
-export default function RelatedArticles({ articles, categoryName, categorySlug }) {
+export default function RelatedArticles({ articles, categoryName, categorySlug, serviceIcons = false }) {
   if (!articles || articles.length === 0) return null;
 
   return (
@@ -13,13 +14,13 @@ export default function RelatedArticles({ articles, categoryName, categorySlug }
         {articles.map((article) => (
           <li key={article.id} className={styles.item}>
             <Link href={`/articles/${article.slug}`} className={styles.itemLink}>
-              {article.short_description_image_url && (
-                <div className={styles.thumb}>
-                  <img
+              {(serviceIcons || article.short_description_image_url) && (
+                <div className={`${styles.thumb} ${serviceIcons ? styles.serviceIcon : ''}`}>
+                  {serviceIcons ? <ClassicServiceIcon slug={article.slug} /> : <img
                     src={article.short_description_image_url}
                     alt={article.title}
                     className={styles.thumbImg}
-                  />
+                  />}
                 </div>
               )}
               <div className={styles.itemContent}>
