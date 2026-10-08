@@ -2,6 +2,7 @@
 
 import { siteConfig } from '@/lib/site-config';
 import styles from './ClassicHomepage.module.css';
+import HomepageShabbatBar from './HomepageShabbatBar';
 
 export default function ClassicOpeningSection({ prayers, store }) {
   return <section className={styles.timesSection} id="classic-times" aria-label="שעות פתיחה ותפילות">
@@ -13,5 +14,6 @@ export default function ClassicOpeningSection({ prayers, store }) {
     </div>
     <div className={styles.prayers} data-opening-prayers>{prayers}</div>
     <div className={styles.store} data-store-hours>{store}</div>
+    <HomepageShabbatBar />
   </section>;
 }

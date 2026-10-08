@@ -150,7 +150,10 @@
   width: 80%;
   max-width: 320px;
   height: 100vh;
-  background: white;
+  height: 100dvh;
+  background: #fbf9f5;
+  direction: rtl;
+  box-sizing: border-box;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   z-index: 1001;
   display: flex;
@@ -170,26 +173,29 @@
 
 .mobileMenu {
   flex: 1;
-  padding: 1rem 0;
+  padding: 0 12px;
 }
 
 .mobileParent {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #e6dfd9;
 }
 
 .mobileParentButton {
   width: 100%;
-  padding: 0.85rem 1rem;
+  min-height: 64px;
+  box-sizing: border-box;
+  padding: 18px 12px;
   background: none;
   border: none;
   cursor: pointer;
-  color: #333;
+  color: #38262b;
   text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
   text-align: right;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   transition: background 0.2s ease;
   font-family: 'NarkisBlock', 'Moses', Arial, sans-serif;
@@ -210,7 +216,6 @@
 
 .mobileSubmenu {
   background: #fafafa;
-  border-right: 3px solid #6b1020;
   padding: 0.3rem 0;
 }
 

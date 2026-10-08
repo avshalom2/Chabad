@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { HDate } from '@hebcal/core';
 import styles from './shabbat-times.module.css';
+import { getHebcalData, buildShabbatRows } from '@/lib/shabbat-times';
 
-const GEONAME_ID = '293397';
-const CITY_HE = 'תל אביב - יפו';
 const HEBREW_HOLIDAY_LABELS = {
   Pesach: 'פסח',
   Shavuot: 'שבועות',
@@ -30,15 +29,6 @@ const HOLIDAY_ICONS = {
   Purim: '🎭',
 };
 
-const UPCOMING_SHABBAT_TITLES = [
-  'שבת הקרובה',
-  'שבת הבאה',
-  'שבת בעוד שבועיים',
-  'שבת בעוד שלושה שבועות',
-  'שבת בעוד ארבעה שבועות',
-  'שבת בעוד חמישה שבועות',
-  'שבת בעוד שישה שבועות',
-];
 
 export const metadata = {
   title: 'זמני שבת וחגים',
@@ -47,33 +37,6 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-async function getHebcalData() {
-  const year = new Date().getFullYear();
-  const url = new URL('https://www.hebcal.com/hebcal');
-  url.search = new URLSearchParams({
-    v: '1',
-    cfg: 'json',
-    year: String(year),
-    month: 'x',
-    maj: 'on',
-    min: 'on',
-    mod: 'on',
-    nx: 'on',
-    c: 'on',
-    M: 'on',
-    s: 'on',
-    geo: 'geoname',
-    geonameid: GEONAME_ID,
-    lg: 'h',
-  }).toString();
-
-  const response = await fetch(url, { next: { revalidate: 60 * 60 * 6 } });
-  if (!response.ok) {
-    throw new Error('Failed to load Hebcal data');
-  }
-
-  return response.json();
-}
 
 function dateKey(value) {
   return String(value || '').slice(0, 10);
@@ -117,35 +80,6 @@ function makeLookup(items, category) {
   );
 }
 
-function buildShabbatRows(items) {
-  const parashatByDate = makeLookup(items, 'parashat');
-  const havdalahByDate = makeLookup(items, 'havdalah');
-  const today = dateKey(new Date().toISOString());
-
-  return items
-    .filter(item => item.category === 'candles' && dateKey(item.date) >= today)
-    .map(candles => {
-      const shabbatDate = addDaysKey(dateKey(candles.date), 1);
-      const parashah = parashatByDate.get(shabbatDate);
-      const havdalah = havdalahByDate.get(shabbatDate);
-
-      if (!parashah) return null;
-
-      return {
-        key: shabbatDate,
-        date: shabbatDate,
-        title: 'שבת הקרובה',
-        candleTime: eventTime(candles),
-        havdalahTime: eventTime(havdalah),
-        parashah: cleanHebrew(parashah?.hebrew || candles.memo || 'שבת'),
-      };
-    })
-    .filter(Boolean)
-    .map((row, index) => ({
-      ...row,
-      title: UPCOMING_SHABBAT_TITLES[index] || `שבת בעוד ${index + 1} שבועות`,
-    }));
-}
 
 function holidayBase(titleOrig = '') {
   return titleOrig

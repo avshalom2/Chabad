@@ -68,6 +68,7 @@
 .contact > div:first-child h2 { margin-bottom: 28px; }
 .mobileNav { display: none; }
 .originalBody { padding-block: 20px; background: #fbf9f5; direction: rtl; }
+.shellHeader { position: relative; z-index: 100; }
 .shellHeader .navigation { background: #fff; }
 .squareShell *, .squareShell *::before, .squareShell *::after { border-radius: 0 !important; }
 .servicesIntro { margin-top: 28px; }
@@ -101,8 +102,12 @@
   .brandMark { width: 40px; height: 40px; font-size: 29px; }
   .desktopNav, .visit { display: none; }
   .menuButton { display: block; border: 1px solid var(--line); background: transparent; color: var(--wine); font-size: 25px; padding: 3px 10px; }
-  .mobileNav { display: flex; flex-direction: column; gap: 0; width: 100%; }
-  .mobileNav a { padding: 12px; color: var(--wine); border-top: 1px solid var(--line); }
+  .mobileNav { position: absolute; top: 100%; inset-inline: 0; z-index: 100; display: flex; flex-direction: column; gap: 0; width: 100%; max-height: 70vh; max-height: 70dvh; overflow-y: auto; overscroll-behavior: contain; padding: 8px 5% 0; background: var(--paper); direction: rtl; border-bottom: 1px solid var(--line); box-shadow: 0 12px 24px #38262b1a; }
+  .mobileCloseButton { display: flex; align-items: center; justify-content: center; align-self: flex-end; flex-shrink: 0; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--wine); cursor: pointer; }
+  .mobileCloseButton:hover { background: #f3eeea; border-color: var(--gold); }
+  .mobileNav > a, .mobileNav > div > a, .mobileNav > div > button { display: flex; align-items: center; justify-content: flex-start; width: 100%; min-height: 64px; margin: 0; padding: 18px 12px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--ink); font-family: var(--site-font); font-size: 20px; font-weight: 700; line-height: 1.4; text-align: right; cursor: pointer; }
+  .mobileNav > a:hover, .mobileNav > div > a:hover, .mobileNav > div > button:hover { background: #f3eeea; color: var(--wine); }
+  .mobileNav > div > div a { display: block; padding: 14px 24px; color: var(--wine); font-family: var(--site-font); font-size: 17px; line-height: 1.5; border-bottom: 1px solid var(--line); }
   .timesSection { display: flex; flex-direction: column; gap: 22px; padding: 22px 5%; }
   .timesIntro h1 { font-size: clamp(22px, 5.8cqi, 30px); line-height: 1.2; margin-bottom: 10px; }
   .timesIntro .eyebrow { display: none; }

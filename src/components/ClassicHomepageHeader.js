@@ -93,6 +93,9 @@ export default function ClassicHomepageHeader({ showStoreMenu = false }) {
       {showStoreMenu ? <Link className={`${styles.visit} ${styles.donateButton}`} href="/donate">לתרומה</Link> : <a className={styles.visit} href="#classic-contact">בואו להכיר <span aria-hidden="true">←</span></a>}
       <button className={styles.menuButton} aria-label="תפריט ניווט" aria-expanded={menuOpen} onClick={() => { setMenuOpen(!menuOpen); setStoreExpanded(false); setServicesExpanded(false); setLearningExpanded(false); }}>☰</button>
       {menuOpen && <nav className={styles.mobileNav} aria-label="ניווט בנייד" onClick={event => { if (event.target.closest('a')) { setMenuOpen(false); setStoreExpanded(false); setServicesExpanded(false); setLearningExpanded(false); } }}>
+        <button type="button" className={styles.mobileCloseButton} aria-label="סגור תפריט" onClick={() => { setMenuOpen(false); setStoreExpanded(false); setServicesExpanded(false); setLearningExpanded(false); }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
         {showStoreMenu && <div>
           {store?.subs?.length ? <button className={navigationStyles.mobileParentButton} aria-expanded={storeExpanded} onClick={() => { setStoreExpanded(!storeExpanded); setServicesExpanded(false); setLearningExpanded(false); }}>חנות חב״ד</button> : <Link href={storeHref}>חנות חב״ד</Link>}
           {storeExpanded && <div className={navigationStyles.mobileSubmenu}>{store.subs.map(sub => <Link key={sub.id} href={categoryHref(sub)} className={navigationStyles.mobileSubLink}>{sub.name}</Link>)}</div>}

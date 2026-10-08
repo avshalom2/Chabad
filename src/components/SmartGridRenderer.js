@@ -19,6 +19,7 @@ import ServicesHeading from './ServicesHeading';
 import ClassicContactSection from './ClassicContactSection';
 import ClassicOpeningSection from './ClassicOpeningSection';
 import BodyOpeningIntro from './BodyOpeningIntro';
+import HomepageShabbatBar from './HomepageShabbatBar';
 import ClassicLearningSection from './ClassicLearningSection';
 import classicStyles from './ClassicHomepage.module.css';
 import ClassicHomepageHeader, { classicFontClasses } from './ClassicHomepageHeader';
@@ -111,6 +112,7 @@ export default function SmartGridRenderer({ config, previewWidth = null }) {
         {opening.map(control => <div key={control.id} data-opening-type={getSmartGridControlType(control)} className={getSmartGridControlType(control) === 'store-hours' ? classicFontClasses + ' ' + styles.classicStore : undefined}>
           {getSmartGridControlType(control) === 'weekly-prayers' ? <WeeklyPrayerBox /> : <StoreHoursBar variant="classic" mobileCompact />}
         </div>)}
+        {opening.some(control => getSmartGridControlType(control) === 'weekly-prayers') && <HomepageShabbatBar />}
       </div>
       <SmartGridRenderer config={{ ...config, design: undefined, shellAnchors: true, joinArticleCards: true, controls: remaining }} previewWidth={previewWidth} />
       {learningControls.length > 0 && <div className={`${classicStyles.page} ${classicFontClasses} ${styles.bodyLearning}`} data-body-learning hidden={learningControls.every(control => hiddenControls.has(control.id))}>
