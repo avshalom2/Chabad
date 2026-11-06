@@ -63,3 +63,16 @@
 .bar.classic .hours { font-size: clamp(20px, 7.5cqw, 32px); white-space: nowrap; }
 .bar.classic .storeDescription { font-size: clamp(13px, 4cqw, 16px); line-height: 1.8; }
 .bar.classic .inquiry { font-size: clamp(13px, 4cqw, 16px); }
+
+@media (max-width: 760px) {
+  .bar.classic,
+  .bar.classic.compact,
+  .bar.classic.mobileCompact { min-height: 0; height: auto; padding: 18px; gap: 12px; }
+  .classic .storeHeader { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
+  .bar.classic .storeLabel { font-size: 12px; }
+  .bar.classic .copy h2 { margin-top: 0; font-size: clamp(18px, 6.5cqw, 25px); }
+  .bar.classic .copy p { margin-top: 12px; padding-block: 12px; font-size: 13px; }
+  .bar.classic .hours { font-size: 23px; }
+  .bar.classic .storeDescription { font-size: clamp(10px, 3.6cqw, 13px); line-height: 1.6; white-space: nowrap; }
+  .bar.classic .inquiry { margin-top: 0; padding-bottom: 4px; font-size: 13px; }
+}

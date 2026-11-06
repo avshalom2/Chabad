@@ -82,7 +82,7 @@ export default function ClassicHomepageHeader({ showStoreMenu = false }) {
   return <>
     <div className={styles.announcement}><span>בית חב״ד הרצליה פיתוח <i /> פותחים את הדלת. פותחים את הלב.</span><time>{date}</time></div>
     <header className={styles.navigation}>
-      <Link href="/" className={styles.brand}><span className={styles.brandMark} aria-hidden="true">✧</span><span><strong>בית חב״ד</strong><small>הרצליה פיתוח · הבית של כולנו</small></span></Link>
+      <Link href="/" className={styles.brand}><img className={styles.brandMark} src="/header-ufaratzta-mark.png" alt="סמל ופרצת" width="43" height="60" /><span><strong>בית חב״ד</strong><small>הרצליה פיתוח - משכית 22</small></span></Link>
       <nav aria-label="ניווט דף הבית" className={styles.desktopNav}>
         {showStoreMenu && <div className={`${navigationStyles.menuItem} ${styles.storeMenu}`}>
           <Link href={storeHref}>חנות חב״ד</Link>
@@ -90,7 +90,7 @@ export default function ClassicHomepageHeader({ showStoreMenu = false }) {
         </div>}
         {nav()}
       </nav>
-      {showStoreMenu ? <Link className={`${styles.visit} ${styles.donateButton}`} href="/donate">לתרומה</Link> : <a className={styles.visit} href="#classic-contact">בואו להכיר <span aria-hidden="true">←</span></a>}
+      <Link className={`${styles.visit} ${styles.donateButton}`} href="/donate">לתרומה</Link>
       <button className={styles.menuButton} aria-label="תפריט ניווט" aria-expanded={menuOpen} onClick={() => { setMenuOpen(!menuOpen); setStoreExpanded(false); setServicesExpanded(false); setLearningExpanded(false); }}>☰</button>
       {menuOpen && <nav className={styles.mobileNav} aria-label="ניווט בנייד" onClick={event => { if (event.target.closest('a')) { setMenuOpen(false); setStoreExpanded(false); setServicesExpanded(false); setLearningExpanded(false); } }}>
         <button type="button" className={styles.mobileCloseButton} aria-label="סגור תפריט" onClick={() => { setMenuOpen(false); setStoreExpanded(false); setServicesExpanded(false); setLearningExpanded(false); }}>

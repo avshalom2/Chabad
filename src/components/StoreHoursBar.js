@@ -29,11 +29,11 @@ export default function StoreHoursBar({ variant, compact = false, mobileCompact 
       <div className={styles.copy}>
         {variant === 'classic' ? <div className={styles.storeHeader}>
           <div className={styles.clockBox} aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="16" cy="16" r="14" /><path d="M16 7v9l7 4" /></svg></div>
-          <div className={styles.storeHeading}><span className={styles.storeLabel}>חנות חב״ד</span><h2>{details.title === defaults.title ? 'שעות פתיחה' : details.title}</h2></div>
+          <div className={styles.storeHeading}><h2>{details.title}</h2></div>
         </div> : <h2>{details.title}</h2>}
         <p><span>{details.days}</span>{variant !== 'classic' && ' · '}<bdi className={styles.hours}>{details.hours}</bdi></p>
       </div>
-      {variant === 'classic' && <p className={styles.storeDescription}>יודאיקה · תפילין · מזוזות<br />מתנות וספרי קודש</p>}
+      {variant === 'classic' && <p className={styles.storeDescription}>יודאיקה · תפילין · מזוזות · מתנות וספרי קודש</p>}
       {details.badge && <span className={styles.badge}><span aria-hidden="true">☀</span>{details.badge}</span>}
       {variant === 'classic' && <a className={styles.inquiry} href="#classic-contact">בירור לפני הגעה <span aria-hidden="true">←</span></a>}
     </section>
