@@ -15,7 +15,16 @@
 .classic.compact .card p { font-size: 16px; line-height: 1.65; }
 .classic.compact .more { padding-top: 18px; padding-bottom: 4px; }
 @container (max-width: 1000px) { .classic .grid, .classic .grid.autoFitGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
-@container (max-width: 560px) { .classic .grid, .classic .grid.autoFitGrid { grid-template-columns: 1fr !important; } .classic .card { min-height: 300px; padding: 28px; } }
+@container (max-width: 560px) {
+  .classic .grid, .classic .grid.autoFitGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .classic .card, .classic.compact .card { box-sizing: border-box; min-width: 0; min-height: 0; padding: 22px 14px 18px; overflow-wrap: anywhere; }
+  .classic .card h3, .classic.compact .card h3 { font-size: 20px; margin-bottom: 12px; }
+  .classic .card p, .classic.compact .card p { font-size: 13px; line-height: 1.65; }
+  .classic .media, .classic.compact .media { width: 42px; height: 42px; margin-bottom: 20px; }
+  .classic .media svg, .classic.compact .media svg { width: 24px; height: 24px; }
+  .classic .number { top: 18px; left: 12px; font-size: 10px; }
+  .classic .more, .classic.compact .more { gap: 8px; font-size: 12px; padding-top: 20px; }
+}
 .section {
   width: 100%;
   direction: rtl;
