@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import styles from './Header.module.css';
 import Navigation from './Navigation';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { formatHebrewDate } from '@/lib/hebrew-calendar';
+import ClassicHomepageHeader, { classicFontClasses } from './ClassicHomepageHeader';
+import classicStyles from './ClassicHomepage.module.css';
 
 export default function Header() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [hebrewDate, setHebrewDate] = useState('');
 
   useEffect(() => {
@@ -24,8 +27,13 @@ export default function Header() {
     return null;
   }
 
+  // Keep the previous site header available as a URL-only backup.
+  if (searchParams.get('template') !== 'classic-shell') {
+    return <div className={`${classicStyles.page} ${classicStyles.shellHeader} ${classicFontClasses}`} data-site-header data-site-header-variant="classic"><ClassicHomepageHeader /></div>;
+  }
+
   return (
-    <header className={styles.header} data-site-header>
+    <header className={styles.header} data-site-header data-site-header-variant="legacy">
       <div className={styles.topBar}>
         {/* RIGHT: Logo */}
         <Link href="/" className={styles.logo}>

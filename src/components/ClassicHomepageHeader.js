@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Assistant, Frank_Ruhl_Libre } from 'next/font/google';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { formatHebrewDate } from '@/lib/hebrew-calendar';
 import styles from './ClassicHomepage.module.css';
 import navigationStyles from './Navigation.module.css';
@@ -18,6 +19,8 @@ function categoryHref(category) {
 }
 
 export default function ClassicHomepageHeader({ showStoreMenu = false }) {
+  const pathname = usePathname();
+  const servicesHref = pathname === '/' || pathname === '/homepage-preview' ? '#classic-services' : '/#classic-services';
   const [date, setDate] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [store, setStore] = useState(null);
@@ -62,13 +65,12 @@ export default function ClassicHomepageHeader({ showStoreMenu = false }) {
   const learningLinks = (className) => learning?.subs?.map(sub => <Link key={sub.id} href={categoryHref(sub)} className={className}>{sub.name}</Link>);
   const nav = (mobile = false) => <>
     {mobile ? <div>
-      {services.length ? <button className={navigationStyles.mobileParentButton} aria-expanded={servicesExpanded} onClick={() => { setServicesExpanded(!servicesExpanded); setStoreExpanded(false); setLearningExpanded(false); }}>השירותים שלנו</button> : <a href="#classic-services">השירותים שלנו</a>}
+      {services.length ? <button className={navigationStyles.mobileParentButton} aria-expanded={servicesExpanded} onClick={() => { setServicesExpanded(!servicesExpanded); setStoreExpanded(false); setLearningExpanded(false); }}>השירותים שלנו</button> : <a href={servicesHref}>השירותים שלנו</a>}
       {servicesExpanded && <div className={navigationStyles.mobileSubmenu}>{serviceLinks(navigationStyles.mobileSubLink)}</div>}
     </div> : <div className={`${navigationStyles.menuItem} ${styles.storeMenu}`}>
-      <a href="#classic-services">השירותים שלנו</a>
+      <a href={servicesHref}>השירותים שלנו</a>
       {!!services.length && <div className={navigationStyles.dropdown}>{serviceLinks(navigationStyles.subLink)}</div>}
     </div>}
-    <Link href="/shabbat-times">זמני שבת</Link>
     {mobile ? <div>
       {learning?.subs?.length ? <button className={navigationStyles.mobileParentButton} aria-expanded={learningExpanded} onClick={() => { setLearningExpanded(!learningExpanded); setStoreExpanded(false); setServicesExpanded(false); }}>לימוד יהדות</button> : <Link href={learningHref}>לימוד יהדות</Link>}
       {learningExpanded && <div className={navigationStyles.mobileSubmenu}>{learningLinks(navigationStyles.mobileSubLink)}</div>}
@@ -76,10 +78,10 @@ export default function ClassicHomepageHeader({ showStoreMenu = false }) {
       <Link href={learningHref}>לימוד יהדות</Link>
       {!!learning?.subs?.length && <div className={navigationStyles.dropdown}>{learningLinks(navigationStyles.subLink)}</div>}
     </div>}
-    {showStoreMenu && <a href="#classic-contact">צור קשר</a>}</>;
+    <Link href="/contact">צור קשר</Link></>;
   const storeHref = store ? categoryHref(store) : '/category/store';
   const storeLinks = store?.subs?.map(sub => <Link key={sub.id} href={categoryHref(sub)} className={navigationStyles.subLink}>{sub.name}</Link>);
-  return <>
+  return <div data-classic-header>
     <div className={styles.announcement}><span>בית חב״ד הרצליה פיתוח <i /> פותחים את הדלת. פותחים את הלב.</span><time>{date}</time></div>
     <header className={styles.navigation}>
       <Link href="/" className={styles.brand}><img className={styles.brandMark} src="/header-ufaratzta-mark.png" alt="סמל ופרצת" width="43" height="60" /><span><strong>בית חב״ד</strong><small>הרצליה פיתוח - משכית 22</small></span></Link>
@@ -103,5 +105,5 @@ export default function ClassicHomepageHeader({ showStoreMenu = false }) {
         {nav(true)}
       </nav>}
     </header>
-  </>;
+  </div>;
 }
