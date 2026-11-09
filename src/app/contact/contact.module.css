@@ -1,7 +1,7 @@
 .page { --ink: #38262b; --wine: #591b2c; --gold: #a98a55; --line: #e6dfd9; --site-font: var(--contact-body-font), Arial, sans-serif; width: 100%; background: #fbf9f5; color: var(--ink); padding: 60px 5% 72px; }
 .page, .page *, .page *::before, .page *::after { box-sizing: border-box; }
 .container { max-width: 1120px; margin-inline: auto; }
-.page :is(h1, h2), .page h1 em { font-family: var(--contact-heading-font), Georgia, serif !important; font-weight: 500; }
+.page :is(h1, h2), .page h1 em { font-family: var(--contact-heading-font), Arial, sans-serif !important; font-weight: 500; }
 .page a { text-decoration: none; }
 .page :is(a, button, input, textarea):focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 .hero { padding-bottom: 42px; border-bottom: 1px solid var(--line); }

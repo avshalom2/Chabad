@@ -1,9 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap");
 .page{--ts-wine:#591b2c;--ts-gold:#a98a55;--ts-ink:#38262b;--ts-muted:#857a76;--ts-line:#e4dcd1;--site-font:Assistant,Arial,sans-serif;color:var(--ts-ink);background:#fbf9f5;padding:0!important}
 .page *{box-sizing:border-box}
 .page :global(.ts-container){max-width:1240px;margin:auto;padding:0 42px}
 .page a{color:inherit;text-decoration:none}
-.page h1,.page h1 span,.page h2,.page h3,.page em{font-weight:500;font-family:Frank Ruhl Libre,Georgia,serif!important}
+.page h1,.page h1 span,.page h2,.page h3,.page em{font-weight:500;font-family:Assistant,Arial,sans-serif!important}
 .page h1,.page h2,.page h3,.page p{margin:0}
 .page :global(.ts-breadcrumbs){color:#9e9086;align-items:center;gap:11px;padding-top:28px;font-size:12px;display:flex}
 .page :global(.ts-breadcrumbs) a:hover{color:var(--ts-wine)}
@@ -133,3 +133,5 @@
 }
 
 .page { font-family: Assistant, Arial, sans-serif; direction: rtl; }
+
+.page em { font-style: normal; }

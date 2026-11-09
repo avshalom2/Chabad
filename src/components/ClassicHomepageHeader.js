@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Assistant, Frank_Ruhl_Libre } from 'next/font/google';
+import { Assistant } from 'next/font/google';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { formatHebrewDate } from '@/lib/hebrew-calendar';
@@ -9,8 +9,8 @@ import styles from './ClassicHomepage.module.css';
 import navigationStyles from './Navigation.module.css';
 
 const assistant = Assistant({ subsets: ['hebrew'], display: 'swap', variable: '--classic-body-font' });
-const frank = Frank_Ruhl_Libre({ subsets: ['hebrew'], display: 'swap', variable: '--classic-heading-font' });
-export const classicFontClasses = `${assistant.variable} ${frank.variable}`;
+const headingAssistant = Assistant({ subsets: ['hebrew'], display: 'swap', variable: '--classic-heading-font' });
+export const classicFontClasses = `${assistant.variable} ${headingAssistant.variable}`;
 
 function categoryHref(category) {
   const customUrl = typeof category.custom_url === 'string' ? category.custom_url.trim() : '';

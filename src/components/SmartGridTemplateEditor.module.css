@@ -4,7 +4,7 @@
 .brand { display: flex; align-items: center; gap: 10px; margin-inline-end: auto; }
 .brand > span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #d4af37; color: #4a121f; font-weight: 900; }
 .brand div { display: grid; }
-.brand strong { color: #f4e8c1; font-size: 18px; font-family: var(--smart-grid-heading-font), serif; }
+.brand strong { color: #f4e8c1; font-size: 18px; font-family: var(--smart-grid-heading-font), Arial, sans-serif; }
 .brand small { opacity: .8; }
 .devices { display: flex; gap: 6px; }
 .devices button, .moveButtons button { border: 1px solid #d7c9b8; background: white; color: #4a121f; padding: 7px 11px; border-radius: 6px; cursor: pointer; }
@@ -17,7 +17,7 @@
 .error { color: #ffc6c6; }
 .workspace { display: grid; grid-template-columns: minmax(280px, 350px) minmax(0, 1fr); gap: 20px; padding: 20px; align-items: start; }
 .settings { background: white; border: 1px solid #e2d9cc; border-radius: 18px; padding: 20px; max-height: calc(100vh - 120px); overflow-y: auto; position: sticky; top: 90px; box-shadow: 0 2px 8px rgba(107,29,47,.06); scrollbar-color: #929292 transparent; scrollbar-width: thin; }
-.settings h3 { color: #8d2b42; border-bottom: 2px solid #f4efe6; padding: 0 0 9px; margin: 5px 0 18px; font-family: var(--smart-grid-heading-font), serif; font-size: 18px; font-weight: 500; }
+.settings h3 { color: #8d2b42; border-bottom: 2px solid #f4efe6; padding: 0 0 9px; margin: 5px 0 18px; font-family: var(--smart-grid-heading-font), Arial, sans-serif; font-size: 18px; font-weight: 500; }
 .gridSettings { display: grid; grid-template-columns: 1fr; gap: 16px; }
 .settings label { display: grid; gap: 7px; font-size: 14px; font-weight: 700; color: #2c2c2c; }
 .settings select, .settings input[type="number"] { width: 100%; padding: 9px 12px; min-height: 40px; border: 1px solid #e2d9cc; border-radius: 6px; background: #f9f6f0; color: #2c2c2c; font: inherit; outline: none; }

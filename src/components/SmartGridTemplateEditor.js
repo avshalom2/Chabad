@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Assistant, Frank_Ruhl_Libre } from 'next/font/google';
+import { Assistant } from 'next/font/google';
 import SmartGridRenderer from './SmartGridRenderer';
 import {
   calculateMasonryLayout,
@@ -17,7 +17,7 @@ import {
 import styles from './SmartGridTemplateEditor.module.css';
 
 const assistant = Assistant({ subsets: ['hebrew'], display: 'swap' });
-const frankRuhl = Frank_Ruhl_Libre({ subsets: ['hebrew'], display: 'swap', variable: '--smart-grid-heading-font' });
+const headingAssistant = Assistant({ subsets: ['hebrew'], display: 'swap', variable: '--smart-grid-heading-font' });
 
 const PLACEMENTS = [
   ['auto', 'אוטומטי'],
@@ -126,7 +126,7 @@ export default function SmartGridTemplateEditor({ templateId, initialHtml }) {
   };
 
   return (
-    <div className={`${styles.editor} ${assistant.className} ${frankRuhl.variable}`}>
+    <div className={`${styles.editor} ${assistant.className} ${headingAssistant.variable}`}>
       {saveNotice && <div className={styles.saveNotice}>{saveNotice}</div>}
       <div className={styles.toolbar}>
         <div className={styles.brand}>

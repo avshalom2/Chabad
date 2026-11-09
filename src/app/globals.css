@@ -3,7 +3,7 @@
 :root {
   --background: #f0f0f0;
   --foreground: #171717;
-  --site-font: system-ui, -apple-system, sans-serif;
+  --site-font: var(--font-assistant), Arial, sans-serif;
 }
 
 @theme inline {
@@ -24,6 +24,10 @@ body {
   background: #f0f0f0;
   color: var(--foreground);
   font-family: var(--site-font);
+}
+
+h1 em, h2 em, h3 em {
+  font-style: normal;
 }
 
 h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea, select {

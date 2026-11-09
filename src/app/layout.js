@@ -1,6 +1,8 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Assistant, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "./LayoutWrapper";
+
+const assistant = Assistant({ subsets: ['hebrew'], display: 'swap', variable: '--font-assistant' });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="he" dir="rtl">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${assistant.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
       >
         <LayoutWrapper>{children}</LayoutWrapper>

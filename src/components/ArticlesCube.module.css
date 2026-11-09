@@ -161,7 +161,7 @@
 .classic.joined .card:hover { background: #fff; box-shadow: none; transform: none; }
 .classic.joined .media { width: 54px; height: 54px; margin-bottom: 28px; background: #faeeea; color: #8f2843; box-shadow: none; }
 .classic.joined .media svg { width: 28px; height: 28px; }
-.classic.joined .card h3 { font-family: var(--classic-heading-font), Georgia, serif; font-size: 26px; font-weight: 500; margin-bottom: 16px; }
+.classic.joined .card h3 { font-family: var(--classic-heading-font), Arial, sans-serif; font-size: 26px; font-weight: 500; margin-bottom: 16px; }
 .classic.joined .card p { font-size: 15px; line-height: 1.8; }
 .classic.joined .number { font-size: 11px; color: #cbbdb5; }
 .classic.joined .more { font-size: 13px; padding-top: 28px; gap: 16px; border-color: #cbbab1; }

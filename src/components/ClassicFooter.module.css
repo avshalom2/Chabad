@@ -6,7 +6,7 @@
 .contactInner { max-width: 1000px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 100px; }
 .intro { min-width: 0; }
 .eyebrow { color: #c3a873; font-size: 12px; margin: 0 0 12px; }
-.intro h2, .intro h2 em, .brand strong { font-family: var(--classic-heading-font), Georgia, serif !important; }
+.intro h2, .intro h2 em, .brand strong { font-family: var(--classic-heading-font), Arial, sans-serif !important; }
 .intro h2 { margin: 0; font-size: clamp(32px, 3.4vw, 46px); font-weight: 500; line-height: 1.2; }
 .intro h2 em { font-style: normal; color: #c3a365; }
 .description { color: #e0cbd0; font-size: 15px; line-height: 1.8; margin: 14px 0 24px; }

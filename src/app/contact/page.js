@@ -1,10 +1,10 @@
 import ContactPageForm from './ContactPageForm';
 import { siteConfig } from '@/lib/site-config';
 import styles from './contact.module.css';
-import { Assistant, Frank_Ruhl_Libre } from 'next/font/google';
+import { Assistant } from 'next/font/google';
 
 const assistant = Assistant({ subsets: ['hebrew'], display: 'swap', variable: '--contact-body-font' });
-const frank = Frank_Ruhl_Libre({ subsets: ['hebrew'], display: 'swap', variable: '--contact-heading-font' });
+const headingAssistant = Assistant({ subsets: ['hebrew'], display: 'swap', variable: '--contact-heading-font' });
 
 export const metadata = {
   title: 'צור קשר',
@@ -29,7 +29,7 @@ function ContactIcon({ type }) {
 
 export default function ContactPage() {
   return (
-    <main className={`${styles.page} ${assistant.variable} ${frank.variable}`} dir="rtl">
+    <main className={`${styles.page} ${assistant.variable} ${headingAssistant.variable}`} dir="rtl">
       <div className={styles.container}>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>בית חב״ד הרצליה פיתוח · צור קשר</p>

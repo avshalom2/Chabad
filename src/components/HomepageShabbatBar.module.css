@@ -3,7 +3,7 @@
 .eyebrow { display: flex; align-items: center; justify-content: center; gap: 18px; color: #a98a55; font-size: 20px; }
 .eyebrow a { color: #591b2c; text-decoration: none; font-weight: 700; font-size: 18px; }
 .eyebrow a:hover { text-decoration: underline; }
-.identity h2 { margin: 8px 0; font-family: var(--classic-heading-font), Georgia, serif; font-size: clamp(26px, 3vw, 40px); font-weight: 700; line-height: 1.2; }
+.identity h2 { margin: 8px 0; font-family: var(--classic-heading-font), Arial, sans-serif; font-size: clamp(26px, 3vw, 40px); font-weight: 700; line-height: 1.2; }
 .identity p { margin: 0; color: #9a727b; font-size: 15px; }
 .time { border-inline-start: 1px solid #cdb797; padding: 12px; }
 .time span { display: block; font-size: 18px; font-weight: 600; }

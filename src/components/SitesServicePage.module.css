@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap");
 .page { font-family: Assistant, Arial, sans-serif; direction: rtl; }
 .page :global(.article-prose){overflow-wrap:anywhere;font-size:17px;line-height:1.95}
 .page :global(.article-prose h2){margin:32px 0 18px;font-size:30px}
@@ -21,7 +21,7 @@
 .page :global(.bar-mitzvah-page h2),
 .page :global(.bar-mitzvah-page h3),
 .page :global(.bar-mitzvah-page em),
-.page :global(.bm-art-title){font-weight:500;font-family:Frank Ruhl Libre,Georgia,serif!important}
+.page :global(.bm-art-title){font-weight:500;font-family:Assistant,Arial,sans-serif!important}
 .page :global(.bar-mitzvah-page em){color:var(--bm-gold);font-style:normal}
 .page :global(.bar-mitzvah-page a){color:inherit;text-decoration:none}
 .page :global(:is(.bar-mitzvah-page a:focus-visible,.bar-mitzvah-page summary:focus-visible)){outline:2px solid var(--bm-gold);outline-offset:5px}
@@ -212,3 +212,5 @@
 .page :global(.service-info-card){padding:24px}
 .page :global(.service-detail .service-intro){font-size:16px}
 }
+
+.page em { font-style: normal; }
