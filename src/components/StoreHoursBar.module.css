@@ -76,3 +76,13 @@
   .bar.classic .storeDescription { font-size: clamp(10px, 3.6cqw, 13px); line-height: 1.6; white-space: nowrap; }
   .bar.classic .inquiry { margin-top: 0; padding-bottom: 4px; font-size: 13px; }
 }
+
+/* Match the Sites card when the opening section stacks on mobile. */
+@media (max-width: 768px) {
+  .bar.classic { color: #641e32; background: #fffdf8; border: 1px solid #dfd5c3; border-top: 3px solid #b69a60; box-shadow: 0 5px 18px #38291b06; }
+  .bar.classic .copy h2, .bar.classic .hours { color: #641e32; }
+  .bar.classic .copy p { color: #6d6258; border-color: #e8dfcf; }
+  .bar.classic .storeDescription { color: #786b5d; }
+  .bar.classic .inquiry { color: #641e32; border-color: #b69a60; }
+  .classic .clockBox { color: #a58a50; }
+}
