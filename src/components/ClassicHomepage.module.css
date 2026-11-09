@@ -70,7 +70,7 @@
 .contact > div:first-child h2 { margin-bottom: 28px; }
 .mobileNav { display: none; }
 .originalBody { padding-block: 20px; background: #fbf9f5; direction: rtl; }
-.shellHeader { position: relative; z-index: 100; }
+.shellHeader { position: sticky; top: 0; z-index: 100; background: var(--paper); }
 .shellHeader .navigation { background: #fff; }
 .squareShell *, .squareShell *::before, .squareShell *::after { border-radius: 0 !important; }
 .servicesIntro { margin-top: 28px; }

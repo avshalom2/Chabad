@@ -6,6 +6,7 @@ import ServiceArticleContent from '@/components/ServiceArticleContent';
 import ContactForm from '@/components/ContactForm';
 import { siteConfig } from '@/lib/site-config';
 import styles from './article.module.css';
+import TefillinServices from '@/components/TefillinServices';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -20,7 +21,14 @@ export default async function ArticlePage({ params }) {
 
   if (!article) notFound();
 
+  if (article.is_free_html) {
+    return <main dir="rtl" dangerouslySetInnerHTML={{ __html: article.content || '' }} />;
+  }
+
   const related = await getRelatedArticles(article.category_id, article.id, 5);
+  if (slug === 'tefillin-mezuzot-services') {
+    return <TefillinServices article={article} related={related} />;
+  }
   const isPublicService = Number(article.category_id) === 8;
   const whatsappMessage = encodeURIComponent(`שלום, אשמח לקבל מידע נוסף בנושא: ${article.title}`);
   const whatsappHref = `https://wa.me/${siteConfig.contact.whatsappPhone}?text=${whatsappMessage}`;

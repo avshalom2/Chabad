@@ -68,7 +68,7 @@ export default function ContactPage() {
       </section>
       </div>
 
-      <section className={styles.mapSection} aria-label="מפת הגעה">
+      <section className={styles.mapSection} id="contact-map" aria-label="מפת הגעה">
         <div className={styles.addressCard}>
           <div className={styles.mapHeading}><span className={styles.icon}><ContactIcon type="location" /></span><div><h2>נפגשים בבית חב״ד</h2><p>{address}</p></div></div>
           <a className={styles.directionsLink} href={directionsHref} target="_blank" rel="noopener noreferrer">להוראות הגעה <span aria-hidden="true">↗</span></a>

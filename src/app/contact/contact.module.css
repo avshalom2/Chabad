@@ -54,7 +54,7 @@
 .success, .error { width: 100%; margin: 0; padding: 12px 14px; font-size: 14px; line-height: 1.6; border-inline-start: 2px solid currentColor; }
 .success { color: #346348; background: #f1f7f2; }
 .error { color: #9b1c35; background: #fcf1f2; }
-.mapSection { border: 1px solid var(--line); background: white; }
+.mapSection { border: 1px solid var(--line); background: white; scroll-margin-top: 160px; }
 .addressCard { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding: 24px 30px; }
 .mapHeading { display: flex; align-items: center; gap: 16px; }
 .addressCard h2 { margin: 0 0 5px; font-size: 27px; line-height: 1.3; }
